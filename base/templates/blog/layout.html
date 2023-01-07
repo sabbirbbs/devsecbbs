@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<script defer src="/static/blog/script/tail/alpine.min.js"></script>
+<link rel="stylesheet" href="/static/blog/style/tail/boxicons.min.css">
+<script src="/static/blog/script/tail/tailwind.js"></script>
+<!--Style CSS-->
+<link rel="stylesheet" href="/static/blog/style/style.css">
+<!--Fontawesome-->
+<link rel="stylesheet" href="/static/blog/style/font-awesome/fontawesome.css">
+<link rel="stylesheet" href="/static/blog/style/font-awesome/brands.css">
+<link rel="stylesheet" href="/static/blog/style/font-awesome/solid.css">
+<!---Bootstrap-->
+<link href="/static/blog/style/bootstrap/bootstrap.min.css" rel="stylesheet">
+<script src="/static/blog/script/bootstrap/bootstrap.bundle.min.js"></script>
+<!--Script-->
+<script src="/static/blog/script/jquery-3.6.1.min.js"></script>
+<!--Dom purify-->
+<script src="/static/blog/script/dompurify/purify.min.js"></script>
+<!--Jdenticon-->
+<script src="/static/blog/script/jdenticon/jdenticon.min.js"></script>
+<!--Select2-->
+<link rel="stylesheet" href="/static/blog/style/select2.min.css">
+<script src="/static/blog/script/select2.min.js"></script>
+
+{% block style %}
+
+{% endblock %}
+{% block head_script %}
+
+
+{% endblock %}
+{% csrf_token %}
+<!-- page -->
+<main class="min-h-screen w-full bg-gray-100 text-gray-700" x-data="layout">
+    <!-- header page -->
+    <header class="flex w-full items-center justify-between border-b-2 border-gray-200 bg-white p-2">
+        <!-- logo -->
+        <div class="flex items-center space-x-2">
+            <button type="button" class="text-3xl" @click="asideOpen = !asideOpen"><i class="bx bx-menu"></i></button>
+            <div>Logo</div>
+        </div>
+
+        <!-- button profile -->
+        <div>
+            <button type="button" @click="profileOpen = !profileOpen" @click.outside="profileOpen = false"
+                class="h-9 w-9 overflow-hidden rounded-full">
+                <img src="{{user.profile_photo.url}}" alt="plchldr.co" />
+            </button>
+
+            <!-- dropdown profile -->
+            <div class="absolute right-2 mt-1 w-48 divide-y divide-gray-200 rounded-md border border-gray-200 bg-white shadow-md"
+                x-show="profileOpen" x-transition>
+                <div class="flex items-center space-x-2 p-2">
+                    <img src="{{user.profile_photo.url}}" alt="User Avatar" class="h-9 w-9 rounded-full" />
+                    <div class="font-medium">{{user.first_name}} {{user.last_name}}</div>
+                </div>
+
+                <div class="flex flex-col space-y-3 p-2">
+                    <a href="#" class="transition hover:text-blue-600">My Profile</a>
+                    <a href="#" class="transition hover:text-blue-600">Edit Profile</a>
+                    <a href="#" class="transition hover:text-blue-600">Notification
+                    <span class="inline-flex items-center justify-center w-4 h-4 ml-2 text-xs font-semibold text-blue-800 bg-blue-200 rounded-full">
+                        {{new_notifications|length}}
+                    </span>
+                    </a>
+                </div>
+
+                <div class="p-2">
+                    <button class="flex items-center space-x-2 transition hover:text-blue-600">
+                        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                            xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1">
+                            </path>
+                        </svg>
+                        <div>Log Out</div>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="flex">
+        <!-- aside -->
+        <aside class="flex w-72 flex-col space-y-2 border-r-2 border-gray-200 bg-white p-2" style="height: 90.5vh"
+            x-show="asideOpen">
+            <a href="{% url 'Blog:blog_index' %}" class="flex items-center space-x-1 rounded-md px-2 py-3 hover:bg-gray-100 hover:text-blue-600">
+                <span class="text-2xl"><i class="bx bx-home"></i></span>
+                <span>Dashboard</span>
+            </a>
+
+            <a href="{% url 'Blog:write_post' %}" class="flex items-center space-x-1 rounded-md px-2 py-3 hover:bg-gray-100 hover:text-blue-600">
+                <span class="text-2xl"><i class="bx bx-cart"></i></span>
+                <span>Write Post</span>
+            </a>
+
+            <a href="{% url 'Blog:edit_post' 3 %}" class="flex items-center space-x-1 rounded-md px-2 py-3 hover:bg-gray-100 hover:text-blue-600">
+                <span class="text-2xl"><i class="bx bx-shopping-bag"></i></span>
+                <span>Edit Post</span>
+            </a>
+
+            <a href="#" class="flex items-center space-x-1 rounded-md px-2 py-3 hover:bg-gray-100 hover:text-blue-600">
+                <span class="text-2xl"><i class="bx bx-heart"></i></span>
+                <span>My Favourite</span>
+            </a>
+
+            <a href="#" class="flex items-center space-x-1 rounded-md px-2 py-3 hover:bg-gray-100 hover:text-blue-600">
+                <span class="text-2xl"><i class="bx bx-user"></i></span>
+                <span>Profile</span>
+            </a>
+        </aside>
+
+        <!-- main content page -->
+
+        <div class="w-full mb-8 bg-white">
+            {% block body %}
+
+            {% endblock %}
+
+        </div>
+    </div>
+</main>
+
+<script>
+    document.addEventListener("alpine:init", () => {
+        Alpine.data("layout", () => ({
+            profileOpen: false,
+            asideOpen: true,
+        }));
+    });
+</script>
+
+{% block bottom_script %}
+
+
+
+{% endblock %}
+</html>

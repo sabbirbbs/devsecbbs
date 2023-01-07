@@ -1,0 +1,10 @@
+.__hacktext{
+    color:blue;
+    background-color: rgb(179, 170, 170);
+    font-family: cursive;
+}
+pre code{
+    width: 80%!important;
+    max-height: 400px!important;
+    overflow: scroll!important;
+}
