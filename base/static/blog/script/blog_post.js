@@ -18,7 +18,7 @@ function getCookie(name) {
 }
 
 //Manually update jdenticon after page load
-window.onload = function() {
+function loadJicon() {
     // Select all elements with the class "jdenticon"
     const elements = document.querySelectorAll('.jdenticon');
   
@@ -44,6 +44,8 @@ function createAlert(type,message){
 
 //Document on ready
 $(document).ready(function(){
+    //Load jdenticon
+    loadJicon()
 
 //Post writing section handler
     //post category

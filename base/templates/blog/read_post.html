@@ -90,6 +90,68 @@
         <span>&nbsp;&nbsp;Not tagged.</span> 
         {% endfor %}
     </div>
+<hr>
+<!--Comment Section-->
+<section class="bg-white py-8 dark:bg-gray-900 lg:py-16">
+    <div class="mx-auto max-w-2xl px-4">
+      <div class="mb-6 flex items-center justify-between">
+        <h2 class="text-lg font-bold text-gray-900 dark:text-white lg:text-2xl">Discussion (20)</h2>
+      </div>
+      <form class="mb-6">
+        <div class="mb-4 rounded-lg rounded-t-lg border border-gray-200 bg-white py-2 px-4 dark:border-gray-700 dark:bg-gray-800">
+          <label for="comment" class="sr-only">Your comment</label>
+          <textarea id="comment" rows="6" class="w-full border-0 px-0 text-sm text-gray-900 focus:outline-none focus:ring-0 dark:bg-gray-800 dark:text-white dark:placeholder-gray-400" placeholder="Write a comment..." required></textarea>
+        </div>
+        <button type="submit" class="focus:ring-primary-200 dark:focus:ring-primary-900 hover:bg-primary-800 inline-flex items-center rounded-lg bg-green-700 py-2.5 px-4 text-center text-xs font-medium text-white focus:ring-4">Post comment</button>
+      </form>
+      <!--Comment section-->
+      {% for comment in post.post_comment.all %}
+      {% if comment.level == 0 %}
+      <article class="rounded-lg bg-white p-6 text-base dark:bg-gray-900">
+        <footer class="justify-between items-center mb-2 flex">
+          <div class="flex items-center">
+            {% if comment.commenter.profile_photo %}
+            <p class="mr-3 inline-flex items-center text-sm text-gray-900 dark:text-white"><img class="mr-2 h-6 w-6 rounded-full" src="{{comment.commenter.profile_photo.url}}" alt="{{comment.commenter.username}}" />{{comment.commenter.username}}</p>
+            {% else %}
+            <p class="mr-3 inline-flex items-center text-sm text-gray-900 dark:text-white"><svg class="mr-2 h-6 w-6 jdenticon rounded-full" data-jdenticon-value="{{comment.commenter.username}}"></svg>{{comment.commenter.username}}</p>
+            {% endif %}
+            <p class="text-sm text-gray-600 dark:text-gray-400"><time pubdate datetime="{{comment.date}}">{{comment.date}}</time></p>
+          </div>
+        </footer>
+        <p class="text-gray-500 ml-5 dark:text-gray-400">{{comment.content}}</p>
+        <div class="mt-4 flex items-center ml-5 space-x-4">
+          <button type="button" class="flex items-center text-sm text-gray-500 hover:underline dark:text-gray-400">
+            <i class="fa-sharp fa-solid fa-comment mr-2"></i>
+            Reply
+          </button>
+        </div>
+      </article>
+      <!--Nested comment-->
+      {% for replier in comment.children.all %}
+      <article class="ml-12 rounded-lg bg-white p-2 text-base dark:bg-gray-900">
+        <footer class="mb-2 flex items-center justify-between">
+          <div class="flex items-center">
+            {% if replier.commenter.profile_photo %}
+            <p class="mr-3 inline-flex items-center text-sm text-gray-900 dark:text-white"><img class="mr-2 h-6 w-6 rounded-full" src="{{replier.commenter.profile_photo.url}}" alt="{{replier.commenter.username}}"/>{{comment.commenter.username}}</p>
+            {% else %}
+            <p class="mr-3 inline-flex items-center text-sm text-gray-900 dark:text-white"><svg class="mr-2 h-6 jdenticon w-6 rounded-full" data-jdenticon-value="{{replier.commenter.username}}"></svg>{{replier.commenter.username}}</p>
+            {% endif %}
+            <p class="text-sm text-gray-600 dark:text-gray-400"><time pubdate datetime="{{replier.date}}">{{replier.date}}</time></p>
+          </div>
+        </footer>
+        <p class="text-gray-500 ml-5 dark:text-gray-400">{{replier.content}}</p>
+        <div class="mt-4 ml-5 flex items-center space-x-4">
+          <button type="button" class="flex items-center text-sm text-gray-500 hover:underline dark:text-gray-400"><i class="fa-sharp fa-solid fa-comment mr-2"></i>Reply</button>
+        </div>
+      </article>
+      {% endfor %}
+      <!--End nested comment-->
+      {% endif %}
+      {% endfor %}
+    </div>
+  </section>
+  
+<!--End Comment section-->
 </div>
 {% include "blog/suneditor.html" %}
 </div>

@@ -132,4 +132,7 @@ def edit_post(request,id):
             return render(request,'blog/edit_post.html',{'status':"Alert",'message':'You are not permitted to edit the post'})
     
 
-
+def notifications(request):
+    notifications = Notification.objects.filter(user=request.user)
+    notifications.update(read_time=datetime.datetime.now())
+    return render(request,"blog/notifications.html",{"notifications":notifications[:50]})
