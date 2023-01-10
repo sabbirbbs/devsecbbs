@@ -12,11 +12,9 @@ urlpatterns = [
     path("tag/<str:slug>",views.tag,name="tag"),
     path("post/edit/<int:id>",views.edit_post,name="edit_post"),
     path("post/<str:cat>/<str:slug>",views.view_post,name="read_post"),
-    path("notifications",views.notifications,name="notifications")
-
+    path("notifications",views.notifications,name="notifications"),
+    path("comment/<int:pid>/<int:cid>",views.comment,name="comment"),
     
-
-
 
 ]
 

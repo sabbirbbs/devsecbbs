@@ -1,5 +1,6 @@
 
 //Functions
+//Get csrf token
 function getCookie(name) {
     let cookieValue = null;
     if (document.cookie && document.cookie !== '') {
@@ -16,6 +17,19 @@ function getCookie(name) {
     return cookieValue;
 }
 
+//Create alert dialog
+function createAlert(type,message){
+    if(type === "success"){
+        bg = "bg-green-600";
+    }else if(type === "alert"){
+        bg = "bg-red-800";
+    }else{
+        bg = "bg-blue-400";
+    }
+    return `<div class="${bg} rounded-lg py-5 px-6 mb-4 text-base text-blue-700 mb-3" role="alert">${message}</div>`
+}
+
+//Highlight code syntax by prismjs
 function highlight_code(){
     $('code').each(function(){
         var data = $(this).html()
@@ -46,6 +60,35 @@ $(document).ready(function(){
             $("#load").hide()
             $("#post-page").show()
         }
+    })
+
+    //Handling comment section
+    $("#comment_form").on("submit",function(e){
+        e.preventDefault();
+        
+        $.ajax({
+            url: $("#comment_form").attr("action"),
+            method: "POST",
+            data: new FormData(this),
+            contentType: false,
+            cache: false,
+            processData:false,
+            beforeSend : function(){
+                $("#submit_comment").text("Submitting...")
+
+            },
+            success: function(response){
+                feadback = JSON.parse(response)
+                notice_type = feadback['status']
+                message = feadback['message']
+                $("#alert").html(createAlert(notice_type,message))
+                $("#submit_comment").text("Submit")
+            },
+            error: function(response){
+                $('#alert').html(createAlert("error","Something went wrong!"))
+                $("#submit_post").text("Submit")
+            }
+        })
     })
     
 })

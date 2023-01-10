@@ -103,7 +103,7 @@ class Comment(MPTTModel):
     parent = TreeForeignKey('self', on_delete=models.CASCADE, blank=True,null=True,related_name='children')
     commenter = models.ForeignKey('AuthorUser',on_delete=models.SET_NULL,null=True,related_name="user_comment")
     content = models.TextField()
-    date = models.DateTimeField()
+    date = models.DateTimeField(default=datetime.datetime.now)
     status = models.CharField(max_length=255,choices=[("Published","Published"),("Rejected","Rejected")],null=True,blank=True)
     is_deleted = models.BooleanField(default=False)
     note = models.TextField(blank=True,null=True)

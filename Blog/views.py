@@ -1,6 +1,7 @@
 #import modules
 from django.shortcuts import render
-from django.http import HttpResponse
+from django.http import HttpResponse,HttpResponseRedirect
+from django.urls import reverse
 from .models import *
 from .forms import *
 from PIL import Image
@@ -8,8 +9,29 @@ import json
 from taggit.models import Tag
 import datetime
 from django.db.models import Q
+import os
+import re
 
 
+#Additional variable
+app_dir = os.path.dirname(__file__)  # get current directory
+
+
+
+
+#Additional Function
+#Filter bad words from content
+def filter_content(value):
+    bad_words = set()
+    with open(os.path.join(app_dir, 'afiles/badwords.txt'),"r") as blist:
+        listi = blist.read().lower().split(",")
+        value = set(re.sub("[^\w]", " ", value.lower()).split())
+        for word in listi:
+            if word in value:
+                bad_words.add(word)
+            else:
+                pass
+    return list(bad_words)
 
 #writing views
 #home page of blog to show posts
@@ -71,8 +93,8 @@ def fetch_post(request,pk):
 
 #show posts by category
 def category(request,slug):
-    category = Category.objects.get(slug=slug)
-    posts = Post.objects.filter(Q(status="Published")|Q(status="Hot"),category=category)
+    category = Category.objects.get(slug=slug).get_descendants(include_self=True)
+    posts = Post.objects.filter(Q(status="Published")|Q(status="Hot"),category__in=category)
     return render(request,"blog/category_post.html",{"posts":posts,"category":category})
 
 #show posts by tags
@@ -136,3 +158,42 @@ def notifications(request):
     notifications = Notification.objects.filter(user=request.user)
     notifications.update(read_time=datetime.datetime.now())
     return render(request,"blog/notifications.html",{"notifications":notifications[:50]})
+
+def comment(request,pid,cid):
+    if request.method == "POST":
+        post = Post.objects.get(pk=pid)
+        
+        if request.user.is_authenticated:
+            user = request.user
+        else:
+            user = None
+
+        try:
+            comment = Comment.objects.get(pk=cid,post=post)
+        except Exception as error:
+            comment = None
+
+        content = request.POST.get("comment",None)
+        if content:
+            if filter_content(content):
+                response = {"status":"alert","message":f"Sorry, Your comment can't be published cause of those word! {filter_content(content)}"}
+                return HttpResponse(json.dumps(response))
+            elif len(content) < 2 or len(content) > 255:
+                response = {"status":"Notice","message":"Your comment have to be in between 1-255 character!"}
+                return HttpResponse(json.dumps(response))
+        else:
+            response = {"status":"Notice","message":"Seems your comment is empty!"}
+            return HttpResponse(json.dumps(response))
+
+                
+        if comment:
+            comment = Comment.objects.create(post=post,parent=comment,commenter=user,content=content,status="Published")
+            response = {"status":"success","message":"Your reply has been successfully added."}
+            return HttpResponse(json.dumps(response))
+        else:
+            comment = Comment.objects.create(post=post,commenter=user,content=content,status="Published")
+            response = {"status":"success","message":"Comment has been successfully added."}
+            return HttpResponse(json.dumps(response))
+    else:
+        response = {"status":"success","message":"Post has been saved successfully"}
+        return HttpResponse(json.dumps(response))
