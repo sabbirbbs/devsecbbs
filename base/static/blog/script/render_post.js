@@ -90,5 +90,14 @@ $(document).ready(function(){
             }
         })
     })
+    //Handling reply action
+    $(".reply_btn").on("click", function(){
+        $("article").each(function(){
+            $(this).addClass("bg-white")
+        })
+        $(this).closest("article").removeClass("bg-white");
+        $(this).closest("article").css("background-color","ghostwhite");
+        $(this).closest('.reply_form').css("display","block")
+    });
     
 })

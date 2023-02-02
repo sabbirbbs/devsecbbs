@@ -37,7 +37,8 @@ def filter_content(value):
 #home page of blog to show posts
 def index(request):
     posts = Post.objects.filter(Q(status="Published")|Q(status="Hot"),is_deleted=False)
-    return render(request,"blog/blog_page.html",{"posts":posts})
+    #return render(request,"blog/blog_page.html",{"posts":posts})
+    return render(request,'_Blog/index.html',{'posts':posts})
 
 #validating & saving written post
 def write_post(request):
@@ -195,5 +196,5 @@ def comment(request,pid,cid):
             response = {"status":"success","message":"Comment has been successfully added."}
             return HttpResponse(json.dumps(response))
     else:
-        response = {"status":"success","message":"Post has been saved successfully"}
+        response = {"status":"alert","message":"Invalid gateway!"}
         return HttpResponse(json.dumps(response))
