@@ -6,6 +6,7 @@ from base import settings
 app_name = "Blog"
 urlpatterns = [
     path("",views.index,name="blog_index"),
+    path("dashboard",views.dashboard,name="dashboard"),
     path("write_post",views.write_post,name="write_post"),
     path("post_data/<int:pk>",views.fetch_post,name="fetch_post"),
     path("category/<str:slug>",views.category,name="category"),

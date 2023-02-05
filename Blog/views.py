@@ -40,6 +40,8 @@ def index(request):
     #return render(request,"blog/blog_page.html",{"posts":posts})
     return render(request,'_Blog/index.html',{'posts':posts})
 
+def dashboard(request):
+    return render(request,'_Blog/dashboard.html')
 #validating & saving written post
 def write_post(request):
     if request.method == "POST":
