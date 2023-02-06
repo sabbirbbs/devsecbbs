@@ -1,7 +1,6 @@
 {% load static %}
 <!DOCTYPE html>
 <HTML>
-
 <head>
     <!-- Title to your website title -->
     <title>{% block title %} Home {% endblock %} - DevSecBBS</title>
@@ -18,7 +17,7 @@
     <link rel="canonical" href="{{ request.scheme }}://{{ request.get_host }}{{ request.get_full_path }}"/>
     
     <!-- This tells the search engines whether to follow all of the links on your site. If you only want them to track your homepage, replace content="all,follow" with content="index,follow" -->
-    <meta name="robots" content="all, follow" />
+    <meta name="robots" content="all, follow"/>
 
     
     <!-- These are the little icons that show up next to the title of the URL in the browser tab. For these to work, you must include a favicon.png file in the root of your website directory. This can also be favicon.jpg if you prefer, you just need to change the link in the href to favicon.jpg for it to work --> 
@@ -42,7 +41,6 @@
     <!-- Your CSS link -->
     <link href="{% static "_Blog/style/tailwind.css" %}" rel="stylesheet" /> 
     <!-- Required JS -->
-    <script src="{% static "_Blog/script/jquery-3.6.1.min.js" %}"></script>
     <!-- Additional Style -->
     {% block style %} {% endblock %}
     
@@ -51,13 +49,19 @@
 <body class="dark:bg-gray-900 bg-white">
     <div class="container md:container sm:container 2xl:container xl:container lg:container mx-auto">
         <!-- Navbar start -->
-        <nav class="sticky top-0 z-50 bg-white border-gray-200 px-2 sm:px-4 py-2.5 rounded dark:bg-gray-900">
+        <nav class="sticky top-0 z-50 bg-white border-gray-200 px-2 sm:px-4 py-2.5 rounded dark:bg-gray-800">
             <div class="container flex flex-wrap items-center justify-between mx-auto">
             <a href="/" class="flex items-center">
                 <img src="https://flowbite.com/docs/images/logo.svg" class="h-6 mr-3 sm:h-9" alt="Flowbite Logo" />
                 <span class="self-center text-xl font-semibold whitespace-nowrap dark:text-white">Flowbite</span>
             </a>
             <div class="flex items-center md:order-2">
+                <!-- Theme switch button -->
+                <button id="theme-toggle" type="button" class="text-gray-500 mr-4 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none focus:ring-4 focus:ring-gray-200 dark:focus:ring-gray-700 rounded-lg text-sm p-2.5">
+                    <svg id="theme-toggle-dark-icon" class="hidden w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"></path></svg>
+                    <svg id="theme-toggle-light-icon" class="hidden w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z" fill-rule="evenodd" clip-rule="evenodd"></path></svg>
+                </button>
+                <!-- End theme switch button -->
                 {% if user.is_authenticated %}
                     <button type="button" class="flex mr-3 text-sm bg-sky-200 rounded-full md:mr-0 focus:ring-4 focus:ring-gray-300 dark:focus:ring-gray-600" id="user-menu-button" aria-expanded="false" data-dropdown-toggle="user-dropdown" data-dropdown-placement="bottom">
                     <span class="sr-only">Open user menu</span>
@@ -105,41 +109,61 @@
                 </li>
                 <li>
                 <a href="#" class="block py-2 pl-3 pr-4 text-gray-700 rounded hover:bg-gray-100 md:hover:bg-transparent md:hover:text-blue-700 md:p-0 dark:text-gray-400 md:dark:hover:text-white dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent dark:border-gray-700">About</a>
-                </li>
+                </li>                
                 <!-- Category dropdown menu-->
                 <li>
-                    <button id="dropdownNavbarLink" data-dropdown-toggle="dropdownNavbar" class="flex items-center justify-between w-full py-2 pl-3 pr-4 font-medium text-gray-700 border-b border-gray-100 hover:bg-gray-50 md:hover:bg-transparent md:border-0 md:hover:text-blue-700 md:p-0 md:w-auto dark:text-gray-400 dark:hover:text-white dark:focus:text-white dark:border-gray-700 dark:hover:bg-gray-700 md:dark:hover:bg-transparent">Category <svg class="w-4 h-4 ml-1" aria-hidden="true" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg></button>
-                    <!-- Dropdown menu -->
-                    <div id="dropdownNavbar" class="z-10 hidden font-normal bg-white divide-y divide-gray-100 rounded-lg shadow w-44 dark:bg-gray-700 dark:divide-gray-600">
-                        <ul class="py-2 text-sm text-gray-700 dark:text-gray-400" aria-labelledby="dropdownLargeButton">
-                        <li>
-                            <a href="#" class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">Dashboard</a>
-                        </li>
-                        <li aria-labelledby="dropdownNavbarLink">
-                            <button id="doubleDropdownButton" data-dropdown-toggle="doubleDropdown" data-dropdown-placement="right-start" type="button" class="flex items-center justify-between w-full px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">Dropdown<svg aria-hidden="true" class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path></svg></button>
-                            <div id="doubleDropdown" class="z-10 hidden bg-white divide-y divide-gray-100 rounded-lg shadow w-44 dark:bg-gray-700">
-                                <ul class="py-2 text-sm text-gray-700 dark:text-gray-200" aria-labelledby="doubleDropdownButton">
-                                <li>
-                                    <a href="#" class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-400 dark:hover:text-white">Overview</a>
-                                </li>
-                                <li>
-                                    <a href="#" class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-400 dark:hover:text-white">My downloads</a>
-                                </li>
-                                <li>
-                                    <a href="#" class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-400 dark:hover:text-white">Billing</a>
-                                </li>
-                                <li>
-                                    <a href="#" class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-400 dark:hover:text-white">Rewards</a>
-                                </li>
-                                </ul>
-                            </div>
-                        </li>
-                        <li>
-                            <a href="#" class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">Earnings</a>
-                        </li>
-                        </ul>
-                        <div class="py-1">
-                        <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-400 dark:hover:text-white">Sign out</a>
+                    <button id="mega-menu-dropdown-button" data-dropdown-toggle="mega-menu-dropdown" class="flex items-center justify-between w-full py-2 pl-3 pr-4 font-medium text-gray-700 border-b border-gray-100 md:w-auto hover:bg-gray-50 md:hover:bg-transparent md:border-0 md:hover:text-blue-600 md:p-0 dark:text-gray-400 md:dark:hover:text-blue-500 dark:hover:bg-gray-700 dark:hover:text-blue-500 md:dark:hover:bg-transparent dark:border-gray-700">
+                        Category <svg aria-hidden="true" class="w-5 h-5 ml-1 md:w-4 md:h-4" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>
+                    </button>
+                    <div id="mega-menu-dropdown" class="absolute z-10 grid hidden w-auto text-sm bg-white border border-gray-100 rounded-lg shadow-md dark:border-gray-700 dark:bg-gray-700">
+                        
+                        <div class="grid w-auto grid-cols-2 text-sm bg-white md:grid-cols-3 dark:bg-gray-700">
+                            {% for cat,count in top_category.items %}
+                                <div class="p-4 pb-0 text-gray-900 md:pb-4 dark:text-white">
+                                    <ul class="space-y-4">
+                                        <li>
+                                            <a href="#" class="text-black dark:text-white hover:text-blue-600 dark:hover:text-blue-500">
+                                                {{cat}} - {{count}}
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </div>
+                            {% endfor %}
+                        </div>
+                        <hr>
+                        <div class="grid w-auto grid-cols-2 text-sm bg-white md:grid-cols-3 dark:bg-gray-700">
+                            {% for part in base_category %}
+                                <div class="p-4 pb-0 text-gray-900 md:pb-4 dark:text-white">
+                                    <ul class="space-y-4">
+                                        {% for cat in part %}
+                                            {% if cat.get_family|length > 4 %}
+                                                <!-- Nested category dropdown -->
+                                                <li aria-labelledby="dropdownNavbarLink">
+                                                    <button id="doubleDropdownButton" data-dropdown-toggle="{{cat.get_root.name}}" data-dropdown-placement="right-start" type="button" class="flex items-center justify-between text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-500">{{cat.get_root.name}}<svg aria-hidden="true" class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path></svg></button>
+                                                    <div id="{{cat.get_root.name}}" class="z-10 hidden bg-white divide-y divide-gray-100 rounded-lg shadow w-44 dark:bg-gray-700">
+                                                        <ul class="py-2 text-sm text-gray-700 dark:text-gray-200" aria-labelledby="doubleDropdownButton">
+                                                        {% for sub_cat in cat.get_family %}
+                                                            <li>
+                                                                <a href="#" class="block px-4 py-2 text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-500">{{sub_cat.name}}</a>
+                                                            </li>
+                                                        {% endfor %}
+                                                        </ul>
+                                                    </div>
+                                                </li>
+                                                <!-- End nested category dropdown -->
+                                            {% else %}
+                                                <li>
+                                                    <a href="#" class="text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-500">
+                                                        {{cat.name}}
+                                                    </a>
+                                                </li>
+                                            {% endif %}
+                                        {% endfor %}
+                                    </ul>
+                                </div>
+                            {% empty %}
+                            No category found!
+                            {% endfor %}  
                         </div>
                     </div>
                 </li>
@@ -149,12 +173,6 @@
                 </li>
                 <li>
                 <a href="#" class="block py-2 pl-3 pr-4 text-gray-700 rounded hover:bg-gray-100 md:hover:bg-transparent md:hover:text-blue-700 md:p-0 dark:text-gray-400 md:dark:hover:text-white dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent dark:border-gray-700">Contact</a>
-                </li>
-                <li>
-                    <button id="theme-toggle" type="button" class="text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none focus:ring-4 focus:ring-gray-200 dark:focus:ring-gray-700 rounded-lg text-sm p-2.5">
-                        <svg id="theme-toggle-dark-icon" class="hidden w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"></path></svg>
-                        <svg id="theme-toggle-light-icon" class="hidden w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z" fill-rule="evenodd" clip-rule="evenodd"></path></svg>
-                    </button>
                 </li>
             </ul>
             </div>
@@ -166,7 +184,7 @@
             {% endblock %}
         
         <!-- Footer start -->
-        <footer class="p-4 bg-white rounded-lg shadow md:flex md:items-center md:justify-between md:p-6 dark:bg-gray-800">
+        <footer class="p-4 bg-white rounded-lg mt-4 shadow md:flex md:items-center md:justify-between md:p-6 dark:bg-gray-800">
             <span class="text-sm text-gray-500 sm:text-center dark:text-gray-400">© {% now 'Y' %} <a href="https://flowbite.com/" class="hover:underline">Flowbite™</a>. All Rights Reserved.
             </span>
             <ul class="flex flex-wrap items-center mt-3 text-sm text-gray-500 dark:text-gray-400 sm:mt-0">
@@ -186,6 +204,9 @@
         </footer>
         <!-- Footer end-->
     </div>
+    
+    <script src="{% static "_Blog/script/theme_change.js" %}"></script>
+    <script src="{% static "_Blog/script/jquery-3.6.1.min.js" %}"></script>
     <script src="{% static "_Blog/script/flowbite.min.js" %}"></script>
     <script src="{% static "_Blog/script/jdenticon.min.js" %}"></script>
     <!-- Additional Script -->

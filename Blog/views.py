@@ -38,10 +38,10 @@ def filter_content(value):
 def index(request):
     posts = Post.objects.filter(Q(status="Published")|Q(status="Hot"),is_deleted=False)
     #return render(request,"blog/blog_page.html",{"posts":posts})
-    return render(request,'_Blog/index.html',{'posts':posts})
+    return render(request,'_Blog/client/index.html',{'posts':posts})
 
 def dashboard(request):
-    return render(request,'_Blog/dashboard.html')
+    return render(request,'_Blog/dashboard/dashboard.html')
 #validating & saving written post
 def write_post(request):
     if request.method == "POST":
@@ -79,7 +79,7 @@ def write_post(request):
     else:
         category = Category.objects.filter(level=0)
         tags = Tag.objects.all()
-        return render(request,'blog/write_post.html',{'category':category,'tags':tags})
+        return render(request,'_Blog/dashboard/write_post.html',{'category':category,'tags':tags})
         
 #sending the post instance to be rendered in details
 def view_post(request,cat,slug):

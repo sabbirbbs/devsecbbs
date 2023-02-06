@@ -1,0 +1,70 @@
+{% extends "_Blog/dashboard/dashboard_layout.html" %}
+{% load static %}
+{% block title %} Dashboard {% endblock %}
+{% block description %} This is DecSecBBS is the only blog the on the earth about technology {% endblock %}
+
+{% block body %}
+<!-- Heading -->
+<h1 class="mb-4 mt-12 text-4xl text-center font-extrabold leading-none tracking-tight text-gray-900 md:text-5xl lg:text-6xl dark:text-white">Write Consciously.</h1>
+<div class="flex p-4 border-t-4 border-sky-400 mb-4 text-sm text-blue-800 rounded-lg bg-blue-50 dark:bg-gray-800 dark:text-blue-400" role="alert">
+    <svg aria-hidden="true" class="flex-shrink-0 inline w-5 h-5 mr-3" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path></svg>
+    <span class="sr-only">Info</span>
+    <div>
+      <span class="font-medium">Ensure that these requirements are met:</span>
+        <ul class="mt-1.5 ml-4 list-disc list-inside">
+          <li>At least 10 characters (and up to 100 characters)</li>
+          <li>At least one lowercase character</li>
+          <li>Inclusion of at least one special character, e.g., ! @ # ?</li>
+      </ul>
+    </div>
+</div>
+
+<!-- Post writing form start -->
+<form id='post_form' action="{% url 'Blog:write_post'%}" method="POST" enctype="multipart/form-data">
+    <!-- Title -->
+    <div class="mb-3">
+        <label for="title" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Title</label>
+        <input type="text" id="title" name="title" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+    </div>
+    <!-- Description -->
+    <div class="mb-3">
+        <label for="description" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Description</label>
+        <textarea id="description" name="description" rows="4" class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Leave a comment..."></textarea>
+    </div>
+    <!-- Category -->
+    <div class="mb-3">
+        <label for="category" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Category</label>
+        <select id="category" name="category" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+            <option selected>Choose a Category</option>
+            {% for cat in category %}
+                <optgroup label="{{cat.name}}"></optgroup>
+                {% for child in cat.get_family %}
+                    <option value="{{child.id}}"><b>{{child.name}}</b></option>
+                {% endfor %}
+            {% endfor %}
+        </select>
+    </div>
+    <!-- Cover photo -->
+    <div class="mb-3">
+        <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white" for="cover_photo">Cover photo</label>
+        <input class="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 dark:text-gray-400 focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400" aria-describedby="cover_photo_help" id="cover_photo" name="cover_photo" type="file">
+        <div class="mt-1 text-sm text-gray-500 dark:text-gray-300" id="cover_photo_help">A cover picture is useful to identifiy your post & listing beautifully.( jpg,jpeg,png,gif )</div>
+    </div>
+    <!-- Tags -->
+    <div class="mb-3">
+        <label for="tags" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Tags</label>
+        <input type="text" id="tags" name="tags" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+    </div>
+    <!-- Status -->    
+    <div class="mb-3">
+        <label for="status" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Status</label>
+        <select id="status" name="status" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+            <option value="Published">Published</option>
+            <option selected value="Draft">Draft</option>
+        </select>
+    </div>
+    <button type="submit" name="sumit_post" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Submit Post</button>
+</form>
+<!-- Post writing form end -->
+
+{% endblock %}
