@@ -1093,10 +1093,6 @@ input:checked + .toggle-bg {
   z-index: 40;
 }
 
-.m-2 {
-  margin: 0.5rem;
-}
-
 .mx-auto {
   margin-left: auto;
   margin-right: auto;
@@ -1309,8 +1305,8 @@ input:checked + .toggle-bg {
   width: 2.5rem;
 }
 
-.w-44 {
-  width: 11rem;
+.w-64 {
+  width: 16rem;
 }
 
 .w-\[80\%\] {
@@ -1319,6 +1315,10 @@ input:checked + .toggle-bg {
 
 .w-4 {
   width: 1rem;
+}
+
+.w-44 {
+  width: 11rem;
 }
 
 .w-11 {
@@ -1339,10 +1339,6 @@ input:checked + .toggle-bg {
 
 .w-1\/2 {
   width: 50%;
-}
-
-.w-64 {
-  width: 16rem;
 }
 
 .max-w-screen-xl {
@@ -1931,6 +1927,11 @@ input:checked + .toggle-bg {
   color: rgb(17 24 39 / var(--tw-text-opacity));
 }
 
+.text-black {
+  --tw-text-opacity: 1;
+  color: rgb(0 0 0 / var(--tw-text-opacity));
+}
+
 .text-transparent {
   color: transparent;
 }
@@ -1950,9 +1951,9 @@ input:checked + .toggle-bg {
   color: rgb(30 66 159 / var(--tw-text-opacity));
 }
 
-.text-black {
+.text-red-600 {
   --tw-text-opacity: 1;
-  color: rgb(0 0 0 / var(--tw-text-opacity));
+  color: rgb(224 36 36 / var(--tw-text-opacity));
 }
 
 .underline {
@@ -2438,11 +2439,6 @@ input:checked + .toggle-bg {
 .dark .dark\:text-blue-400 {
   --tw-text-opacity: 1;
   color: rgb(118 169 250 / var(--tw-text-opacity));
-}
-
-.dark .dark\:text-black {
-  --tw-text-opacity: 1;
-  color: rgb(0 0 0 / var(--tw-text-opacity));
 }
 
 .dark .dark\:placeholder-gray-400::-moz-placeholder {

@@ -2,6 +2,9 @@
 {% load static %}
 {% block title %} Dashboard {% endblock %}
 {% block description %} This is DecSecBBS is the only blog the on the earth about technology {% endblock %}
+{% block style %}
+{% include "_Blog/dashboard/sun_editor_css.html" %}
+{% endblock %}
 
 {% block body %}
 <!-- Heading -->
@@ -23,17 +26,17 @@
 <form id='post_form' action="{% url 'Blog:write_post'%}" method="POST" enctype="multipart/form-data">
     <!-- Title -->
     <div class="mb-3">
-        <label for="title" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Title</label>
-        <input type="text" id="title" name="title" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+        <label for="title" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Title <span class="text-red-600">*</span></label>
+        <input type="text" id="title" name="title" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Post title the core of topic">
     </div>
     <!-- Description -->
     <div class="mb-3">
-        <label for="description" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Description</label>
-        <textarea id="description" name="description" rows="4" class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Leave a comment..."></textarea>
+        <label for="description" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Description <span class="text-red-600">*</span></label>
+        <textarea id="description" name="description" rows="4" class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Write a little summary of your post."></textarea>
     </div>
     <!-- Category -->
     <div class="mb-3">
-        <label for="category" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Category</label>
+        <label for="category" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Category <span class="text-red-600">*</span></label>
         <select id="category" name="category" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
             <option selected>Choose a Category</option>
             {% for cat in category %}
@@ -46,14 +49,20 @@
     </div>
     <!-- Cover photo -->
     <div class="mb-3">
-        <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white" for="cover_photo">Cover photo</label>
+        <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white" for="cover_photo">Cover photo <span class="text-red-600">*</span></label>
         <input class="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 dark:text-gray-400 focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400" aria-describedby="cover_photo_help" id="cover_photo" name="cover_photo" type="file">
         <div class="mt-1 text-sm text-gray-500 dark:text-gray-300" id="cover_photo_help">A cover picture is useful to identifiy your post & listing beautifully.( jpg,jpeg,png,gif )</div>
+    </div>
+    <!-- Content -->
+    <div class="mb-3">
+        <label for="content" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Content <span class="text-red-600">*</span></label>
+        <textarea id="post_editor" name="content" rows="10" class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Start writing."></textarea>
     </div>
     <!-- Tags -->
     <div class="mb-3">
         <label for="tags" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Tags</label>
-        <input type="text" id="tags" name="tags" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+        <input type="text" id="tags" name="tags" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="linux,wifi,root,python">
+        <div class="mt-1 text-sm text-gray-500 dark:text-gray-300" id="cover_photo_help">Tag have to be separated with comma. (linux,wifi,root,python)</div>
     </div>
     <!-- Status -->    
     <div class="mb-3">
@@ -66,5 +75,9 @@
     <button type="submit" name="sumit_post" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Submit Post</button>
 </form>
 <!-- Post writing form end -->
+{% block script %}
+{% include "_Blog/dashboard/sun_editor_js.html" %}
+{% endblock %}
+    <script src="{% static '_Blog/script/sun_editor/sun_editor_init.js' %}"></script>
 
 {% endblock %}
