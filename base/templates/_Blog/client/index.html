@@ -1,5 +1,6 @@
 {% extends "_Blog/client/home_layout.html" %}
 {% load static %}
+{% load blog_tags %}
 {% block title %} Home {% endblock %}
 {% block description %} This is DecSecBBS is the only blog the on the earth about technology {% endblock %}
 
@@ -56,6 +57,172 @@
 </section>
 <!-- End hero section-->
 <hr class="h-px my-8 bg-gray-200 border-0 dark:bg-gray-700">
+<!-- Start blog listing -->
+<section class="bg-white dark:bg-gray-900">
+  <div class="py-8 px-4 mx-auto max-w-screen-xl lg:py-16 lg:px-6">
+      <div class="mx-auto max-w-screen-sm text-center lg:mb-16 mb-8">
+          <h2 class="mb-4 text-3xl lg:text-4xl tracking-tight font-extrabold text-gray-900 dark:text-white">Our Blog</h2>
+          <p class="font-light text-gray-500 sm:text-xl dark:text-gray-400">We use an agile approach to test assumptions and connect with the needs of your audience early and often.</p>
+      </div> 
+      <div class="grid gap-8 lg:grid-cols-2">
+        {% for post in posts %}
+          <article class="p-6 bg-white rounded-lg border border-gray-200 shadow-md dark:bg-gray-800 dark:border-gray-700">
+              <div class="flex justify-between items-center mb-5 text-gray-500">
+                  <span class="bg-primary-100 text-primary-800 text-xs font-medium inline-flex items-center px-2.5 py-0.5 rounded dark:bg-primary-200 dark:text-primary-800">
+                      <svg class="mr-1 w-4 h-4" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" fill="#000000"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <rect x="0" fill="none" width="20" height="20"></rect> <g> <path d="M5 7h13v10H2V4h7l2 2H4v9h1V7z"></path> </g> </g></svg>
+                      {% if post.category.level > 1 %} {{post.category.get_root}} ... {{post.category}} {% elif post.category.is_root_node %} {{post.category}} {% elif post.category == None %} Not categorized {% else %} {{post.category.get_root}} >> {{post.category}} {% endif %}
+                  </span>
+                  <span class="text-sm">{{ post.date|timesince }} ago</span>
+              </div>
+              <h2 class="mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white"><a href="{% url 'Blog:read_post' post.category.slug post.slug %}">{{post.title|striptags}}</a></h2>
+              <p class="mb-5 font-light text-gray-500 dark:text-gray-400">
+                {% if post.description %}
+                {{post.description|html_trunc:255}}
+                {% else %}
+                {{post.content|html_trunc:255}}
+                {% endif %}</p>
+              <div class="flex justify-between items-center">
+                  <div class="flex items-center space-x-4">
+                    {% if post.author.profile_photo %}
+                        <img class="w-7 h-7 rounded-full" src="{{post.author.profile_photo.url}}" alt="{{post.author.first_name}} {{post.author.last_name}}" />
+                    {% else %}
+                        <svg width="80" height="80" class="w-7 h-7 rounded-full" data-jdenticon-value="{{post.author.username}}"></svg>
+                    {% endif %}
+                        <span class="font-medium dark:text-white">
+                        {{post.author.first_name}} {{post.author.last_name}}
+                      </span>
+                  </div>
+                    <a href="{% url 'Blog:read_post' post.category.slug post.slug %}" class="inline-flex items-center font-medium text-primary-600 dark:text-primary-500 hover:underline">
+                        Read more
+                        <svg class="ml-2 w-4 h-4" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>
+                    </a>
+            </div>
+          </article>  
+        {% endfor %}              
+      </div>  
+  </div>
+</section>
+
+<!-- another -->
+<!-- ====== Blog Section Start -->
+<section class="pt-20 pb-10 lg:pt-[120px] lg:pb-20">
+  <div class="container mx-auto">
+    <div class="-mx-4 flex flex-wrap justify-center">
+      <div class="w-full px-4">
+        <div class="mx-auto mb-[60px] max-w-[510px] text-center lg:mb-20">
+          <span class="text-primary mb-2 block text-lg font-semibold">
+            Our Blogs
+          </span>
+          <h2
+            class="text-dark mb-4 text-3xl font-bold sm:text-4xl md:text-[40px]"
+          >
+            Our Recent News
+          </h2>
+          <p class="text-body-color text-base">
+            There are many variations of passages of Lorem Ipsum available but
+            the majority have suffered alteration in some form.
+          </p>
+        </div>
+      </div>
+    </div>
+    <div class="-mx-4 flex flex-wrap">
+      <div class="w-full px-4 md:w-1/2 lg:w-1/3">
+        <div class="mx-auto mb-10 max-w-[370px]">
+          <div class="mb-8 overflow-hidden rounded">
+            <img
+              src="https://cdn.tailgrids.com/2.0/image/application/images/blogs/blog-01/image-01.jpg"
+              alt="image"
+              class="w-full"
+            />
+          </div>
+          <div>
+            <span
+              class="bg-primary mb-5 inline-block rounded py-1 px-4 text-center text-xs font-semibold leading-loose text-white"
+            >
+              Dec 22, 2023
+            </span>
+            <h3>
+              <a
+                href="javascript:void(0)"
+                class="text-dark hover:text-primary mb-4 inline-block text-xl font-semibold sm:text-2xl lg:text-xl xl:text-2xl"
+              >
+                Meet AutoManage, the best AI management tools
+              </a>
+            </h3>
+            <p class="text-body-color text-base">
+              Lorem Ipsum is simply dummy text of the printing and typesetting
+              industry.
+            </p>
+          </div>
+        </div>
+      </div>
+      <div class="w-full px-4 md:w-1/2 lg:w-1/3">
+        <div class="mx-auto mb-10 max-w-[370px]">
+          <div class="mb-8 overflow-hidden rounded">
+            <img
+              src="https://cdn.tailgrids.com/2.0/image/application/images/blogs/blog-01/image-02.jpg"
+              alt="image"
+              class="w-full"
+            />
+          </div>
+          <div>
+            <span
+              class="bg-primary mb-5 inline-block rounded py-1 px-4 text-center text-xs font-semibold leading-loose text-white"
+            >
+              Mar 15, 2023
+            </span>
+            <h3>
+              <a
+                href="javascript:void(0)"
+                class="text-dark hover:text-primary mb-4 inline-block text-xl font-semibold sm:text-2xl lg:text-xl xl:text-2xl"
+              >
+                How to earn more money as a wellness coach
+              </a>
+            </h3>
+            <p class="text-body-color text-base">
+              Lorem Ipsum is simply dummy text of the printing and typesetting
+              industry.
+            </p>
+          </div>
+        </div>
+      </div>
+      <div class="w-full px-4 md:w-1/2 lg:w-1/3">
+        <div class="mx-auto mb-10 max-w-[370px]">
+          <div class="mb-8 overflow-hidden rounded">
+            <img
+              src="https://cdn.tailgrids.com/2.0/image/application/images/blogs/blog-01/image-03.jpg"
+              alt="image"
+              class="w-full"
+            />
+          </div>
+          <div>
+            <span
+              class="bg-primary mb-5 inline-block rounded py-1 px-4 text-center text-xs font-semibold leading-loose text-white"
+            >
+              Jan 05, 2023
+            </span>
+            <h3>
+              <a
+                href="javascript:void(0)"
+                class="text-dark hover:text-primary mb-4 inline-block text-xl font-semibold sm:text-2xl lg:text-xl xl:text-2xl"
+              >
+                The no-fuss guide to upselling and cross selling
+              </a>
+            </h3>
+            <p class="text-body-color text-base">
+              Lorem Ipsum is simply dummy text of the printing and typesetting
+              industry.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+<!-- ====== Blog Section End -->
+
+<!-- End of blog listing -->
+
 <!-- Newsletter start -->
     <section class="bg-white dark:bg-gray-900 text-">
         <div class="py-8 px-4 mx-auto max-w-screen-xl lg:py-16 lg:px-6">

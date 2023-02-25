@@ -1,7 +1,7 @@
-const editor = SUNEDITOR.create('post_editor', {
+var editor = SUNEDITOR.create('post_editor', {
     display: 'block',
     width: '100%',
-    height: 'auto',
+    height: '60%',
     popupDisplay: 'full',
     charCounter: true,
     charCounterLabel: 'Characters :',

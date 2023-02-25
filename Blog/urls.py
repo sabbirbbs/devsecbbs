@@ -15,6 +15,8 @@ urlpatterns = [
     path("post/<str:cat>/<str:slug>",views.view_post,name="read_post"),
     path("notifications",views.notifications,name="notifications"),
     path("comment/<int:pid>/<int:cid>",views.comment,name="comment"),
+    path("test",views.test,name="test"),
+    
     
 
 ]

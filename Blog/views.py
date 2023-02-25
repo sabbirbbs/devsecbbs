@@ -35,6 +35,11 @@ def filter_content(value):
 
 #writing views
 #home page of blog to show posts
+
+def test(request):
+    post = Post.objects.all()[1]
+    return render(request,'_Blog/client/read_post.html',{'post':post})
+
 def index(request):
     posts = Post.objects.filter(Q(status="Published")|Q(status="Hot"),is_deleted=False)
     #return render(request,"blog/blog_page.html",{"posts":posts})
@@ -42,6 +47,7 @@ def index(request):
 
 def dashboard(request):
     return render(request,'_Blog/dashboard/dashboard.html')
+    
 #validating & saving written post
 def write_post(request):
     if request.method == "POST":
