@@ -68,11 +68,14 @@
         {% for post in posts %}
           <article class="p-6 bg-white rounded-lg border border-gray-200 shadow-md dark:bg-gray-800 dark:border-gray-700">
               <div class="flex justify-between items-center mb-5 text-gray-500">
-                  <span class="bg-primary-100 text-primary-800 text-xs font-medium inline-flex items-center px-2.5 py-0.5 rounded dark:bg-primary-200 dark:text-primary-800">
+                  <span class="bg-blue-100 text-blue-800 text-xs font-medium inline-flex items-center px-2.5 py-0.5 rounded dark:bg-gray-800 dark:text-gray-400">
                       <svg class="mr-1 w-4 h-4" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" fill="#000000"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <rect x="0" fill="none" width="20" height="20"></rect> <g> <path d="M5 7h13v10H2V4h7l2 2H4v9h1V7z"></path> </g> </g></svg>
                       {% if post.category.level > 1 %} {{post.category.get_root}} ... {{post.category}} {% elif post.category.is_root_node %} {{post.category}} {% elif post.category == None %} Not categorized {% else %} {{post.category.get_root}} >> {{post.category}} {% endif %}
                   </span>
                   <span class="text-sm">{{ post.date|timesince }} ago</span>
+              </div>
+              <div class="mb-2 overflow-hidden rounded h-64 cursor-pointer">
+                <a href="{% url 'Blog:read_post' post.category.slug post.slug %}"><img class="m-auto w-full scale-110 transition-all duration-400 hover:scale-95" src="{% if post.cover_photo %} {{ post.cover_photo.url }} {% else %} https://upload.wikimedia.org/wikipedia/commons/6/65/No-Image-Placeholder.svg {% endif %}" alt="Thumbnail" onerror="this.onerror=null;this.src='https://upload.wikimedia.org/wikipedia/commons/6/65/No-Image-Placeholder.svg';"></a>
               </div>
               <h2 class="mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white"><a href="{% url 'Blog:read_post' post.category.slug post.slug %}">{{post.title|striptags}}</a></h2>
               <p class="mb-5 font-light text-gray-500 dark:text-gray-400">
@@ -92,8 +95,8 @@
                         {{post.author.first_name}} {{post.author.last_name}}
                       </span>
                   </div>
-                    <a href="{% url 'Blog:read_post' post.category.slug post.slug %}" class="inline-flex items-center font-medium text-primary-600 dark:text-primary-500 hover:underline">
-                        Read more
+                    <a href="{% url 'Blog:read_post' post.category.slug post.slug %}" class="inline-flex items-center font-medium text-blue-600 dark:text-blue-500 hover:underline">
+                        Read in {{post.content|readtime}}ute
                         <svg class="ml-2 w-4 h-4" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>
                     </a>
             </div>
@@ -110,7 +113,7 @@
     <div class="-mx-4 flex flex-wrap justify-center">
       <div class="w-full px-4">
         <div class="mx-auto mb-[60px] max-w-[510px] text-center lg:mb-20">
-          <span class="text-primary mb-2 block text-lg font-semibold">
+          <span class="text-blue mb-2 block text-lg font-semibold">
             Our Blogs
           </span>
           <h2
@@ -137,14 +140,14 @@
           </div>
           <div>
             <span
-              class="bg-primary mb-5 inline-block rounded py-1 px-4 text-center text-xs font-semibold leading-loose text-white"
+              class="bg-blue mb-5 inline-block rounded py-1 px-4 text-center text-xs font-semibold leading-loose text-white"
             >
               Dec 22, 2023
             </span>
             <h3>
               <a
                 href="javascript:void(0)"
-                class="text-dark hover:text-primary mb-4 inline-block text-xl font-semibold sm:text-2xl lg:text-xl xl:text-2xl"
+                class="text-dark hover:text-blue mb-4 inline-block text-xl font-semibold sm:text-2xl lg:text-xl xl:text-2xl"
               >
                 Meet AutoManage, the best AI management tools
               </a>
@@ -167,14 +170,14 @@
           </div>
           <div>
             <span
-              class="bg-primary mb-5 inline-block rounded py-1 px-4 text-center text-xs font-semibold leading-loose text-white"
+              class="bg-blue mb-5 inline-block rounded py-1 px-4 text-center text-xs font-semibold leading-loose text-white"
             >
               Mar 15, 2023
             </span>
             <h3>
               <a
                 href="javascript:void(0)"
-                class="text-dark hover:text-primary mb-4 inline-block text-xl font-semibold sm:text-2xl lg:text-xl xl:text-2xl"
+                class="text-dark hover:text-blue mb-4 inline-block text-xl font-semibold sm:text-2xl lg:text-xl xl:text-2xl"
               >
                 How to earn more money as a wellness coach
               </a>
@@ -197,14 +200,14 @@
           </div>
           <div>
             <span
-              class="bg-primary mb-5 inline-block rounded py-1 px-4 text-center text-xs font-semibold leading-loose text-white"
+              class="bg-blue mb-5 inline-block rounded py-1 px-4 text-center text-xs font-semibold leading-loose text-white"
             >
               Jan 05, 2023
             </span>
             <h3>
               <a
                 href="javascript:void(0)"
-                class="text-dark hover:text-primary mb-4 inline-block text-xl font-semibold sm:text-2xl lg:text-xl xl:text-2xl"
+                class="text-dark hover:text-blue mb-4 inline-block text-xl font-semibold sm:text-2xl lg:text-xl xl:text-2xl"
               >
                 The no-fuss guide to upselling and cross selling
               </a>

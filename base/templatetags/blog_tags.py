@@ -1,6 +1,7 @@
 from django import template
 from django.utils.html import strip_spaces_between_tags, strip_tags
 from django.utils.text import Truncator
+import readtime 
 
 register = template.Library()
 
@@ -33,3 +34,7 @@ def excerpt_with_ptag_spacing(value, arg):
 @register.filter(name="split")
 def split_tag(value,arg):
     return value.split(arg)
+
+@register.filter(name='readtime')
+def read_time(content):
+    return readtime.of_html(content,wpm=265).text

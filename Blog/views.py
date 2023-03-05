@@ -11,7 +11,7 @@ import datetime
 from django.db.models import Q
 import os
 import re
-
+from better_profanity import profanity
 
 #Additional variable
 app_dir = os.path.dirname(__file__)  # get current directory
@@ -20,25 +20,13 @@ app_dir = os.path.dirname(__file__)  # get current directory
 
 
 #Additional Function
-#Filter bad words from content
-def filter_content(value):
-    bad_words = set()
-    with open(os.path.join(app_dir, 'afiles/badwords.txt'),"r") as blist:
-        listi = blist.read().lower().split(",")
-        value = set(re.sub("[^\w]", " ", value.lower()).split())
-        for word in listi:
-            if word in value:
-                bad_words.add(word)
-            else:
-                pass
-    return list(bad_words)
 
 #writing views
 #home page of blog to show posts
 
 def test(request):
     post = Post.objects.all()[1]
-    return render(request,'_Blog/client/read_post.html',{'post':post})
+    return render(request,'_Blog/test.html',{'post':post})
 
 def index(request):
     posts = Post.objects.filter(Q(status="Published")|Q(status="Hot"),is_deleted=False)
@@ -90,7 +78,7 @@ def write_post(request):
 #sending the post instance to be rendered in details
 def view_post(request,cat,slug):
     post = Post.objects.get(Q(status="Published")|Q(status="Hot"),slug=slug,is_deleted=False)
-    return render(request,"blog/read_post.html",{'post':post})
+    return render(request,"_Blog/client/read_post.html",{'post':post})
 
 #fetch post to be displayed in blog by jquery
 def fetch_post(request,pk):
@@ -168,6 +156,7 @@ def notifications(request):
     notifications.update(read_time=datetime.datetime.now())
     return render(request,"blog/notifications.html",{"notifications":notifications[:50]})
 
+#Comment handler
 def comment(request,pid,cid):
     if request.method == "POST":
         post = Post.objects.get(pk=pid)
@@ -183,15 +172,10 @@ def comment(request,pid,cid):
             comment = None
 
         content = request.POST.get("comment",None)
-        if content:
-            if filter_content(content):
-                response = {"status":"alert","message":f"Sorry, Your comment can't be published cause of those word! {filter_content(content)}"}
-                return HttpResponse(json.dumps(response))
-            elif len(content) < 2 or len(content) > 255:
-                response = {"status":"Notice","message":"Your comment have to be in between 1-255 character!"}
-                return HttpResponse(json.dumps(response))
+        if content and len(content) < 255:
+            content = profanity.censor(content) #censoring bad word from comment
         else:
-            response = {"status":"Notice","message":"Seems your comment is empty!"}
+            response = {"status":"Notice","message":"Your comment have to be in between 1-255 character!"}
             return HttpResponse(json.dumps(response))
 
                 
