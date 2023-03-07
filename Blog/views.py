@@ -30,7 +30,6 @@ def test(request):
 
 def index(request):
     posts = Post.objects.filter(Q(status="Published")|Q(status="Hot"),is_deleted=False)
-    #return render(request,"blog/blog_page.html",{"posts":posts})
     return render(request,'_Blog/client/index.html',{'posts':posts})
 
 def dashboard(request):
@@ -175,18 +174,14 @@ def comment(request,pid,cid):
         if content and len(content) < 255:
             content = profanity.censor(content) #censoring bad word from comment
         else:
-            response = {"status":"Notice","message":"Your comment have to be in between 1-255 character!"}
-            return HttpResponse(json.dumps(response))
-
+            return render(request,'_Blog/client/read_post.html',{'post':post,'comment_status':'faild','message':'Your comment have to be in between 1-255 character!'})
                 
         if comment:
             comment = Comment.objects.create(post=post,parent=comment,commenter=user,content=content,status="Published")
-            response = {"status":"success","message":"Your reply has been successfully added."}
-            return HttpResponse(json.dumps(response))
+            return render(request,'_Blog/client/read_post.html',{'post':post,'comment_status':'success','message':'Your reply has been successfully added.'})
         else:
             comment = Comment.objects.create(post=post,commenter=user,content=content,status="Published")
-            response = {"status":"success","message":"Comment has been successfully added."}
-            return HttpResponse(json.dumps(response))
+            return render(request,'_Blog/client/read_post.html',{'post':post,'comment_status':'success','message':'Comment has been successfully added.'})
     else:
         response = {"status":"alert","message":"Invalid gateway!"}
         return HttpResponse(json.dumps(response))
