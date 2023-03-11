@@ -87,18 +87,24 @@
             <div class="flex justify-between items-center mb-6">
               <h2 class="text-lg lg:text-2xl font-bold text-gray-900 dark:text-white">Discussion ({{post.post_comment.all|length}})</h2>
             </div>
-          <form class="mb-6" id="comment-form" action="{% url 'Blog:comment' post.pk 0 %}" method="POST">
+            <!-- Reply to -->
+            <div id="reply-to">
+            </div>
+            <!-- End reply to -->
+          <form class="mb-6" id="comment-form" action="{% url 'Blog:comment' post.pk 0 %}" data-default-action='{% url 'Blog:comment' post.pk 0 %}' method="POST">
                 {% csrf_token %}
               <div class="py-2 px-4 mb-4 bg-white rounded-lg rounded-t-lg border border-gray-200 dark:bg-gray-800 dark:border-gray-700">
                   <label for="comment" class="sr-only">Your comment</label>
-                  <textarea id="comment" name="comment" rows="6" class="px-0 w-full text-sm text-gray-900 border-0 focus:ring-0 focus:outline-none dark:text-white dark:placeholder-gray-400 dark:bg-gray-800" placeholder="Write your comment..." required></textarea>
+                  <textarea id="comment" name="comment" maxlength="500" rows="6" class="px-0 w-full text-sm text-gray-900 border-0 focus:ring-0 focus:outline-none dark:text-white dark:placeholder-gray-400 dark:bg-gray-800" placeholder="Write your comment..." required></textarea>
               </div>
               <button type="submit" id="comment-submit" class="inline-flex items-center py-2.5 px-4 text-xs font-medium text-center text-white bg-blue-700 rounded-lg focus:ring-4 focus:ring-blue-200 dark:focus:ring-blue-900 hover:bg-blue-800">
                   Post comment
               </button>
           </form>
+          {% if messages %}
           <!-- Comment handled notification -->
-          {% if comment_status == "success" %}
+          {% for message in messages %}
+          {% if message.tags == 'success' %}
               <div id="alert-success" class="flex p-4 mb-4 text-green-800 rounded-lg bg-green-50 dark:bg-gray-800 dark:text-green-400" role="alert">
                   <svg aria-hidden="true" class="flex-shrink-0 w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path></svg>
                   <span class="sr-only">Info</span>
@@ -110,7 +116,7 @@
                   <svg aria-hidden="true" class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>
                   </button>
               </div>
-          {% else %}
+          {% elif message.tags == 'error' %}
               <div id="alert-notice" class="flex p-4 mb-4 text-red-800 rounded-lg bg-red-50 dark:bg-gray-800 dark:text-red-400" role="alert">
                   <svg aria-hidden="true" class="flex-shrink-0 w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path></svg>
                   <span class="sr-only">Info</span>
@@ -123,11 +129,13 @@
                   </button>
               </div>
           {% endif %}
+          {% endfor %}
           <!-- End Comment handled notification -->
+          {% endif %}
           <!-- Parent comment -->
           {% for comment in post.post_comment.all reversed %}
           {% if comment.level == 0 %}
-          <article id="comment-{{comment.pk}}" class="p-6 text-base bg-white rounded-lg dark:bg-gray-900">
+          <article id="comment-{{comment.pk}}" data-commenter-name='{{comment.commenter.username}}' data-comment-url='{% url 'Blog:comment' post.pk comment.pk %}' class="p-6 text-base bg-white rounded-lg dark:bg-gray-900">
               <footer class="flex justify-between items-center mb-2">
                 <div class="flex items-center">
                     {% if comment.commenter.username %}
@@ -200,16 +208,17 @@
               </footer>
               <p class="text-gray-500 dark:text-gray-400">{{comment.content}}</p>
               <div class="flex items-center mt-4 space-x-4">
-                  <button type="button"
-                      class="flex items-center text-sm text-gray-500 hover:underline dark:text-gray-400">
+                  <button type="button" class="flex reply-comment items-center text-sm text-gray-500 hover:underline dark:text-gray-400">
                       <svg aria-hidden="true" class="mr-1 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path></svg>
                       Reply
                   </button>
               </div>
           </article>
+          
+          {% if comment.get_descendants %}
           <!--Nested comment-->
           {% for replier in comment.get_descendants %}
-          <article id="comment-{{comment.pk}}" class="ml-12 rounded-lg bg-white p-2 text-base dark:bg-gray-900">
+          <article id="comment-{{replier.pk}}" data-commenter-name='{{replier.commenter.username}}' data-comment-url='{% url 'Blog:comment' post.pk replier.pk %}' class="ml-12 rounded-lg bg-white p-2 text-base dark:bg-gray-900">
             <footer class="mb-2 flex items-center justify-between">
                 <div class="flex items-center">
                     {% if replier.commenter.username %}
@@ -282,8 +291,7 @@
               </footer>
               <p class="text-gray-500 dark:text-gray-400">{{replier.content}}</p>
               <div class="flex items-center mt-4 space-x-4">
-                  <button type="button"
-                      class="flex items-center text-sm text-gray-500 hover:underline dark:text-gray-400">
+                  <button type="button" class="flex reply-comment items-center text-sm text-gray-500 hover:underline dark:text-gray-400">
                       <svg aria-hidden="true" class="mr-1 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path></svg>
                       Reply
                   </button>
@@ -291,6 +299,7 @@
           </article>
           {% endfor %}
           <!--End nested comment-->
+          {% endif %}
           {% endif %}
           {% empty %}
           <div class="p-4 mb-4 text-sm text-blue-700 bg-blue-100 rounded-lg dark:bg-gray-800 dark:text-blue-400" role="alert">
@@ -335,7 +344,7 @@
 </aside>
 <!-- End blog post -->
 {% block script %}
-    
+    <script src="{% static "_Blog/script/client/read_post.js" %}"></script>
 {% endblock %}
 
 {% endblock %}

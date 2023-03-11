@@ -1,5 +1,5 @@
 #import modules
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.http import HttpResponse,HttpResponseRedirect
 from django.urls import reverse
 from .models import *
@@ -12,6 +12,7 @@ from django.db.models import Q
 import os
 import re
 from better_profanity import profanity
+from django.contrib import messages
 
 #Additional variable
 app_dir = os.path.dirname(__file__)  # get current directory
@@ -159,7 +160,6 @@ def notifications(request):
 def comment(request,pid,cid):
     if request.method == "POST":
         post = Post.objects.get(pk=pid)
-        
         if request.user.is_authenticated:
             user = request.user
         else:
@@ -169,19 +169,22 @@ def comment(request,pid,cid):
             comment = Comment.objects.get(pk=cid,post=post)
         except Exception as error:
             comment = None
-
+        
         content = request.POST.get("comment",None)
-        if content and len(content) < 255:
+        if content and len(content) < 500:
             content = profanity.censor(content) #censoring bad word from comment
         else:
-            return render(request,'_Blog/client/read_post.html',{'post':post,'comment_status':'faild','message':'Your comment have to be in between 1-255 character!'})
+            messages.error(request,"Your comment have to be in between 1-500 character!")
+            return redirect(f"{request.META['HTTP_REFERER']}#alert-notice")
                 
         if comment:
             comment = Comment.objects.create(post=post,parent=comment,commenter=user,content=content,status="Published")
-            return render(request,'_Blog/client/read_post.html',{'post':post,'comment_status':'success','message':'Your reply has been successfully added.'})
+            messages.success(request,"Your reply have been added successfully.")
+            return redirect(f"{request.META['HTTP_REFERER']}#comment-{comment.pk}")
         else:
             comment = Comment.objects.create(post=post,commenter=user,content=content,status="Published")
-            return render(request,'_Blog/client/read_post.html',{'post':post,'comment_status':'success','message':'Comment has been successfully added.'})
+            messages.success(request,"Your comment have been added successfully.")
+            return redirect(f"{request.META['HTTP_REFERER']}#comment-{comment.pk}")
     else:
         response = {"status":"alert","message":"Invalid gateway!"}
         return HttpResponse(json.dumps(response))

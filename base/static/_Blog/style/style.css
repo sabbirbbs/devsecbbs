@@ -1,0 +1,11 @@
+html{
+    scroll-behavior: smooth;
+    scroll-padding-top: 200px;
+}
+:target {
+    border: 2px solid #D4D4D4;
+    background-color: ghostwhite;
+    padding:5px;
+    border-radius: 5px;
+}
+  
