@@ -10,6 +10,8 @@ from django.conf import settings
 from mptt.models import MPTTModel, TreeForeignKey
 from taggit.managers import TaggableManager
 import re
+from django.contrib.contenttypes.fields import GenericForeignKey
+from django.contrib.contenttypes.models import ContentType
 
 
 #Slugify unicode bangla text
@@ -54,6 +56,14 @@ def author_profile(instance, filename):
 
 
 
+class Exclude_deleted(models.Manager): #Return element exclude is_deleted
+    def get_queryset(self):
+        return super().get_queryset().exclude(is_deleted=True)
+
+class Exclude_active(models.Manager): #Return element exclude is_active
+    def get_queryset(self):
+        return super().get_queryset().exclude(is_active=False)
+
 #writing database models
 class Category(MPTTModel):
     parent = TreeForeignKey('self', on_delete=models.CASCADE,null=True,blank=True, related_name='children')
@@ -62,6 +72,7 @@ class Category(MPTTModel):
     date = models.DateTimeField(default=datetime.datetime.now)
     is_active = models.BooleanField(default=True)
     note = models.TextField(blank=True,null=True)
+    objects = Exclude_active()
 
     def save(self,*args,**kwargs):
         if not self.slug:
@@ -87,6 +98,11 @@ class Post(models.Model):
     status = models.CharField(max_length=255,choices=[("Draft","Draft"),("Published","Published"),("Hot","Hot"),("Rejected","Rejected")])
     is_deleted = models.BooleanField(default=False)
     note = models.TextField(blank=True,null=True)
+    objects = Exclude_deleted()
+
+    
+    class Meta:
+        ordering = ('-date',)
 
     def save(self,*args,**kwargs):
         if not self.slug:
@@ -107,7 +123,11 @@ class Comment(MPTTModel):
     status = models.CharField(max_length=255,choices=[("Published","Published"),("Rejected","Rejected")],null=True,blank=True)
     is_deleted = models.BooleanField(default=False)
     note = models.TextField(blank=True,null=True)
+    objects = Exclude_deleted()
     
+    class Meta:
+        ordering = ('-date',)
+
     def __str__(self):
         return str(self.content)
 
@@ -126,6 +146,11 @@ class AuthorUser(AbstractUser):
     phone = models.IntegerField(null=True,blank=True)
     is_deleted = models.BooleanField(default=False)
     note = models.TextField(blank=True,null=True)
+    objects = Exclude_deleted()
+
+    
+    class Meta:
+        ordering = ('-date_joined',)
 
     def __str__(self):
             return f"{self.username}"
@@ -138,6 +163,25 @@ class Notification(models.Model):
     read_time = models.DateTimeField(blank=True,null=True)
     note = models.TextField(blank=True,null=True)
 
+    
+    class Meta:
+        ordering = ('-date',)
+
     def __str__(self):
         return self.title
 
+class ReportContent(models.Model):
+    report_by = models.ForeignKey(AuthorUser,on_delete=models.CASCADE,related_name="user_report")
+    content_type = models.ForeignKey(ContentType,on_delete=models.CASCADE)
+    content_id = models.PositiveIntegerField()
+    report_to = GenericForeignKey('content_type','content_id')
+    report_content = models.TextField()
+    date = models.DateTimeField(default=datetime.datetime.now)
+    status = models.CharField(max_length=255,default="pending",choices=[("solved","Solved"),('pending','Pending'),('rejected','Rejected')])
+
+    
+    class Meta:
+        ordering = ('-date',)
+
+    def __str__(self):
+        return f"{self.report_content}"

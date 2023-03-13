@@ -1,5 +1,5 @@
 #import modules
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect , get_object_or_404
 from django.http import HttpResponse,HttpResponseRedirect
 from django.urls import reverse
 from .models import *
@@ -13,7 +13,7 @@ import os
 import re
 from better_profanity import profanity
 from django.contrib import messages
-
+from django.contrib.contenttypes.models import ContentType
 #Additional variable
 app_dir = os.path.dirname(__file__)  # get current directory
 
@@ -158,33 +158,51 @@ def notifications(request):
 
 #Comment handler
 def comment(request,pid,cid):
+    #Initializing variables
+    post = get_object_or_404(Post,pk=pid)
+    user = request.user if request.user.is_authenticated else None
+    comment = Comment.objects.get(pk=cid,post=post) if Comment.objects.filter(pk=cid,post=post).exists() else None
+    referer_url = request.META['HTTP_REFERER']
     if request.method == "POST":
-        post = Post.objects.get(pk=pid)
-        if request.user.is_authenticated:
-            user = request.user
-        else:
-            user = None
+        report_content = request.POST.get("report",None)
+        comment_content = request.POST.get("comment",None)
+        if report_content:
+            if user and user != comment.commenter:
+                if 1 > len(report_content) > 255:
+                    messages.error(request,"Your report is have to more than single character & less than 255.")
+                    return redirect(f"{referer_url}#feadback")
+                else:
+                    ReportContent.objects.create(content_type=ContentType.objects.get_for_model(Comment),content_id=comment.pk,report_by=user,report_content=report_content)
+                    messages.success(request,"Your reported has been sent to admin. and you will get notified when the issue will be solved.")
+                    return redirect(f"{referer_url}#feadback")
+            else:
+                messages.error(request,"You can't report your own comment or you may not logged in!")
+                return redirect(f"{referer_url}#feadback")
 
-        try:
-            comment = Comment.objects.get(pk=cid,post=post)
-        except Exception as error:
-            comment = None
-        
-        content = request.POST.get("comment",None)
-        if content and len(content) < 500:
-            content = profanity.censor(content) #censoring bad word from comment
-        else:
-            messages.error(request,"Your comment have to be in between 1-500 character!")
-            return redirect(f"{request.META['HTTP_REFERER']}#alert-notice")
-                
-        if comment:
-            comment = Comment.objects.create(post=post,parent=comment,commenter=user,content=content,status="Published")
-            messages.success(request,"Your reply have been added successfully.")
-            return redirect(f"{request.META['HTTP_REFERER']}#comment-{comment.pk}")
-        else:
-            comment = Comment.objects.create(post=post,commenter=user,content=content,status="Published")
-            messages.success(request,"Your comment have been added successfully.")
-            return redirect(f"{request.META['HTTP_REFERER']}#comment-{comment.pk}")
+        elif comment_content:
+            if comment_content and len(comment_content) < 500:
+                comment_content = profanity.censor(comment_content) #censoring bad word from comment
+            else:
+                messages.error(request,"Your comment have to be in between 1-500 character!")
+                return redirect(f"{referer_url}#feadback")
+                    
+            if comment:
+                comment = Comment.objects.create(post=post,parent=comment,commenter=user,content=comment_content,status="Published")
+                messages.success(request,"Your reply have been added successfully.")
+                return redirect(f"{referer_url}#comment-{comment.pk}")
+            else:
+                comment = Comment.objects.create(post=post,commenter=user,content=comment_content,status="Published")
+                messages.success(request,"Your comment have been added successfully.")
+                return redirect(f"{referer_url}#comment-{comment.pk}")
     else:
-        response = {"status":"alert","message":"Invalid gateway!"}
-        return HttpResponse(json.dumps(response))
+        if request.GET.get('delete') == 'true': 
+            comment = Comment.objects.get(pk=cid,post=post)
+            if comment.commenter == request.user:
+                comment.delete()
+                messages.success(request,"Your comment have been deleted successfully.")
+                return redirect(f"{referer_url}#feadback")
+            else:
+                messages.error(request,"You don't have rights to delete the comment.")
+                return redirect(f"{referer_url}#feadback")
+            
+        return HttpResponse("No parameter passed!")
