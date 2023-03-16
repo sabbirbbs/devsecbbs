@@ -56,14 +56,6 @@ def author_profile(instance, filename):
 
 
 
-class Exclude_deleted(models.Manager): #Return element exclude is_deleted
-    def get_queryset(self):
-        return super().get_queryset().exclude(is_deleted=True)
-
-class Exclude_active(models.Manager): #Return element exclude is_active
-    def get_queryset(self):
-        return super().get_queryset().exclude(is_active=False)
-
 #writing database models
 class Category(MPTTModel):
     parent = TreeForeignKey('self', on_delete=models.CASCADE,null=True,blank=True, related_name='children')
@@ -72,7 +64,6 @@ class Category(MPTTModel):
     date = models.DateTimeField(default=datetime.datetime.now)
     is_active = models.BooleanField(default=True)
     note = models.TextField(blank=True,null=True)
-    objects = Exclude_active()
 
     def save(self,*args,**kwargs):
         if not self.slug:
@@ -98,7 +89,6 @@ class Post(models.Model):
     status = models.CharField(max_length=255,choices=[("Draft","Draft"),("Published","Published"),("Hot","Hot"),("Rejected","Rejected")])
     is_deleted = models.BooleanField(default=False)
     note = models.TextField(blank=True,null=True)
-    objects = Exclude_deleted()
 
     
     class Meta:
@@ -123,7 +113,6 @@ class Comment(MPTTModel):
     status = models.CharField(max_length=255,choices=[("Published","Published"),("Rejected","Rejected")],null=True,blank=True)
     is_deleted = models.BooleanField(default=False)
     note = models.TextField(blank=True,null=True)
-    objects = Exclude_deleted()
     
     class Meta:
         ordering = ('-date',)
@@ -146,7 +135,6 @@ class AuthorUser(AbstractUser):
     phone = models.IntegerField(null=True,blank=True)
     is_deleted = models.BooleanField(default=False)
     note = models.TextField(blank=True,null=True)
-    objects = Exclude_deleted()
 
     
     class Meta:

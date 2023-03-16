@@ -4,11 +4,20 @@ from django.contrib.auth.admin import UserAdmin
 from . import models 
 
 
+#Models Admin
+class CommentAdmin(admin.ModelAdmin):
+    list_display = ['id','content','is_deleted']
+    search_fields = ['content']
+    def get_queryset(self, request):
+        # Use the default manager to show all instances, including those where is_deleted is True,
+        # in the Django admin panel
+        return super().get_queryset(request)
+
 #configuring django admin
 
 admin.site.register(models.Post)
 admin.site.register(models.Category)
-admin.site.register(models.Comment)
+admin.site.register(models.Comment,CommentAdmin)
 admin.site.register(models.Notification)
 admin.site.register(models.ReportContent)
 

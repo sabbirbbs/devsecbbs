@@ -1,5 +1,6 @@
 {% extends "_Blog/client/home_layout.html" %}
 {% load static %}
+{% load blog_tags %}
 {% block title %} Home {% endblock %}
 {% block description %} This is DecSecBBS is the only blog the on the earth about technology {% endblock %}
 {% block style %}
@@ -8,12 +9,12 @@
 {% endblock %}
 
 {% block body %}
-<!-- Start blog post-->
+<!-- Start blog post -->
 <main class="pt-8 pb-16 lg:pt-16 lg:pb-24 bg-white dark:bg-gray-900">
     <div class="flex justify-between px-4 mx-auto max-w-screen-xl ">
         <article class="mx-auto w-full max-w-screen-xl format format-sm sm:format-base lg:format-lg format-blue dark:format-invert">
             <header class="mb-4 lg:mb-6 not-format">
-                <!-- Author info-->
+                <!-- Author info -->
                 <address class="flex items-center mb-6 not-italic">
                     <div class="inline-flex items-center mr-3 text-sm text-gray-900 dark:text-white">
                         {% if post.author.profile_photo %}
@@ -74,7 +75,7 @@
                 <h1 align="center" class="text-5xl font-extrabold dark:text-white">{{post.title}}</h1>
                     <article id="post" style="font-size:20px;" class="sun-editor-editable dark:bg-gray-900 dark:text-white" data-post_api="{% url 'Blog:fetch_post' post.pk %}">
                         <!--Post content came here-->
-                        {{post.content|safe}}
+                        {{post.content|html_trunc:0}}
                     </article>
                 <!-- End post section -->
                 <hr>
@@ -103,7 +104,7 @@
           </form>
           {% if messages %}
           <!-- Comment handled notification -->
-          <div id="feadback">
+          <div id="feadback" class="no-target">
             {% for message in messages %}
             {% if message.tags == 'success' %}
                 <div id="success-{{forloop.counter}}" class="flex p-4 mb-4 text-green-800 rounded-lg bg-green-50 dark:bg-gray-800 dark:text-green-400" role="alert">
@@ -136,171 +137,193 @@
           {% endif %}
           <!-- Parent comment -->
           {% for comment in post.post_comment.all reversed %}
-          {% if comment.level == 0 %}
-          <article id="comment-{{comment.pk}}" data-commenter-name='{{comment.commenter.username}}' data-comment-url='{% url 'Blog:comment' post.pk comment.pk %}' class="p-6 text-base bg-white rounded-lg dark:bg-gray-900">
-              <footer class="flex justify-between items-center mb-2">
-                <div class="flex items-center">
-                    {% if comment.commenter.username %}
-                    {% if comment.commenter.profile_photo %}
-                    <p class="mr-3 inline-flex items-center text-sm text-gray-900 dark:text-white"><img class="mr-2 h-6 w-6 rounded-full" src="{{comment.commenter.profile_photo.url}}" alt="{{comment.commenter.username}}" />{{comment.commenter.username}}</p>
-                    {% else %}
-                    <p class="mr-3 inline-flex items-center text-sm text-gray-900 dark:text-white"><svg class="mr-2 h-6 w-6 jdenticon rounded-full" data-jdenticon-value="{{comment.commenter.username}}"></svg>{{comment.commenter.username}}</p>
-                    {% endif %}
-                    {% else %}
-                    <p class="mr-3 inline-flex items-center text-sm text-gray-900 dark:text-white"><svg class="mr-2 h-6 jdenticon w-6 rounded-full" data-jdenticon-value="anonymouse}"></svg>Anonymouse</p>
-                    {% endif %}
-                    <p class="text-sm text-gray-600 dark:text-gray-400"><time pubdate datetime="{{comment.date}}">{{comment.date}}</time></p>
-                </div>
-                <!-- User comment action button -->
-                {% if user.is_authenticated %}
-                    {% if user == comment.commenter %}
-                    <button id="dropdownComment1Button" data-dropdown-toggle="dropdownComment1" class="inline-flex items-center p-2 text-sm font-medium text-center text-gray-400 bg-white rounded-lg hover:bg-gray-100 focus:ring-4 focus:outline-none focus:ring-gray-50 dark:bg-gray-900 dark:hover:bg-gray-700 dark:focus:ring-gray-600" type="button">
-                        <svg class="w-5 h-5" aria-hidden="true" fill="currentColor" viewBox="0 0 20 20"
-                            xmlns="http://www.w3.org/2000/svg">
-                            <path
-                                d="M6 10a2 2 0 11-4 0 2 2 0 014 0zM12 10a2 2 0 11-4 0 2 2 0 014 0zM16 12a2 2 0 100-4 2 2 0 000 4z">
-                            </path>
-                        </svg>
-                        <span class="sr-only">Comment settings</span>
-                    </button>
-                    <!-- Dropdown menu comment setting -->
-                    <div id="dropdownComment1" class="hidden z-10 w-36 bg-white rounded divide-y divide-gray-100 shadow dark:bg-gray-700 dark:divide-gray-600">
-                        <ul class="py-1 text-sm text-gray-700 dark:text-gray-200"
-                            aria-labelledby="dropdownMenuIconHorizontalButton">
-                            <li>
-                                <a href="#" class="block py-2 px-4 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">Edit</a>
-                            </li>
-                            <li>
-                                <a href="{% url 'Blog:comment' post.pk comment.pk %}?delete=true" class="block py-2 px-4 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">Remove</a>
-                            </li>
-                        </ul>
+          {% if comment.level == 0 and not comment.is_deleted %}
+          <div class="parent_comment{{comment.pk}} max-w-2xl mx-auto px-4" data-accordion="open">
+            <article id="comment-{{comment.pk}}" data-commenter-name='{{comment.commenter.username}}' data-comment-url='{% url 'Blog:comment' post.pk comment.pk %}' class="p-6 text-base bg-white rounded-lg dark:bg-gray-900">
+                <footer class="flex justify-between items-center mb-2">
+                    <div class="flex items-center">
+                        {% if comment.commenter.username %}
+                        {% if comment.commenter.profile_photo %}
+                        <p class="mr-3 inline-flex items-center text-sm text-gray-900 dark:text-white"><img class="mr-2 h-6 w-6 rounded-full" src="{{comment.commenter.profile_photo.url}}" alt="{{comment.commenter.username}}" />{{comment.commenter.username}}</p>
+                        {% else %}
+                        <p class="mr-3 inline-flex items-center text-sm text-gray-900 dark:text-white"><svg class="mr-2 h-6 w-6 jdenticon rounded-full" data-jdenticon-value="{{comment.commenter.username}}"></svg>{{comment.commenter.username}}</p>
+                        {% endif %}
+                        {% else %}
+                        <p class="mr-3 inline-flex items-center text-sm text-gray-900 dark:text-white"><svg class="mr-2 h-6 jdenticon w-6 rounded-full" data-jdenticon-value="anonymouse}"></svg>Anonymouse</p>
+                        {% endif %}
+                        <p class="text-sm text-gray-600 dark:text-gray-400"><time pubdate datetime="{{comment.date}}">{{comment.date}}</time></p>
                     </div>
+                    <!-- User comment action button -->
+                    <div class="lef_of_comment">
+                    {% if comment.get_descendants %}
+                    <button data-accordion-target="#nested_comment{{comment.pk}}" aria-expanded="true" aria-controls="nested_comment{{comment.pk}}" class="p-2 text-sm font-medium text-center text-gray-400 bg-white rounded-lg hover:bg-gray-100 focus:ring-4 focus:outline-none focus:ring-gray-50 dark:bg-gray-900 dark:hover:bg-gray-700 dark:focus:ring-gray-600" type="button">
+                        <svg data-accordion-icon class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>
+                        <span class="sr-only">Collapse comment</span>
+                    </button>
+                    {% endif %}
+                    {% if user.is_authenticated %}
+                        {% if user == comment.commenter %}
+                        <button id="dropdownComment1Button" data-dropdown-toggle="dropdownComment{{comment.pk}}" class="inline-flex items-center p-2 text-sm font-medium text-center text-gray-400 bg-white rounded-lg hover:bg-gray-100 focus:ring-4 focus:outline-none focus:ring-gray-50 dark:bg-gray-900 dark:hover:bg-gray-700 dark:focus:ring-gray-600" type="button">
+                            <svg class="w-5 h-5" aria-hidden="true" fill="currentColor" viewBox="0 0 20 20"
+                                xmlns="http://www.w3.org/2000/svg">
+                                <path
+                                    d="M6 10a2 2 0 11-4 0 2 2 0 014 0zM12 10a2 2 0 11-4 0 2 2 0 014 0zM16 12a2 2 0 100-4 2 2 0 000 4z">
+                                </path>
+                            </svg>
+                            <span class="sr-only">Comment settings</span>
+                        </button>
+                        <!-- Dropdown menu comment setting -->
+                        <div id="dropdownComment{{comment.pk}}" class="hidden z-10 w-36 bg-white rounded divide-y divide-gray-100 shadow dark:bg-gray-700 dark:divide-gray-600">
+                            <ul class="py-1 text-sm text-gray-700 dark:text-gray-200"
+                                aria-labelledby="dropdownMenuIconHorizontalButton">
+                                <li>
+                                    <button data-article-comment="comment-{{comment.pk}}" class="block py-2 edit-comment px-4 w-full text-left hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">Edit</button>
+                                </li>
+                                <li>
+                                    <form action="{% url 'Blog:comment' post.pk comment.pk %}" method="POST">
+                                        {% csrf_token %}
+                                        <input type='hidden' name="comment_delete" value="true">
+                                        <button type='submit' class="block py-2 px-4 w-full text-left hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">Remove</button>
+                                    </form>
+                                </li>
+                            </ul>
+                        </div>
+                        {% else %}
+                            <button id="dropdownReportButton" data-dropdown-toggle="dropdownReport" title='Report' class="inline-flex items-center p-2 text-sm font-medium text-center text-gray-400 bg-white rounded-lg hover:bg-gray-100 focus:ring-4 focus:outline-none focus:ring-gray-50 dark:bg-gray-900 dark:hover:bg-gray-700 dark:focus:ring-gray-600" type="button">
+                                <svg class="w-5 h-5 dark:fill-white" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <g clip-path="url(#clip0_429_11107)"> <path d="M12 21C16.9706 21 21 16.9706 21 12C21 7.02944 16.9706 3 12 3C7.02944 3 3 7.02944 3 12C3 13.4876 3.36093 14.891 4 16.1272L3 21L7.8728 20C9.10904 20.6391 10.5124 21 12 21Z" stroke="#292929" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"></path> <path d="M9 12.001H15" stroke="#292929" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"></path> </g> <defs> <clipPath id="clip0_429_11107"> <rect width="24" height="24" fill="white"></rect> </clipPath> </defs> </g></svg>
+                                <span class="sr-only">Report</span>
+                            </button>
+                            <!-- Report section -->
+                            <div id="dropdownReport" class="hidden z-10 w-64 bg-white rounded divide-y divide-gray-100 shadow dark:bg-gray-700 dark:divide-gray-600">
+                                <form class="mb-2" action="{% url 'Blog:comment' post.pk comment.pk %}" method="POST">
+                                    <div class="py-2 px-4 mb-4 bg-white rounded-lg rounded-t-lg border border-gray-200 dark:bg-gray-800 dark:border-gray-700">
+                                        <label for="comment" class="sr-only">Your report</label>
+                                        {% csrf_token %}
+                                        <textarea id="comment" rows="6" name="report"
+                                            class="px-0 w-full text-sm text-gray-900 border-0 focus:ring-0 focus:outline-none dark:text-white dark:placeholder-gray-400 dark:bg-gray-800"
+                                            placeholder="Write your complain against the comment." maxlength="255" required></textarea>
+                                    </div>
+                                    <button type="submit" class="inline-flex items-center px-4 py-2 ml-[50%] text-xs font-medium text-center text-white bg-blue-700 rounded-lg focus:ring-4 focus:ring-blue-200 dark:focus:ring-blue-900 hover:bg-blue-800">
+                                        Submit report
+                                    </button>
+                                </form>
+                            </div>
+                        {% endif %}
                     {% else %}
-                        <button id="dropdownReportButton" data-dropdown-toggle="dropdownReport" title='Report' class="inline-flex items-center p-2 text-sm font-medium text-center text-gray-400 bg-white rounded-lg hover:bg-gray-100 focus:ring-4 focus:outline-none focus:ring-gray-50 dark:bg-gray-900 dark:hover:bg-gray-700 dark:focus:ring-gray-600" type="button">
+                        <button id="dropdownReportButton" data-dropdown-toggle="dropdownReportAnon" title='Report' class="inline-flex items-center p-2 text-sm font-medium text-center text-gray-400 bg-white rounded-lg hover:bg-gray-100 focus:ring-4 focus:outline-none focus:ring-gray-50 dark:bg-gray-900 dark:hover:bg-gray-700 dark:focus:ring-gray-600" type="button">
                             <svg class="w-5 h-5 dark:fill-white" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <g clip-path="url(#clip0_429_11107)"> <path d="M12 21C16.9706 21 21 16.9706 21 12C21 7.02944 16.9706 3 12 3C7.02944 3 3 7.02944 3 12C3 13.4876 3.36093 14.891 4 16.1272L3 21L7.8728 20C9.10904 20.6391 10.5124 21 12 21Z" stroke="#292929" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"></path> <path d="M9 12.001H15" stroke="#292929" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"></path> </g> <defs> <clipPath id="clip0_429_11107"> <rect width="24" height="24" fill="white"></rect> </clipPath> </defs> </g></svg>
                             <span class="sr-only">Report</span>
                         </button>
                         <!-- Report section -->
-                        <div id="dropdownReport" class="hidden z-10 w-64 bg-white rounded divide-y divide-gray-100 shadow dark:bg-gray-700 dark:divide-gray-600">
-                            <form class="mb-2" action="{% url 'Blog:comment' post.pk comment.pk %}" method="POST">
-                                <div class="py-2 px-4 mb-4 bg-white rounded-lg rounded-t-lg border border-gray-200 dark:bg-gray-800 dark:border-gray-700">
-                                    <label for="comment" class="sr-only">Your report</label>
-                                    {% csrf_token %}
-                                    <textarea id="comment" rows="6" name="report"
-                                        class="px-0 w-full text-sm text-gray-900 border-0 focus:ring-0 focus:outline-none dark:text-white dark:placeholder-gray-400 dark:bg-gray-800"
-                                        placeholder="Write your complain against the comment." maxlength="255" required></textarea>
-                                </div>
-                                <button type="submit" class="inline-flex items-center px-4 py-2 ml-[50%] text-xs font-medium text-center text-white bg-blue-700 rounded-lg focus:ring-4 focus:ring-blue-200 dark:focus:ring-blue-900 hover:bg-blue-800">
-                                    Submit report
-                                </button>
-                            </form>
+                        <div id="dropdownReportAnon" class="hidden z-10 w-64 bg-white rounded divide-y divide-gray-100 shadow dark:bg-gray-700 dark:divide-gray-600">
+                            <p class="p-2">You have to sign up to report the comment! <a href="#" class="text-blue-700">Sign up</a></P>
                         </div>
                     {% endif %}
-                {% else %}
-                    <button id="dropdownReportButton" data-dropdown-toggle="dropdownReportAnon" title='Report' class="inline-flex items-center p-2 text-sm font-medium text-center text-gray-400 bg-white rounded-lg hover:bg-gray-100 focus:ring-4 focus:outline-none focus:ring-gray-50 dark:bg-gray-900 dark:hover:bg-gray-700 dark:focus:ring-gray-600" type="button">
-                        <svg class="w-5 h-5 dark:fill-white" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <g clip-path="url(#clip0_429_11107)"> <path d="M12 21C16.9706 21 21 16.9706 21 12C21 7.02944 16.9706 3 12 3C7.02944 3 3 7.02944 3 12C3 13.4876 3.36093 14.891 4 16.1272L3 21L7.8728 20C9.10904 20.6391 10.5124 21 12 21Z" stroke="#292929" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"></path> <path d="M9 12.001H15" stroke="#292929" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"></path> </g> <defs> <clipPath id="clip0_429_11107"> <rect width="24" height="24" fill="white"></rect> </clipPath> </defs> </g></svg>
-                        <span class="sr-only">Report</span>
-                    </button>
-                    <!-- Report section -->
-                    <div id="dropdownReportAnon" class="hidden z-10 w-64 bg-white rounded divide-y divide-gray-100 shadow dark:bg-gray-700 dark:divide-gray-600">
-                        <p class="p-2">You have to sign up to report the comment! <a href="#" class="text-blue-700">Sign up</a></P>
                     </div>
-                {% endif %}
-              </footer>
-              <p class="text-gray-500 dark:text-gray-400">{{comment.content}}</p>
-              <div class="flex items-center mt-4 space-x-4">
-                  <button type="button" class="flex reply-comment items-center text-sm text-gray-500 hover:underline dark:text-gray-400">
-                      <svg aria-hidden="true" class="mr-1 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path></svg>
-                      Reply
-                  </button>
-              </div>
-          </article>
-          
-          {% if comment.get_descendants %}
-          <!--Nested comment-->
-          {% for replier in comment.get_descendants %}
-          <article id="comment-{{replier.pk}}" data-commenter-name='{{replier.commenter.username}}' data-comment-url='{% url 'Blog:comment' post.pk replier.pk %}' class="ml-12 rounded-lg bg-white p-2 text-base dark:bg-gray-900">
-            <footer class="mb-2 flex items-center justify-between">
-                <div class="flex items-center">
-                    {% if replier.commenter.username %}
-                    {% if replier.commenter.profile_photo %}
-                    <p class="mr-3 inline-flex items-center text-sm text-gray-900 dark:text-white"><img class="mr-2 h-6 w-6 rounded-full" src="{{replier.commenter.profile_photo.url}}" alt="{{replier.commenter.username}}"/>{{replier.commenter.username}}</p>
-                    {% else %}
-                    <p class="mr-3 inline-flex items-center text-sm text-gray-900 dark:text-white"><svg class="mr-2 h-6 jdenticon w-6 rounded-full" data-jdenticon-value="{{replier.commenter.username}}"></svg>{{replier.commenter.username}}</p>
-                    {% endif %}
-                    {% else %}
-                    <p class="mr-3 inline-flex items-center text-sm text-gray-900 dark:text-white"><svg class="mr-2 h-6 jdenticon w-6 rounded-full" data-jdenticon-value="anonymouse}"></svg>Anonymouse</p>
-                    {% endif %}
-                    <p class="text-sm text-gray-600 dark:text-gray-400"><time pubdate datetime="{{replier.date}}">{{replier.date}}</time></p>
+                </footer>
+                <p id="comment-content" class="text-gray-500 dark:text-gray-400">{{comment.content}}</p>
+                <div class="flex items-center mt-4 space-x-4">
+                    <button type="button" class="flex reply-comment items-center text-sm text-gray-500 hover:underline dark:text-gray-400">
+                        <svg aria-hidden="true" class="mr-1 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path></svg>
+                        Reply
+                    </button>
                 </div>
-                <!-- User comment action button -->
-                {% if user.is_authenticated %}
-                    {% if user == replier.commenter %}
-                    <button id="dropdownComment1Button" data-dropdown-toggle="dropdownComment1" class="inline-flex items-center p-2 text-sm font-medium text-center text-gray-400 bg-white rounded-lg hover:bg-gray-100 focus:ring-4 focus:outline-none focus:ring-gray-50 dark:bg-gray-900 dark:hover:bg-gray-700 dark:focus:ring-gray-600" type="button">
-                        <svg class="w-5 h-5" aria-hidden="true" fill="currentColor" viewBox="0 0 20 20"
-                            xmlns="http://www.w3.org/2000/svg">
-                            <path
-                                d="M6 10a2 2 0 11-4 0 2 2 0 014 0zM12 10a2 2 0 11-4 0 2 2 0 014 0zM16 12a2 2 0 100-4 2 2 0 000 4z">
-                            </path>
-                        </svg>
-                        <span class="sr-only">Comment settings</span>
-                    </button>
-                    <!-- Dropdown menu comment setting -->
-                    <div id="dropdownComment1" class="hidden z-10 w-36 bg-white rounded divide-y divide-gray-100 shadow dark:bg-gray-700 dark:divide-gray-600">
-                        <ul class="py-1 text-sm text-gray-700 dark:text-gray-200"
-                            aria-labelledby="dropdownMenuIconHorizontalButton">
-                            <li>
-                                <a href="#" class="block py-2 px-4 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">Edit</a>
-                            </li>
-                            <li>
-                                <a href="{% url 'Blog:comment' post.pk replier.pk %}?delete=true" class="block py-2 px-4 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">Remove</a>
-                            </li>
-                        </ul>
-                    </div>
-                    {% else %}
-                        <button id="dropdownReportButton" data-dropdown-toggle="dropdownReport" title='Report' class="inline-flex items-center p-2 text-sm font-medium text-center text-gray-400 bg-white rounded-lg hover:bg-gray-100 focus:ring-4 focus:outline-none focus:ring-gray-50 dark:bg-gray-900 dark:hover:bg-gray-700 dark:focus:ring-gray-600" type="button">
-                            <svg class="w-5 h-5 dark:fill-white" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <g clip-path="url(#clip0_429_11107)"> <path d="M12 21C16.9706 21 21 16.9706 21 12C21 7.02944 16.9706 3 12 3C7.02944 3 3 7.02944 3 12C3 13.4876 3.36093 14.891 4 16.1272L3 21L7.8728 20C9.10904 20.6391 10.5124 21 12 21Z" stroke="#292929" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"></path> <path d="M9 12.001H15" stroke="#292929" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"></path> </g> <defs> <clipPath id="clip0_429_11107"> <rect width="24" height="24" fill="white"></rect> </clipPath> </defs> </g></svg>
-                            <span class="sr-only">Report</span>
-                        </button>
-                        <!-- Report section -->
-                        <div id="dropdownReport" class="hidden z-10 w-64 bg-white rounded divide-y divide-gray-100 shadow dark:bg-gray-700 dark:divide-gray-600">
-                            <form class="mb-2" action="{% url 'Blog:comment' post.pk replier.pk %}" method="POST">
-                                <div class="py-2 px-4 mb-4 bg-white rounded-lg rounded-t-lg border border-gray-200 dark:bg-gray-800 dark:border-gray-700">
-                                    <label for="comment" class="sr-only">Your report</label>
-                                    {% csrf_token %}
-                                    <textarea id="comment" rows="6" name="report"
-                                        class="px-0 w-full text-sm text-gray-900 border-0 focus:ring-0 focus:outline-none dark:text-white dark:placeholder-gray-400 dark:bg-gray-800"
-                                        placeholder="Write your complain against the comment." required></textarea>
-                                </div>
-                                <button type="submit" class="inline-flex items-center px-4 py-2 ml-[50%] text-xs font-medium text-center text-white bg-blue-700 rounded-lg focus:ring-4 focus:ring-blue-200 dark:focus:ring-blue-900 hover:bg-blue-800">
-                                    Submit report
+            </article>
+            
+            {% if comment.get_descendants %}
+            <div id="nested_comment{{comment.pk}}" class="hidden">
+                <!--Nested comment-->
+                {% for replier in comment.get_descendants %}
+                {% if not replier.is_deleted %}
+                    <article id="comment-{{replier.pk}}" data-commenter-name='{{replier.commenter.username}}' data-comment-url='{% url 'Blog:comment' post.pk replier.pk %}' class="ml-12 rounded-lg bg-white p-2 text-base dark:bg-gray-900">
+                        <footer class="mb-2 flex items-center justify-between">
+                            <div class="flex items-center">
+                                {% if replier.commenter.username %}
+                                {% if replier.commenter.profile_photo %}
+                                <p class="mr-3 inline-flex items-center text-sm text-gray-900 dark:text-white"><img class="mr-2 h-6 w-6 rounded-full" src="{{replier.commenter.profile_photo.url}}" alt="{{replier.commenter.username}}"/>{{replier.commenter.username}}</p>
+                                {% else %}
+                                <p class="mr-3 inline-flex items-center text-sm text-gray-900 dark:text-white"><svg class="mr-2 h-6 jdenticon w-6 rounded-full" data-jdenticon-value="{{replier.commenter.username}}"></svg>{{replier.commenter.username}}</p>
+                                {% endif %}
+                                {% else %}
+                                <p class="mr-3 inline-flex items-center text-sm text-gray-900 dark:text-white"><svg class="mr-2 h-6 jdenticon w-6 rounded-full" data-jdenticon-value="anonymouse}"></svg>Anonymouse</p>
+                                {% endif %}
+                                <p class="text-sm text-gray-600 dark:text-gray-400"><time pubdate datetime="{{replier.date}}">{{replier.date}}</time></p>
+                            </div>
+                            <!-- User comment action button -->
+                            {% if user.is_authenticated %}
+                                {% if user == replier.commenter %}
+                                <button id="dropdownComment1Button" data-dropdown-toggle="dropdownComment{{replier.pk}}" class="inline-flex items-center p-2 text-sm font-medium text-center text-gray-400 bg-white rounded-lg hover:bg-gray-100 focus:ring-4 focus:outline-none focus:ring-gray-50 dark:bg-gray-900 dark:hover:bg-gray-700 dark:focus:ring-gray-600" type="button">
+                                    <svg class="w-5 h-5" aria-hidden="true" fill="currentColor" viewBox="0 0 20 20"
+                                        xmlns="http://www.w3.org/2000/svg">
+                                        <path
+                                            d="M6 10a2 2 0 11-4 0 2 2 0 014 0zM12 10a2 2 0 11-4 0 2 2 0 014 0zM16 12a2 2 0 100-4 2 2 0 000 4z">
+                                        </path>
+                                    </svg>
+                                    <span class="sr-only">Comment settings</span>
                                 </button>
-                            </form>
+                                <!-- Dropdown menu comment setting -->
+                                <div id="dropdownComment{{replier.pk}}" class="hidden z-10 w-36 bg-white rounded divide-y divide-gray-100 shadow dark:bg-gray-700 dark:divide-gray-600">
+                                    <ul class="py-1 text-sm text-gray-700 dark:text-gray-200"
+                                        aria-labelledby="dropdownMenuIconHorizontalButton">
+                                        <li>
+                                            <button data-article-comment="comment-{{replier.pk}}" class="block py-2 edit-comment px-4 w-full text-left hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">Edit</button>
+                                        </li>
+                                        <li>
+                                            <form action="{% url 'Blog:comment' post.pk replier.pk %}" method="POST">
+                                                {% csrf_token %}
+                                                <input type='hidden' name="comment_delete" value="true">
+                                                <button type='submit' class="block py-2 px-4 w-full text-left hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">Remove</button>
+                                            </form>
+                                        </li>
+                                    </ul>
+                                </div>
+                                {% else %}
+                                    <button id="dropdownReportButton" data-dropdown-toggle="dropdownReport" title='Report' class="inline-flex items-center p-2 text-sm font-medium text-center text-gray-400 bg-white rounded-lg hover:bg-gray-100 focus:ring-4 focus:outline-none focus:ring-gray-50 dark:bg-gray-900 dark:hover:bg-gray-700 dark:focus:ring-gray-600" type="button">
+                                        <svg class="w-5 h-5 dark:fill-white" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <g clip-path="url(#clip0_429_11107)"> <path d="M12 21C16.9706 21 21 16.9706 21 12C21 7.02944 16.9706 3 12 3C7.02944 3 3 7.02944 3 12C3 13.4876 3.36093 14.891 4 16.1272L3 21L7.8728 20C9.10904 20.6391 10.5124 21 12 21Z" stroke="#292929" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"></path> <path d="M9 12.001H15" stroke="#292929" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"></path> </g> <defs> <clipPath id="clip0_429_11107"> <rect width="24" height="24" fill="white"></rect> </clipPath> </defs> </g></svg>
+                                        <span class="sr-only">Report</span>
+                                    </button>
+                                    <!-- Report section -->
+                                    <div id="dropdownReport" class="hidden z-10 w-64 bg-white rounded divide-y divide-gray-100 shadow dark:bg-gray-700 dark:divide-gray-600">
+                                        <form class="mb-2" action="{% url 'Blog:comment' post.pk replier.pk %}" method="POST">
+                                            <div class="py-2 px-4 mb-4 bg-white rounded-lg rounded-t-lg border border-gray-200 dark:bg-gray-800 dark:border-gray-700">
+                                                <label for="comment" class="sr-only">Your report</label>
+                                                {% csrf_token %}
+                                                <textarea id="comment" rows="6" name="report"
+                                                    class="px-0 w-full text-sm text-gray-900 border-0 focus:ring-0 focus:outline-none dark:text-white dark:placeholder-gray-400 dark:bg-gray-800"
+                                                    placeholder="Write your complain against the comment." required></textarea>
+                                            </div>
+                                            <button type="submit" class="inline-flex items-center px-4 py-2 ml-[50%] text-xs font-medium text-center text-white bg-blue-700 rounded-lg focus:ring-4 focus:ring-blue-200 dark:focus:ring-blue-900 hover:bg-blue-800">
+                                                Submit report
+                                            </button>
+                                        </form>
+                                    </div>
+                                {% endif %}
+                            {% else %}
+                                <button id="dropdownReportButton" data-dropdown-toggle="dropdownReportAnon" title='Report' class="inline-flex items-center p-2 text-sm font-medium text-center text-gray-400 bg-white rounded-lg hover:bg-gray-100 focus:ring-4 focus:outline-none focus:ring-gray-50 dark:bg-gray-900 dark:hover:bg-gray-700 dark:focus:ring-gray-600" type="button">
+                                    <svg class="w-5 h-5 dark:fill-white" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <g clip-path="url(#clip0_429_11107)"> <path d="M12 21C16.9706 21 21 16.9706 21 12C21 7.02944 16.9706 3 12 3C7.02944 3 3 7.02944 3 12C3 13.4876 3.36093 14.891 4 16.1272L3 21L7.8728 20C9.10904 20.6391 10.5124 21 12 21Z" stroke="#292929" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"></path> <path d="M9 12.001H15" stroke="#292929" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"></path> </g> <defs> <clipPath id="clip0_429_11107"> <rect width="24" height="24" fill="white"></rect> </clipPath> </defs> </g></svg>
+                                    <span class="sr-only">Report</span>
+                                </button>
+                                <!-- Report section -->
+                                <div id="dropdownReportAnon" class="hidden z-10 w-64 bg-white rounded divide-y divide-gray-100 shadow dark:bg-gray-700 dark:divide-gray-600">
+                                    <p class="p-2">You have to sign up to report the comment! <a href="#" class="text-blue-700">Sign up</a></P>
+                                </div>
+                            {% endif %}
+                        </footer>
+                        <p id="comment-content" class="text-gray-500 dark:text-gray-400">{{replier.content}}</p>
+                        <div class="flex items-center mt-4 space-x-4">
+                            <button type="button" class="flex reply-comment items-center text-sm text-gray-500 hover:underline dark:text-gray-400">
+                                <svg aria-hidden="true" class="mr-1 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path></svg>
+                                Reply
+                            </button>
                         </div>
-                    {% endif %}
-                {% else %}
-                    <button id="dropdownReportButton" data-dropdown-toggle="dropdownReportAnon" title='Report' class="inline-flex items-center p-2 text-sm font-medium text-center text-gray-400 bg-white rounded-lg hover:bg-gray-100 focus:ring-4 focus:outline-none focus:ring-gray-50 dark:bg-gray-900 dark:hover:bg-gray-700 dark:focus:ring-gray-600" type="button">
-                        <svg class="w-5 h-5 dark:fill-white" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <g clip-path="url(#clip0_429_11107)"> <path d="M12 21C16.9706 21 21 16.9706 21 12C21 7.02944 16.9706 3 12 3C7.02944 3 3 7.02944 3 12C3 13.4876 3.36093 14.891 4 16.1272L3 21L7.8728 20C9.10904 20.6391 10.5124 21 12 21Z" stroke="#292929" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"></path> <path d="M9 12.001H15" stroke="#292929" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"></path> </g> <defs> <clipPath id="clip0_429_11107"> <rect width="24" height="24" fill="white"></rect> </clipPath> </defs> </g></svg>
-                        <span class="sr-only">Report</span>
-                    </button>
-                    <!-- Report section -->
-                    <div id="dropdownReportAnon" class="hidden z-10 w-64 bg-white rounded divide-y divide-gray-100 shadow dark:bg-gray-700 dark:divide-gray-600">
-                        <p class="p-2">You have to sign up to report the comment! <a href="#" class="text-blue-700">Sign up</a></P>
-                    </div>
+                    </article>
                 {% endif %}
-              </footer>
-              <p class="text-gray-500 dark:text-gray-400">{{replier.content}}</p>
-              <div class="flex items-center mt-4 space-x-4">
-                  <button type="button" class="flex reply-comment items-center text-sm text-gray-500 hover:underline dark:text-gray-400">
-                      <svg aria-hidden="true" class="mr-1 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path></svg>
-                      Reply
-                  </button>
-              </div>
-          </article>
-          {% endfor %}
-          <!--End nested comment-->
-          {% endif %}
-          {% endif %}
+                {% endfor %}
+                <!--End nested comment-->
+            {% endif %}
+            </div>
+            {% endif %}
+          </div>
           {% empty %}
           <div class="p-4 mb-4 text-sm text-blue-700 bg-blue-100 rounded-lg dark:bg-gray-800 dark:text-blue-400" role="alert">
             <span class="font-medium">...</span>There are have no comment yet.
@@ -310,7 +333,8 @@
     </section>
     <!-- End comment section -->
 </main>
-  
+
+
 <aside aria-label="Related articles" class="py-8 lg:py-24 bg-gray-50 dark:bg-gray-800">
     <div class="px-4 mx-auto max-w-screen-xl">
         <h2 class="mb-8 text-2xl font-bold text-gray-900 dark:text-white">Related articles</h2>

@@ -166,7 +166,9 @@ def comment(request,pid,cid):
     if request.method == "POST":
         report_content = request.POST.get("report",None)
         comment_content = request.POST.get("comment",None)
-        if report_content:
+        comment_delete = request.POST.get("comment_delete",None)
+        comment_edit = request.POST.get("comment_edit",None)
+        if report_content: #Handling comment report if it's in post form
             if user and user != comment.commenter:
                 if 1 > len(report_content) > 255:
                     messages.error(request,"Your report is have to more than single character & less than 255.")
@@ -179,7 +181,7 @@ def comment(request,pid,cid):
                 messages.error(request,"You can't report your own comment or you may not logged in!")
                 return redirect(f"{referer_url}#feadback")
 
-        elif comment_content:
+        elif comment_content:   #Handling comment & reply if comment content exit
             if comment_content and len(comment_content) < 500:
                 comment_content = profanity.censor(comment_content) #censoring bad word from comment
             else:
@@ -187,22 +189,28 @@ def comment(request,pid,cid):
                 return redirect(f"{referer_url}#feadback")
                     
             if comment:
-                comment = Comment.objects.create(post=post,parent=comment,commenter=user,content=comment_content,status="Published")
-                messages.success(request,"Your reply have been added successfully.")
-                return redirect(f"{referer_url}#comment-{comment.pk}")
+                if comment_edit and comment.commenter == request.user:
+                    comment.content = comment_content
+                    comment.save()
+                    messages.success(request,"Your comment have been edited successfully.")
+                    return redirect(f"{referer_url}#comment-{comment.pk}")
+                else:
+                    new_comment = Comment.objects.create(post=post,parent=comment,commenter=user,content=comment_content,status="Published")
+                    messages.success(request,"Your reply have been added successfully.")
+                    return redirect(f"{referer_url}#comment-{new_comment.pk}")
             else:
-                comment = Comment.objects.create(post=post,commenter=user,content=comment_content,status="Published")
+                new_comment = Comment.objects.create(post=post,commenter=user,content=comment_content,status="Published")
                 messages.success(request,"Your comment have been added successfully.")
-                return redirect(f"{referer_url}#comment-{comment.pk}")
-    else:
-        if request.GET.get('delete') == 'true': 
-            comment = Comment.objects.get(pk=cid,post=post)
+                return redirect(f"{referer_url}#comment-{new_comment.pk}")
+        elif comment_delete:
             if comment.commenter == request.user:
-                comment.delete()
+                comment.is_deleted = True
+                comment.save()
                 messages.success(request,"Your comment have been deleted successfully.")
                 return redirect(f"{referer_url}#feadback")
             else:
                 messages.error(request,"You don't have rights to delete the comment.")
                 return redirect(f"{referer_url}#feadback")
-            
+
+    else:
         return HttpResponse("No parameter passed!")

@@ -1,6 +1,6 @@
 console.log("Hello from blog script")
 
-//Functions
+////Additional function
 //Get cookie
 function getCookie(name) {
     let cookieValue = null;
@@ -31,7 +31,7 @@ function loadJicon() {
   };
 
 //Create new element
-
+//Create replie info alert
 function createReplyTo(comment_id,commenter_name){
     return `
     <div id="alert-border-1" class="flex p-4 mb-4 text-blue-800 border-t-4 border-blue-300 bg-blue-50 dark:text-blue-400 dark:bg-gray-800 dark:border-blue-800" role="alert">
@@ -45,27 +45,60 @@ function createReplyTo(comment_id,commenter_name){
     </div>`
 }
 
-function createAlert(type,message){
-    if(type === "success"){
-        bg = "bg-green-100"
-    }
-    else{
-        bg = "bg-blue-100"
-    }
-    return `<div class="${bg} rounded-lg py-5 px-6 mb-4 text-base text-blue-700 mb-3" role="alert">
-    ${message}
+//Create edit comment info alert
+function editcomment(comment_id,commenter_name){
+    return `
+    <div id="alert-border-1" class="flex p-4 mb-4 text-blue-800 border-t-4 border-blue-300 bg-blue-50 dark:text-blue-400 dark:bg-gray-800 dark:border-blue-800" role="alert">
+        <svg aria-hidden="true" class="flex-shrink-0 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path></svg>
+        <div class="ml-3 text-sm font-medium">
+          Hey, ${commenter_name}, you are gonna edit your <a href="#${comment_id}" class="font-semibold underline hover:no-underline">comment</a>.
+        </div>
+        <button type="button" onclick="dismissEditor()" class="text-blue-800 ml-auto bg-transparent border border-blue-800 hover:bg-blue-900 hover:text-white focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-xs px-3 py-1.5 text-center dark:hover:bg-blue-600 dark:border-blue-600 dark:text-blue-400 dark:hover:text-white dark:focus:ring-blue-800" aria-label="Close">
+          Cancel reply
+        </button>
     </div>`
 }
 
-//Additional function
 
+//Add & remove hidden input inside from : written by chatgpt
+function addHiddenInputToForm(formId, inputName, inputValue) {
+    $('#' + formId).append('<input type="hidden" name="' + inputName + '" value="' + inputValue + '">');
+  }
+
+function removeHiddenInputFromForm(formId, inputName) {
+  $('#' + formId + ' input[name="' + inputName + '"]').remove();
+}
+  
+//Dismiss comment replier
 function dismissReplier(){
     reply_to = $("#reply-to")
     comment_form = $("#comment-form")
     comment_form.attr('action',comment_form.data('default-action'))
+    removeBorderBottom()
     reply_to.html('')
-
 };
+
+//Dismiss comment editor
+function dismissEditor(){
+    reply_to = $("#reply-to")
+    comment_form = $("#comment-form")
+    comment_form.attr('action',comment_form.data('default-action'))
+    removeBorderBottom()
+    removeHiddenInputFromForm('comment-form','comment_edit')
+    reply_to.html('')
+};
+
+
+//Remove border bottom from all article comments
+function removeBorderBottom(){
+    article = $('#comment-section').find('article')
+    article.each(function(){
+        $(this).css({
+            'border-bottom':''
+        })
+    })
+}
+
 
 
 //Document on ready
@@ -73,14 +106,9 @@ $(document).ready(function(){
     //Load jdenticon
     loadJicon()
 
+    //Handling replie action
     $(".reply-comment").on('click',function(e){
-        //Remove border bottom from all article first
-        article = $('#comment-section').find('article')
-        article.each(function(){
-            $(this).css({
-                'border-bottom':''
-            })
-        })
+
         //getting all the required value & element
         commenter_name = $(this).closest('article').data('commenter-name');
         comment_url = $(this).closest('article').data('comment-url')
@@ -98,5 +126,40 @@ $(document).ready(function(){
             scrollTop: $("#reply-to").offset().top-200
         });
     })
+
+    //Handling edit comment
+    $(".edit-comment").on('click',function(e){
+        
+        removeBorderBottom() //Remove border bottom from comments
+        //Remove border bottom from all article first
+        article = $('#comment-section').find('article')
+        article.each(function(){
+            $(this).css({
+                'border-bottom':''
+            })
+        })
+        //getting all the required value & element
+        commenter_name = $(this).closest('article').data('commenter-name');
+        comment_url = $(this).closest('article').data('comment-url')
+        comment_id = $(this).closest('article').attr('id')
+        reply_to = $("#reply-to")
+        comment_form = $("#comment-form")
+        comment_form.attr('action',comment_url)
+        comment_content = $(this).closest('#comment-content').text()
+        
+        $("#comment").val(comment_content)
+        addHiddenInputToForm('comment-form','comment_edit','true')
+        reply_to.html(editcomment(comment_id,commenter_name))
+        
+        $(this).closest('article').css({
+            'border-bottom':'5px solid green'
+        })
+        
+        $('html, body').animate({ //Scroll to the comment box
+            scrollTop: $("#reply-to").offset().top-200
+        });
+
+    })
+
 
 })

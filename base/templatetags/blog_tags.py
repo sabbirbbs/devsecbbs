@@ -8,12 +8,10 @@ register = template.Library()
 
 #Template tag for html sanitize
 @register.filter(name='html_trunc')
-def excerpt_with_ptag_spacing(value, arg):
+def excerpt_with_ptag_spacing(value, limit):
 
-    try:
-        limit = int(arg)
-    except ValueError:
-        return 'Invalid literal for int().'
+    
+    limit = int(limit)
 
     # remove spaces between tags
     value = strip_spaces_between_tags(value)
@@ -28,7 +26,10 @@ def excerpt_with_ptag_spacing(value, arg):
     value = value.replace("&quot;"," ")
 
     # other usage: return Truncator(value).words(length, html=True, truncate=' see more')
-    return Truncator(value).chars(limit,truncate="...")
+    if limit:
+        return Truncator(value).chars(limit,truncate="...")
+    else:
+        return Truncator(value)
 
 #Need a split function in template
 @register.filter(name="split")

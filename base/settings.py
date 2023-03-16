@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'mptt',
     'taggit',
 
+
 ]
 
 MIDDLEWARE = [
@@ -144,3 +145,6 @@ AUTH_USER_MODEL = 'Blog.AuthorUser'
 
 #data handling limit in memeory
 DATA_UPLOAD_MAX_MEMORY_SIZE = 5242880
+
+
+
