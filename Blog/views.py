@@ -46,7 +46,12 @@ def write_post(request):
         content = request.POST.get('content',None)
         status = request.POST.get('status',"Draft")
         author = request.user
-        category = Category.objects.get(pk=int(request.POST.get('category',1)))
+        try:
+            category = Category.objects.get(pk=int(request.POST.get('category',1)))
+        except Exception as error:
+            response = {"status":"success","message":"Post has been saved successfully."}
+            return HttpResponse(json.dumps(response))
+        
         tags = tuple(request.POST.getlist('tags',()))
 
         if not title:
@@ -57,18 +62,18 @@ def write_post(request):
             except:
                 return HttpResponse(json.dumps({"status":"info","message":"Thanks for try to upload not an image or any payload."}))
         elif not cover_photo:
-            return HttpResponse(json.dumps({"status":"info","message":"Where is the cover image"}))
+            return HttpResponse(json.dumps({"status":"info","message":"Where is the cover image?"}))
         elif not category:
             return HttpResponse(json.dumps({"status":"info","message":"Did you forgot to categorize your post!"}))
         elif not content:
-            return HttpResponse(json.dumps({"status":"info","message":"At least add the title to the content.Why blank?"}))
+            return HttpResponse(json.dumps({"status":"info","message":"Your forgot your aim. Where to the content?"}))
         else:
             pass
         
         new_post = Post.objects.create(title=title,description=description,cover_photo=cover_photo,content=content,category=category,author=author,status=status)
         new_post.tags.add(*tags)
         new_post.save()
-        response = {"status":"success","message":"Post has been saved successfully"}
+        response = {"status":"success","message":"Post has been saved successfully",'destination':str(reverse('Blog:blog_index'))}
         return HttpResponse(json.dumps(response))
     else:
         category = Category.objects.filter(level=0)
@@ -146,9 +151,9 @@ def edit_post(request,id):
         category = Category.objects.filter(level=0)
         tags = Tag.objects.all()
         if post.author == request.user or request.user.is_superuser:
-            return render(request,'blog/edit_post.html',{'category':category,'tags':tags,'post':post})
+            return render(request,'_Blog/dashboard/edit_post.html',{'category':category,'tags':tags,'post':post})
         else:
-            return render(request,'blog/edit_post.html',{'status':"Alert",'message':'You are not permitted to edit the post'})
+            return render(request,'_Blog/dashboard/edit_post.html',{'status':"Alert",'message':'You are not permitted to edit the post'})
     
 
 def notifications(request):

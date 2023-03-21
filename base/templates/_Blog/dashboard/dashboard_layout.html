@@ -40,6 +40,7 @@
     
     <!-- Your CSS link -->
     <link href="{% static "_Blog/style/tailwind.css" %}" rel="stylesheet" /> 
+    <link href="{% static "_Blog/style/select2/select2.min.css" %}" rel="stylesheet" />
     <!-- Required JS -->
     <!-- Additional Style -->
     {% block style %} {% endblock %}
@@ -241,6 +242,8 @@
     <script src="{% static "_Blog/script/flowbite.min.js" %}"></script>
     <script src="{% static "_Blog/script/jdenticon.min.js" %}"></script>
     <script src="{% static "_Blog/script/theme_change.js" %}"></script>
+    <script src="{% static "_Blog/script/dashboard/select2/select2.min.js" %}"></script>
+    <script src="{% static "_Blog/script/dashboard/write_post.js" %}"></script>
     <!-- Additional Script -->
     {% block script %} {% endblock %}
 </body>

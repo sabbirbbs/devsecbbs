@@ -16,6 +16,19 @@ function getCookie(name) {
     return cookieValue;
 }
 
+//Create alert dialog
+function createAlert(type,message){
+    if(type === "success"){
+        $('#alert-success-msg').text(message)
+        $('#alert-success').css('opacity',1)
+        $('#alert-success').removeClass('hidden')
+    }
+    else{
+        $('#alert-error-msg').text(message)
+        $('#alert-error').css('opacity',1)
+        $('#alert-error').removeClass('hidden')
+    }
+}
 
 //On page load
 $(document).ready(function(){
@@ -48,13 +61,24 @@ $(document).ready(function(){
             },
             success: function(response){
                 feadback = JSON.parse(response)
-                status = feadback['status']
-                message = feadback['message']
-                $("#alert").html(createAlert(status,message))
+                f_status = feadback['status']
+                f_message = feadback['message']
+                createAlert(f_status,f_message)
                 $("#submit_post").text("Submit")
+
+                $('html, body').animate({ //Scroll to the feadback area
+                    scrollTop: $("#feadback").offset().top-200
+                });
+
+                if(f_status === 'success'){
+                    $("#alert-success-msg").text(f_message+" You will be redirect to edit page within 3 second.")
+                    setTimeout(function() {
+                        window.location = 'http://127.0.0.1/dashboard'
+                    }, 3000);
+                }
             },
             error: function(response){
-                $('#alert').html(createAlert("error","Something went wrong!"))
+                createAlert("error","Something went wrong!")
                 $("#submit_post").text("Submit")
             }
         })
