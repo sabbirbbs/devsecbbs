@@ -73,9 +73,9 @@
                 <!-- Post section -->
                 {% csrf_token %}
                 <h1 align="center" class="text-5xl font-extrabold dark:text-white">{{post.title}}</h1>
-                    <article id="post" style="font-size:20px;" class="sun-editor-editable dark:bg-gray-900 dark:text-white" data-post_api="{% url 'Blog:fetch_post' post.pk %}">
+                    <article id="post" style="font-size:20px;" class="sun-editor-editable dark:bg-gray-900 dark:text-white" data-post="{% url 'Blog:fetch_post' post.pk %}">
                         <!--Post content came here-->
-                        {{post.content|html_trunc:0}}
+                        {{post.content|safe}}
                     </article>
                 <!-- End post section -->
                 <hr>
@@ -86,7 +86,7 @@
     <section id="comment-section" class="bg-white dark:bg-gray-900 py-4 lg:py-8">
         <div class="max-w-2xl mx-auto px-4">
             <div class="flex justify-between items-center mb-6">
-              <h2 class="text-lg lg:text-2xl font-bold text-gray-900 dark:text-white">Discussion ({{post.post_comment.all|length}})</h2>
+              <h2 class="text-lg lg:text-2xl font-bold text-gray-900 dark:text-white">Discussion   ({{total_comment}})</h2>
             </div>
             <!-- Reply to -->
             <div id="reply-to">

@@ -17,17 +17,7 @@ function getCookie(name) {
     return cookieValue;
 }
 
-//Create alert dialog
-function createAlert(type,message){
-    if(type === "success"){
-        bg = "bg-green-600";
-    }else if(type === "alert"){
-        bg = "bg-red-800";
-    }else{
-        bg = "bg-blue-400";
-    }
-    return `<div class="${bg} rounded-lg py-5 px-6 mb-4 text-base text-blue-700 mb-3" role="alert">${message}</div>`
-}
+
 
 //Highlight code syntax by prismjs
 function highlight_code(){
@@ -44,7 +34,7 @@ $(document).ready(function(){
     //Render blog post
     post = $("#post")
     $.ajax({
-        url : post.attr("data-post_api"),
+        url : post.attr("data-post"),
         method : "POST",
         data : {"csrfmiddlewaretoken":getCookie("csrftoken")},
         success : function(response){

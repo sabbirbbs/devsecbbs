@@ -21,12 +21,14 @@ app_dir = os.path.dirname(__file__)  # get current directory
 
 
 #Additional Function
+def root_url(request):
+    return request.scheme+"://"+request.get_host()
 
 #writing views
 #home page of blog to show posts
 
 def test(request):
-    post = Post.objects.all()[1]
+    post = Post.objects.all()
     return render(request,'_Blog/test.html',{'post':post})
 
 def index(request):
@@ -49,31 +51,44 @@ def write_post(request):
         try:
             category = Category.objects.get(pk=int(request.POST.get('category',1)))
         except Exception as error:
-            response = {"status":"success","message":"Post has been saved successfully."}
+            response = {"status":"error","message":"Did you forgot to categorize your post!"}
             return HttpResponse(json.dumps(response))
         
         tags = tuple(request.POST.getlist('tags',()))
 
         if not title:
-            return HttpResponse(json.dumps({"status":"info","message":"Where is the title"}))
+            return HttpResponse(json.dumps({"status":"error","message":"Where is the title"}))
+        elif title: #Check if any post already exit with the title
+            title_slug = unislug(title)
+            post = Post.objects.filter(slug=title_slug)[0]
+            if post and (post.status == 'Published' or post.status == 'Hot'):
+                post_url = root_url(request)+reverse('Blog:read_post', args=[post.category.slug,post.slug])
+                return HttpResponse(json.dumps({"status":"error","message":"A post with the same title may already posted. "+f'<u><a href="{post_url}" target="_blank">{post.title}</a></u>'}))
+            elif post:
+                return HttpResponse(json.dumps({"status":"error","message":"A post with the same title already in someone draft."}))
+            else:
+                pass
+
         elif cover_photo:
             try:
                 Image.open(cover_photo)
             except:
-                return HttpResponse(json.dumps({"status":"info","message":"Thanks for try to upload not an image or any payload."}))
+                return HttpResponse(json.dumps({"status":"error","message":"Thanks for try to upload not an image or any payload."}))
         elif not cover_photo:
-            return HttpResponse(json.dumps({"status":"info","message":"Where is the cover image?"}))
+            return HttpResponse(json.dumps({"status":"error","message":"Where is the cover image?"}))
         elif not category:
-            return HttpResponse(json.dumps({"status":"info","message":"Did you forgot to categorize your post!"}))
+            return HttpResponse(json.dumps({"status":"error","message":"Did you forgot to categorize your post!"}))
         elif not content:
-            return HttpResponse(json.dumps({"status":"info","message":"Your forgot your aim. Where to the content?"}))
+            return HttpResponse(json.dumps({"status":"error","message":"Your forgot your aim. Where to the content?"}))
         else:
             pass
         
         new_post = Post.objects.create(title=title,description=description,cover_photo=cover_photo,content=content,category=category,author=author,status=status)
         new_post.tags.add(*tags)
         new_post.save()
-        response = {"status":"success","message":"Post has been saved successfully",'destination':str(reverse('Blog:blog_index'))}
+        messages.success(request,"Your post has been successfully added. Now you are in edit mode.")
+        edit_post_url = root_url(request) +str(reverse('Blog:edit_post', args = [new_post.pk] ))
+        response = {"status":"success","message":"Post has been saved successfully",'destination':edit_post_url}
         return HttpResponse(json.dumps(response))
     else:
         category = Category.objects.filter(level=0)
@@ -83,7 +98,14 @@ def write_post(request):
 #sending the post instance to be rendered in details
 def view_post(request,cat,slug):
     post = Post.objects.get(Q(status="Published")|Q(status="Hot"),slug=slug,is_deleted=False)
-    return render(request,"_Blog/client/read_post.html",{'post':post})
+    total_comment = 0
+    for comment in post.post_comment.all():
+        if comment.level == 0 and comment.is_deleted == False:
+            total_comment += 1
+        else:
+            pass
+
+    return render(request,"_Blog/client/read_post.html",{'post':post,'total_comment':total_comment})
 
 #fetch post to be displayed in blog by jquery
 def fetch_post(request,pk):
@@ -107,6 +129,8 @@ def tag(request,slug):
 #Post edit
 def edit_post(request,id):
     if request.method == "POST":
+        
+        _post  = Post.objects.get(pk=id)
 
         title = request.POST.get('title',None)
         description = request.POST.get('description',None)
@@ -114,23 +138,42 @@ def edit_post(request,id):
         content = request.POST.get('content',None)
         status = request.POST.get('status',"Draft")
         author = request.user
-        category = Category.objects.get(pk=int(request.POST.get('category',1)))
+        try:
+            category = Category.objects.get(pk=int(request.POST.get('category',1)))
+        except Exception as error:
+            response = {"status":"error","message":"Did you forgot to categorize your post!"}
+            return HttpResponse(json.dumps(response))
+        
         tags = tuple(request.POST.getlist('tags',()))
 
         if not title:
-            return HttpResponse(json.dumps({"status":"info","message":"Where is the title"}))
+            return HttpResponse(json.dumps({"status":"error","message":"Where is the title"}))
+        elif title: #Check if any post already exit with the title
+            title_slug = unislug(title)
+            post = Post.objects.filter(slug=title_slug)[0]
+            if title_slug == _post.slug:
+                pass
+            else:
+                if post and (post.status == 'Published' or post.status == 'Hot'):
+                    post_url = root_url(request)+reverse('Blog:read_post', args=[post.category.slug,post.slug])
+                    return HttpResponse(json.dumps({"status":"error","message":"A post with the same title may already posted. "+f'<u><a href="{post_url}" target="_blank">{post.title}</a></u>'}))
+                elif post:
+                    return HttpResponse(json.dumps({"status":"error","message":"A post with the same title already in someone draft."}))
+                else:
+                    pass
         elif cover_photo:
             try:
                 Image.open(cover_photo)
             except:
-                return HttpResponse(json.dumps({"status":"info","message":"Thanks for try to upload not an image or any payload."}))
+                return HttpResponse(json.dumps({"status":"error","message":"Thanks for try to upload not an image or any payload."}))
         elif not category:
-            return HttpResponse(json.dumps({"status":"info","message":"Did you forgot to categorize your post!"}))
+            return HttpResponse(json.dumps({"status":"error","message":"Did you forgot to categorize your post!"}))
         elif len(content) < 50:
-            return HttpResponse(json.dumps({"status":"info","message":"Is that is the content of post? At least add some lorem ipsum!"}))
+            return HttpResponse(json.dumps({"status":"error","message":"Is that is the content of post? At least add some lorem ipsum!"}))
+        elif not post.author == request.user or request.user.is_superuser:
+            return render(request,'_Blog/dashboard/edit_post.html',{'status':"error",'message':'You are not permitted to edit the post'})
         else:
             pass
-        _post  = Post.objects.get(pk=id)
         _post.title = title
         _post.description = description
         _post.content = content

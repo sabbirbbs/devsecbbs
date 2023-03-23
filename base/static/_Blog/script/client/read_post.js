@@ -18,6 +18,17 @@ function getCookie(name) {
     return cookieValue;
 }
 
+//Highlight code syntax by prismjs
+function highlight_code(){
+    $('code').each(function(){
+        var data = $(this).html()
+        data = data.replace(/<br>/g,'\n')
+        $(this).html(data)
+    })
+    Prism.highlightAll()
+}
+
+
 //Manually update jdenticon after page load
 function loadJicon() {
     // Select all elements with the class "jdenticon"
@@ -105,6 +116,27 @@ function removeBorderBottom(){
 $(document).ready(function(){
     //Load jdenticon
     loadJicon()
+
+    //Render blog post
+    post = $("#post")
+    $.ajax({
+        url : post.attr("data-post"),
+        method : "POST",
+        data : {"csrfmiddlewaretoken":getCookie("csrftoken")},
+        success : function(response){
+            xss_check = DOMPurify.sanitize(response)
+            post.html(xss_check)
+            $("#post-page").show()
+            $("#load").hide()
+            //Manually update pre code prismjs
+            highlight_code()
+        },
+        error : function(response){
+            post.html(createAlert("error"," Something went wrong.No post found!"))
+            $("#load").hide()
+            $("#post-page").show()
+        }
+    })
 
     //Handling replie action
     $(".reply-comment").on('click',function(e){
