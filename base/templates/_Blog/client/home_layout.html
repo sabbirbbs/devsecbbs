@@ -40,7 +40,8 @@
     
     <!-- Your CSS link -->
     <link href="{% static "_Blog/style/tailwind.css" %}" rel="stylesheet" /> 
-    <link href="{% static "_Blog/style/style.css" %}" rel="stylesheet"/>
+    <link href="{% static "_Blog/style/style.css" %}" rel="stylesheet" />
+    <link href="{% static "_Blog/style/client/prism/prism.css" %}" rel="stylesheet" />
     <!-- Required JS -->
     <script src="{% static "_Blog/script/jquery-3.6.1.min.js" %}"></script>
     <!-- Additional Style -->
@@ -209,6 +210,9 @@
     <script src="{% static "_Blog/script/flowbite.min.js" %}"></script>
     <script src="{% static "_Blog/script/jdenticon.min.js" %}"></script>
     <script src="{% static "_Blog/script/theme_change.js" %}"></script>
+    <script src="{% static "_Blog/script/client/domPurify/purify.min.js" %}"></script>
+    <script src="{% static "_Blog/script/client/prism/prism.js" %}"></script>
+
     <!-- Additional Script -->
     {% block script %} {% endblock %}
 </body>

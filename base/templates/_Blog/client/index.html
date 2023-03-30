@@ -77,29 +77,30 @@
               <div class="mb-2 overflow-hidden rounded h-64 cursor-pointer">
                 <a href="{% url 'Blog:read_post' post.category.slug post.slug %}"><img class="m-auto w-full scale-110 transition-all duration-400 hover:scale-95" src="{% if post.cover_photo %} {{ post.cover_photo.url }} {% else %} https://upload.wikimedia.org/wikipedia/commons/6/65/No-Image-Placeholder.svg {% endif %}" alt="Thumbnail" onerror="this.onerror=null;this.src='https://upload.wikimedia.org/wikipedia/commons/6/65/No-Image-Placeholder.svg';"></a>
               </div>
-              <h2 class="mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white"><a href="{% url 'Blog:read_post' post.category.slug post.slug %}">{{post.title|striptags}}</a></h2>
+              <!-- Post title -->
+              <h2 class="mb-2 text-2xl font-bold tracking-tight whitespace-wrap overflow-hidden text-gray-900 dark:text-white"><a href="{% url 'Blog:read_post' post.category.slug post.slug %}">{{post.title|striptags}}</a></h2>
               <p class="mb-5 font-light text-gray-500 dark:text-gray-400">
                 {% if post.description %}
-                {{post.description|html_trunc:255}}
+                  {{post.description|html_trunc:255}}
                 {% else %}
-                {{post.content|html_trunc:255}}
+                  {{post.content|html_trunc:255}}
                 {% endif %}</p>
               <div class="flex justify-between items-center">
                   <div class="flex items-center space-x-4">
                     {% if post.author.profile_photo %}
-                        <img class="w-7 h-7 rounded-full" src="{{post.author.profile_photo.url}}" alt="{{post.author.first_name}} {{post.author.last_name}}" />
+                        <img class="w-7 h-7 rounded-full" src="{{post.author.profile_photo.url}}" alt=" {% if post.author.first_name %} {{post.author.first_name}} {{post.author.last_name}} {% else %} {{ post.author.username }} {% endif %} " />
                     {% else %}
                         <svg width="80" height="80" class="w-7 h-7 rounded-full" data-jdenticon-value="{{post.author.username}}"></svg>
                     {% endif %}
                         <span class="font-medium dark:text-white">
-                        {{post.author.first_name}} {{post.author.last_name}}
+                          {% if post.author.first_name %} {{post.author.first_name}} {{post.author.last_name}} {% else %} {{ post.author.username }} {% endif %} 
                       </span>
                   </div>
                     <a href="{% url 'Blog:read_post' post.category.slug post.slug %}" class="inline-flex items-center font-medium text-blue-600 dark:text-blue-500 hover:underline">
                         Read in {{post.content|readtime}}ute
                         <svg class="ml-2 w-4 h-4" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>
                     </a>
-            </div>
+              </div>
           </article>  
         {% endfor %}              
       </div>  

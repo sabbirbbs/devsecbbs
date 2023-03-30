@@ -39,3 +39,7 @@ def split_tag(value,arg):
 @register.filter(name='readtime')
 def read_time(content):
     return readtime.of_html(content,wpm=265).text
+
+@register.filter(name='range')
+def filter_range(start, end):
+    return range(start,end)

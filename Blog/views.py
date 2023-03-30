@@ -1,6 +1,6 @@
 #import modules
 from django.shortcuts import render, redirect , get_object_or_404
-from django.http import HttpResponse,HttpResponseRedirect
+from django.http import HttpResponse,Http404
 from django.urls import reverse
 from .models import *
 from .forms import *
@@ -14,6 +14,8 @@ import re
 from better_profanity import profanity
 from django.contrib import messages
 from django.contrib.contenttypes.models import ContentType
+from django.core.paginator import Paginator
+
 #Additional variable
 app_dir = os.path.dirname(__file__)  # get current directory
 
@@ -23,6 +25,8 @@ app_dir = os.path.dirname(__file__)  # get current directory
 #Additional Function
 def root_url(request):
     return request.scheme+"://"+request.get_host()
+
+
 
 #writing views
 #home page of blog to show posts
@@ -37,7 +41,21 @@ def index(request):
 
 def dashboard(request):
     return render(request,'_Blog/dashboard/dashboard.html')
-    
+
+def list_post(request):
+    page_number = int(request.GET.get('page',1))
+    post = Post.objects.filter(is_deleted=False)
+    paginator = Paginator(post,10,3)
+    if page_number:
+        page = paginator.get_page(page_number)
+        list_page = page.paginator.get_elided_page_range(number=page.number,on_each_side=2,on_ends=1)
+        return render(request,"_Blog/dashboard/list_post.html",{'page':page,'list_page':list_page})
+    else:
+        page = paginator.get_page(1)
+        list_page = page.paginator.get_elided_page_range(number=page.number,on_each_side=2,on_ends=1)
+        return render(request,"_Blog/dashboard/list_post.html",{'page':page,'list_page':list_page})
+
+
 #validating & saving written post
 def write_post(request):
     if request.method == "POST":
@@ -97,11 +115,16 @@ def write_post(request):
         
 #sending the post instance to be rendered in details
 def view_post(request,cat,slug):
-    post = Post.objects.get(Q(status="Published")|Q(status="Hot"),slug=slug,is_deleted=False)
+    category = Category.objects.get(slug=cat)
+    post = Post.objects.get(Q(status="Published")|Q(status="Hot"),category=category,slug=slug,is_deleted=False)
     total_comment = 0
-    for comment in post.post_comment.all():
+    for comment in post.post_comment.all(): #Count all the vaild available undeleted comments
         if comment.level == 0 and comment.is_deleted == False:
-            total_comment += 1
+            for reply in comment.get_descendants(include_self=True):
+                if reply.is_deleted == False:
+                    total_comment += 1
+                else:
+                    pass
         else:
             pass
 
@@ -128,9 +151,13 @@ def tag(request,slug):
 
 #Post edit
 def edit_post(request,id):
-    if request.method == "POST":
-        
-        _post  = Post.objects.get(pk=id)
+
+    try:
+        _post = Post.objects.get(pk=id,is_deleted=False)
+    except:
+        raise Http404
+
+    if request.method == "POST":        
 
         title = request.POST.get('title',None)
         description = request.POST.get('description',None)
@@ -190,13 +217,20 @@ def edit_post(request,id):
         response = {"status":"success","message":"Post has been edited successfully"}
         return HttpResponse(json.dumps(response))
     else:
-        post = Post.objects.get(pk=id)
-        category = Category.objects.filter(level=0)
-        tags = Tag.objects.all()
-        if post.author == request.user or request.user.is_superuser:
-            return render(request,'_Blog/dashboard/edit_post.html',{'category':category,'tags':tags,'post':post})
+        is_delete = request.GET.get('delete',False)
+        if is_delete == 'true':
+            _post.is_deleted = True
+            _post.save()
+            messages.success(request,f"Your post titled '{_post.title}' has been deleted.")
+            return redirect(reverse('Blog:list_post'))
         else:
-            return render(request,'_Blog/dashboard/edit_post.html',{'status':"Alert",'message':'You are not permitted to edit the post'})
+            post = Post.objects.get(pk=id)
+            category = Category.objects.filter(level=0)
+            tags = Tag.objects.all()
+            if post.author == request.user or request.user.is_superuser:
+                return render(request,'_Blog/dashboard/edit_post.html',{'category':category,'tags':tags,'post':post})
+            else:
+                return render(request,'_Blog/dashboard/edit_post.html',{'status':"Alert",'message':'You are not permitted to edit the post'})
     
 
 def notifications(request):

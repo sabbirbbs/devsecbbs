@@ -1,5 +1,3 @@
-console.log("Hello from blog script")
-
 ////Additional function
 //Get cookie
 function getCookie(name) {
@@ -126,15 +124,15 @@ $(document).ready(function(){
         success : function(response){
             xss_check = DOMPurify.sanitize(response)
             post.html(xss_check)
-            $("#post-page").show()
-            $("#load").hide()
+            post.css('opacity',1)
+            $("#post-loader").hide()
             //Manually update pre code prismjs
             highlight_code()
         },
         error : function(response){
-            post.html(createAlert("error"," Something went wrong.No post found!"))
-            $("#load").hide()
-            $("#post-page").show()
+            post.html("Something went wrong.No post found!")
+            $("#post-loader").hide()
+            post.css('opacity',1)
         }
     })
 
@@ -148,6 +146,7 @@ $(document).ready(function(){
         reply_to = $("#reply-to")
         comment_form = $("#comment-form")
         comment_form.attr('action',comment_url)
+        removeBorderBottom()
         reply_to.html(createReplyTo(comment_id,commenter_name))
         
         $(this).closest('article').css({

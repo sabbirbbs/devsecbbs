@@ -1,0 +1,146 @@
+{% extends "_Blog/dashboard/dashboard_layout.html" %}
+{% load static %}
+{% load blog_tags %}
+{% block title %} List Post {% endblock %}
+
+
+
+{% block body %}
+
+<!-- Django message handler -->
+<div id="feadback" class="no-target">
+    {% for message in messages %}
+    {% if message.tags == 'success' %}
+        <div id="success-{{forloop.counter}}" class="flex p-4 mb-4 text-green-800 rounded-lg bg-green-50 dark:bg-gray-800 dark:text-green-400" role="alert">
+            <svg aria-hidden="true" class="flex-shrink-0 w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path></svg>
+            <span class="sr-only">Info</span>
+            <div class="ml-3 text-sm font-medium">
+            {{message}}
+            </div>
+            <button type="button" class="ml-auto -mx-1.5 -my-1.5 bg-green-50 text-green-500 rounded-lg focus:ring-2 focus:ring-green-400 p-1.5 hover:bg-green-200 inline-flex h-8 w-8 dark:bg-gray-800 dark:text-green-400 dark:hover:bg-gray-700" data-dismiss-target="#success-{{forloop.counter}}" aria-label="Close">
+            <span class="sr-only">Close</span>
+            <svg aria-hidden="true" class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>
+            </button>
+        </div>
+    {% elif message.tags == 'error' %}
+        <div id="info-{{forloop.counter}}" class="flex p-4 mb-4 text-red-800 rounded-lg bg-red-50 dark:bg-gray-800 dark:text-red-400" role="alert">
+            <svg aria-hidden="true" class="flex-shrink-0 w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path></svg>
+            <span class="sr-only">Info</span>
+            <div class="ml-3 text-sm font-medium">
+            {{message}}
+            </div>
+            <button type="button" class="ml-auto -mx-1.5 -my-1.5 bg-red-50 text-red-500 rounded-lg focus:ring-2 focus:ring-red-400 p-1.5 hover:bg-red-200 inline-flex h-8 w-8 dark:bg-gray-800 dark:text-red-400 dark:hover:bg-gray-700" data-dismiss-target="#info-{{forloop.counter}}" aria-label="Close">
+            <span class="sr-only">Close</span>
+            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>
+            </button>
+        </div>
+    {% endif %}
+    {% endfor %}
+</div>
+<!-- End django message handler -->
+
+{% if page %}
+<div class="relative overflow-x-auto shadow-md sm:rounded-lg">
+    <table class="w-full min-w-64 overflow-x-auto text-sm text-left text-gray-500 dark:text-gray-400">
+        <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+            <tr>
+                <th scope="col" class="px-6 py-3 text-center">
+                    Post Title
+                </th>
+                <th scope="col" class="px-6 py-3">
+                    Impression
+                </th>
+                <th scope="col" class="px-6 py-3">
+                    Date
+                </th>
+                <th scope="col" class="px-6 py-3">
+                    Status
+                </th>
+                <th scope="col" class="px-6 py-3">
+                    Action
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for post in page %}
+            <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
+                <th scope="row" class="flex items-center px-6 py-4 text-gray-900 dark:text-white">
+                    <img class="w-10 h-10" src="{% if post.cover_photo %} {{ post.cover_photo.url }} {% else %} https://upload.wikimedia.org/wikipedia/commons/6/65/No-Image-Placeholder.svg {% endif %}" alt="Jese image">
+                    <div class="pl-3">
+                        <div class="text-base font-semibold"><a href="{% url 'Blog:read_post' post.category.slug post.slug %}">{{post.title}}</a></div>
+                    </div>  
+                </th>
+                <td class="px-6 py-4">
+                    {{ post.get_active_comment}}
+                </td>
+                <td class="px-6 py-4">
+                    Last modified : {{post.date}}
+                </td>
+                <td class="px-6 py-4">
+                    {% if post.status not in 'Published' and post.status not in 'Hot' %}
+                        <div class="flex items-center">
+                            <div class="h-2.5 w-2.5 rounded-full bg-red-500 mr-2"></div> {{post.status}}
+                        </div>
+                    {% else %}
+                        <div class="flex items-center">
+                            <div class="h-2.5 w-2.5 rounded-full bg-green-500 mr-2"></div> {{post.status}}
+                        </div>
+                    {% endif %}
+                </td>
+                <td class="px-6 py-4">
+                    <a href="{% url 'Blog:edit_post' post.pk %}" class="font-medium text-blue-600 dark:text-blue-500 hover:underline">Edit Post</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <nav class="flex items-center mb-2 justify-between pt-4" aria-label="Table navigation">
+        <span class="text-sm font-normal ml-4 text-gray-500 dark:text-gray-400">
+            Showing <span class="font-semibold text-gray-900 dark:text-white">{{ page.start_index }}-{% if page.end_index > page.paginator.count %}{{ page.paginator.count }}{% else %}{{ page.end_index }}{% endif %}</span> of <span class="font-semibold text-gray-900 dark:text-white">{{ page.paginator.count }}</span></span>
+        
+        {% if page.has_other_page %}
+        <ul class="inline-flex items-center mb-2 mr-2 -space-x-px">
+            {% if page.has_previous %}
+            <li>
+                <a href="?page={{page.previous_page_number}}" class="block px-3 py-2 ml-0 leading-tight text-gray-500 bg-white border border-gray-300 rounded-l-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">
+                    <span class="sr-only">Previous</span>
+                    <svg class="w-5 h-5" aria-hidden="true" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg>
+                </a>
+            </li>
+            {% endif %}
+            {% for page_number in list_page %}
+                {% if page_number == page.paginator.ELLIPSIS %}
+                <li>
+                    <a href="#" disabled class="px-3 py-2 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">{{page_number}}</a>
+                </li>
+                {% elif page_number == page.number %}
+                    <li>
+                        <a href="#" aria-current="page" class="z-10 px-3 py-2 leading-tight text-blue-600 border border-blue-300 bg-blue-50 hover:bg-blue-100 hover:text-blue-700 dark:border-gray-700 dark:bg-gray-700 dark:text-white">{{page_number}}</a>
+                    </li>
+                {% else %}
+                    <li>
+                        <a href="?page={{page_number}}" class="px-3 py-2 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">{{page_number}}</a>
+                    </li>
+                {% endif %}
+            {% endfor %}
+            {% if page.has_next %}
+            <li>
+                <a href="?page={{page.next_page_number}}" class="block px-3 py-2 leading-tight text-gray-500 bg-white border border-gray-300 rounded-r-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">
+                    <span class="sr-only">Next</span>
+                    <svg class="w-5 h-5" aria-hidden="true" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path></svg>
+                </a>
+            </li>
+            {% endif %}
+        </ul>
+        {% endif %}
+    </nav>
+</div>
+{% else %}
+
+<div class="p-4 mb-4 text-sm text-blue-700 bg-blue-100 rounded-lg dark:bg-gray-800 dark:text-blue-400" role="alert">
+    <span class="font-medium">...</span>You have not written any post yet.
+</div>
+
+{% endif %}
+
+{% endblock %}

@@ -90,6 +90,18 @@ class Post(models.Model):
     is_deleted = models.BooleanField(default=False)
     note = models.TextField(blank=True,null=True)
 
+    def get_active_comment(self):
+        total_comment = 0
+        for comment in self.post_comment.all(): #Count all the vaild available undeleted comments
+            if comment.level == 0 and comment.is_deleted == False:
+                for reply in comment.get_descendants(include_self=True):
+                    if reply.is_deleted == False:
+                        total_comment += 1
+                    else:
+                        pass
+            else:
+                pass
+        return total_comment
     
     class Meta:
         ordering = ('-date',)
