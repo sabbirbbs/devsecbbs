@@ -98,7 +98,7 @@
         <span class="text-sm font-normal ml-4 text-gray-500 dark:text-gray-400">
             Showing <span class="font-semibold text-gray-900 dark:text-white">{{ page.start_index }}-{% if page.end_index > page.paginator.count %}{{ page.paginator.count }}{% else %}{{ page.end_index }}{% endif %}</span> of <span class="font-semibold text-gray-900 dark:text-white">{{ page.paginator.count }}</span></span>
         
-        {% if page.has_other_page %}
+        {% if page.has_other_pages %}
         <ul class="inline-flex items-center mb-2 mr-2 -space-x-px">
             {% if page.has_previous %}
             <li>

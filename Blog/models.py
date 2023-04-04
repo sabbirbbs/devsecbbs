@@ -86,7 +86,7 @@ class Post(models.Model):
     tags = TaggableManager(blank=True)
     date = models.DateTimeField(default=datetime.datetime.now)
     last_modified = models.DateTimeField(default=datetime.datetime.now)
-    status = models.CharField(max_length=255,choices=[("Draft","Draft"),("Published","Published"),("Hot","Hot"),("Rejected","Rejected")])
+    status = models.CharField(max_length=255,choices=[("Draft","Draft"),("Published","Published"),("Hot","Hot"),("Rejected","Rejected"),("Pending","Pending")])
     is_deleted = models.BooleanField(default=False)
     note = models.TextField(blank=True,null=True)
 
@@ -111,6 +111,16 @@ class Post(models.Model):
             self.slug = unislug(self.title)
         else:
             self.slug = unislug(self.slug)
+        
+        if self.status == "Draft" and not self.slug.endswith("_draft"):
+            if self.slug.endswith("_rejected"):
+                self.slug = self.slug.rsplit("_",1)[0]
+            self.slug += "_draft"
+        elif self.status == "Rejected" and not self.slug.endswith("_rejected"):
+            if self.slug.endswith("_draft"):
+                self.slug = self.slug.rsplit("_",1)[0]
+            self.slug += "_rejected"
+
         return super().save(*args,**kwargs)
 
     def __str__(self):
@@ -135,7 +145,7 @@ class Comment(MPTTModel):
 class AuthorUser(AbstractUser):
     profile_photo = models.ImageField(upload_to=author_profile,blank=True,null=True)
     bio = models.CharField(max_length=255,blank=True,null=True)
-    rank = models.CharField(max_length=255,choices=[("Author","Author"),("Moderator","Moderator"),("Admin","Admin"),("Banned","Banned")])
+    rank = models.CharField(max_length=255,choices=[('Contributor',"Contributor"),("Author","Author"),("Moderator","Moderator"),("Admin","Admin"),("Banned","Banned")])
     dob = models.DateTimeField(null=True,blank=True)
     gender = models.CharField(max_length=10,blank=True,null=True,choices=[("Male","Male"),("Female","Female")])
     website = models.SlugField(null=True,blank=True)

@@ -99,7 +99,7 @@
         </article>
     </div>
     <!-- Comment section -->
-    <section id="comment-section" class="bg-white dark:bg-gray-900 py-4 lg:py-8">
+    <section id="comment-section" class="bg-white no-target dark:bg-gray-900 py-4 lg:py-8">
         <div class="max-w-2xl mx-auto px-4">
             <div class="flex justify-between items-center mb-6">
               <h2 class="text-lg lg:text-2xl font-bold text-gray-900 dark:text-white">Discussion ({{total_comment}})</h2>
@@ -152,7 +152,7 @@
           <!-- End Comment handled notification -->
 
           <!-- Parent comment -->
-          {% for comment in post.post_comment.all reversed %}
+          {% for comment in comment_page reversed %}
             {% if comment.level == 0 and not comment.is_deleted %}
                 <!-- Parent comment -->
                 <div class="parent_comment{{comment.pk}} max-w-2xl mx-auto px-4" data-accordion="open">
@@ -245,7 +245,7 @@
                     
                     {% if comment.get_descendants %}
                         <div id="nested_comment{{comment.pk}}" class="hidden">
-                            <!--Nested comment-->
+                            <!-- Nested comment -->
                             {% for replier in comment.get_descendants %}
                                 {% if not replier.is_deleted %}
                                     <article id="comment-{{replier.pk}}" data-commenter-name='{{replier.commenter.username}}' data-comment-url='{% url 'Blog:comment' post.pk replier.pk %}' class="ml-12 rounded-lg bg-white p-2 text-base dark:bg-gray-900">
@@ -332,7 +332,7 @@
                                     </article>
                                 {% endif %}
                             {% endfor %}
-                            <!--End nested comment-->
+                            <!-- End nested comment -->
                         </div>
                     {% endif %}
                 </div>
@@ -343,6 +343,33 @@
                 <span class="font-medium">...</span>There are have no comment yet.
             </div>
           {% endfor %}
+            
+            
+          {% if comment_page.has_other_pages %}
+            <!-- Comment pagination -->
+            <div class="flex flex-col items-center">
+                <!-- Help text -->
+                <span class="text-sm text-gray-700 dark:text-gray-400">
+                    Showing <span class="font-semibold text-gray-900 dark:text-white">{{comment_page.start_index}}</span> to <span class="font-semibold text-gray-900 dark:text-white">{% if comment_page.end_index > comment_page.paginator.count %} {{ comment_page.paginator.count }} {% else %} {{ comment_page.end_index }} {% endif %} </span> of <span class="font-semibold text-gray-900 dark:text-white">{{comment_page.paginator.count}}</span> Root Comment.
+                </span>
+                <div class="inline-flex mt-2 xs:mt-0">
+                <!-- Buttons -->
+                    {% if comment_page.has_previous %}
+                        <a href="?comment_page={{comment_page.previous_page_number}}#comment-section" class="inline-flex items-center px-4 py-2 mr-3 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">
+                            <svg aria-hidden="true" class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M7.707 14.707a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l2.293 2.293a1 1 0 010 1.414z" clip-rule="evenodd"></path></svg>
+                            Previous
+                        </a>
+                    {% endif %}
+                    {% if comment_page.has_next %}
+                        <a href="?comment_page={{comment_page.next_page_number}}#comment-section" class="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">
+                            Next
+                            <svg aria-hidden="true" class="w-5 h-5 ml-2" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M12.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-2.293-2.293a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+            <!-- End comment pagination -->
+        {% endif %}
         </div>
     </section>
     <!-- End comment section -->

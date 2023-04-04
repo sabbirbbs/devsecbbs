@@ -72,7 +72,7 @@ $(document).ready(function(){
                     scrollTop: $("#post_notice").offset().top-200
                 });
 
-                if(f_status === 'success'){
+                if(feadback.hasOwnProperty('destination')){
                     $("#alert-success-msg").text(f_message+" You will be redirect to edit page within 3 second.")
                     setTimeout(function() {
                         window.location = feadback['destination']

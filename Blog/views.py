@@ -65,6 +65,12 @@ def write_post(request):
         cover_photo = request.FILES.get('cover_photo',None)
         content = request.POST.get('content',None)
         status = request.POST.get('status',"Draft")
+        if request.user.rank == 'Contributor':
+            if status == "Published":
+                status = 'Pending'
+                messages.success(request,"Your post has been successfully submitted & under review. You will get notified about status after review.")
+            else:
+                pass
         author = request.user
         try:
             category = Category.objects.get(pk=int(request.POST.get('category',1)))
@@ -78,7 +84,7 @@ def write_post(request):
             return HttpResponse(json.dumps({"status":"error","message":"Where is the title"}))
         elif title: #Check if any post already exit with the title
             title_slug = unislug(title)
-            post = Post.objects.filter(slug=title_slug)[0]
+            post = Post.objects.filter(slug=title_slug).exists()
             if post and (post.status == 'Published' or post.status == 'Hot'):
                 post_url = root_url(request)+reverse('Blog:read_post', args=[post.category.slug,post.slug])
                 return HttpResponse(json.dumps({"status":"error","message":"A post with the same title may already posted. "+f'<u><a href="{post_url}" target="_blank">{post.title}</a></u>'}))
@@ -127,13 +133,17 @@ def view_post(request,cat,slug):
                     pass
         else:
             pass
-
-    return render(request,"_Blog/client/read_post.html",{'post':post,'total_comment':total_comment})
+    if request.method == "GET":
+        page_number = int(request.GET.get('comment_page',1))
+        comments = Comment.objects.filter(post=post,is_deleted=False,level=0)
+        comment_paginator = Paginator(comments,5,2)
+        comment_page = comment_paginator.get_page(page_number)
+        return render(request,"_Blog/client/read_post.html",{'post':post,'comment_page':comment_page,'total_comment':total_comment})
 
 #fetch post to be displayed in blog by jquery
 def fetch_post(request,pk):
     if request.method == "POST":
-        post = Post.objects.get(Q(status="Published")|Q(status="Hot"),pk=pk,)
+        post = Post.objects.get(Q(status="Published")|Q(status="Hot"),pk=pk)
         return HttpResponse(post.content)
     else:
         pass
@@ -164,6 +174,14 @@ def edit_post(request,id):
         cover_photo = request.FILES.get('cover_photo',None)
         content = request.POST.get('content',None)
         status = request.POST.get('status',"Draft")
+        if request.user.rank == 'Contributor':
+            if status == "Published":
+                status = 'Pending'
+                feadback_msg = "Your post has been successfully submitted & under review. You will get notified about status after review."
+            else:
+                feadback_msg = "Your post has been successfully edited."
+        else:
+            feadback_msg = "Your post has been successfully edited."
         author = request.user
         try:
             category = Category.objects.get(pk=int(request.POST.get('category',1)))
@@ -177,7 +195,7 @@ def edit_post(request,id):
             return HttpResponse(json.dumps({"status":"error","message":"Where is the title"}))
         elif title: #Check if any post already exit with the title
             title_slug = unislug(title)
-            post = Post.objects.filter(slug=title_slug)[0]
+            post = Post.objects.filter(slug=title_slug).exists()
             if title_slug == _post.slug:
                 pass
             else:
@@ -214,7 +232,7 @@ def edit_post(request,id):
             pass
         _post.tags.add(*tags)
         _post.save()
-        response = {"status":"success","message":"Post has been edited successfully"}
+        response = {"status":"success","message":feadback_msg}
         return HttpResponse(json.dumps(response))
     else:
         is_delete = request.GET.get('delete',False)
