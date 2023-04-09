@@ -12,16 +12,25 @@ from taggit.managers import TaggableManager
 import re
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
+import uuid
 
 
 #Slugify unicode bangla text
-def unislug(value):
+def unislug(value,unique=False):
     """This will just remove whitespace & lower the value to make it slugi"""
     forbid_char = [":", "/", "?", "#", "[", "]", "@", "!", "$", "&", "'", "(", ")", "*", "+", ",", ";", "=", " "]
     value = value.lower()
     for char in forbid_char:
         value = value.replace(char,"-")
-    return value
+    if unique:
+        pattern = r"_[0-9a-fA-F]{6}$"
+        salt = uuid.uuid4().hex[:6]
+        if re.search(pattern,value):
+            return value.rsplit('_',1)[0] + "_" + salt
+        else:
+            return value + "_" + salt
+    else:
+        return value
 
 
 #additional function
@@ -67,7 +76,7 @@ class Category(MPTTModel):
 
     def save(self,*args,**kwargs):
         if not self.slug:
-            self.slug = unislug(self.name)
+            self.slug = unislug(self.name,True)
         else:
             self.slug = unislug(self.slug)
         return super().save(*args,**kwargs)
@@ -108,18 +117,10 @@ class Post(models.Model):
 
     def save(self,*args,**kwargs):
         if not self.slug:
-            self.slug = unislug(self.title)
+            self.slug = unislug(self.title,True)
         else:
             self.slug = unislug(self.slug)
         
-        if self.status == "Draft" and not self.slug.endswith("_draft"):
-            if self.slug.endswith("_rejected"):
-                self.slug = self.slug.rsplit("_",1)[0]
-            self.slug += "_draft"
-        elif self.status == "Rejected" and not self.slug.endswith("_rejected"):
-            if self.slug.endswith("_draft"):
-                self.slug = self.slug.rsplit("_",1)[0]
-            self.slug += "_rejected"
 
         return super().save(*args,**kwargs)
 

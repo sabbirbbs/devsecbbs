@@ -36,8 +36,13 @@ def test(request):
     return render(request,'_Blog/test.html',{'post':post})
 
 def index(request):
-    posts = Post.objects.filter(Q(status="Published")|Q(status="Hot"),is_deleted=False)
-    return render(request,'_Blog/client/index.html',{'posts':posts})
+    if request.GET.get('query',None):
+        query = request.GET.get('query',None)
+        posts = Post.objects.filter(Q(status="Published")|Q(status="Hot"),is_deleted=False,title__contains=query)
+        return render(request,'_Blog/client/index.html',{'posts':posts})
+    else:
+        posts = Post.objects.filter(Q(status="Published")|Q(status="Hot"),is_deleted=False)
+        return render(request,'_Blog/client/index.html',{'posts':posts})
 
 def dashboard(request):
     return render(request,'_Blog/dashboard/dashboard.html')
@@ -65,34 +70,23 @@ def write_post(request):
         cover_photo = request.FILES.get('cover_photo',None)
         content = request.POST.get('content',None)
         status = request.POST.get('status',"Draft")
+        author = request.user
+        tags = tuple(request.POST.getlist('tags',()))
+
         if request.user.rank == 'Contributor':
             if status == "Published":
                 status = 'Pending'
                 messages.success(request,"Your post has been successfully submitted & under review. You will get notified about status after review.")
             else:
                 pass
-        author = request.user
         try:
-            category = Category.objects.get(pk=int(request.POST.get('category',1)))
+            category = Category.objects.get(pk=int(request.POST.get('category',None)))
         except Exception as error:
-            response = {"status":"error","message":"Did you forgot to categorize your post!"}
-            return HttpResponse(json.dumps(response))
-        
-        tags = tuple(request.POST.getlist('tags',()))
+            response = {"status":"error","message":"Unable to find category you selected!"}
+            return HttpResponse(json.dumps(response))       
 
         if not title:
-            return HttpResponse(json.dumps({"status":"error","message":"Where is the title"}))
-        elif title: #Check if any post already exit with the title
-            title_slug = unislug(title)
-            post = Post.objects.filter(slug=title_slug).exists()
-            if post and (post.status == 'Published' or post.status == 'Hot'):
-                post_url = root_url(request)+reverse('Blog:read_post', args=[post.category.slug,post.slug])
-                return HttpResponse(json.dumps({"status":"error","message":"A post with the same title may already posted. "+f'<u><a href="{post_url}" target="_blank">{post.title}</a></u>'}))
-            elif post:
-                return HttpResponse(json.dumps({"status":"error","message":"A post with the same title already in someone draft."}))
-            else:
-                pass
-
+            return HttpResponse(json.dumps({"status":"error","message":"Where is the title?"}))
         elif cover_photo:
             try:
                 Image.open(cover_photo)
@@ -104,6 +98,10 @@ def write_post(request):
             return HttpResponse(json.dumps({"status":"error","message":"Did you forgot to categorize your post!"}))
         elif not content:
             return HttpResponse(json.dumps({"status":"error","message":"Your forgot your aim. Where to the content?"}))
+        elif not description:
+            return HttpResponse(json.dumps({"status":"error","message":"You should add a brief indroduction about your post?"}))
+        elif not status in ['Draft','Published','Pending']:
+            return HttpResponse(json.dumps({"status":"error","message":"Your selected post status is not seems valid."}))
         else:
             pass
         
@@ -122,7 +120,21 @@ def write_post(request):
 #sending the post instance to be rendered in details
 def view_post(request,cat,slug):
     category = Category.objects.get(slug=cat)
+    user = request.user if request.user.is_authenticated else None
+    try:
+        owner_post = Post.objects.get(category=category,slug=slug,is_deleted=False)
+        if owner_post.author == user:
+            if owner_post.status != 'Published' or owner_post.status != 'Hot':
+                messages.success(request,"This post preview just for you nobody else can see that until this is published.")
+            return render(request,"_Blog/client/read_post.html",{'post':owner_post,})
+        else:
+            messages.error(request,"You can't see the post while this is not published.")
+            return render(request,"_Blog/client/read_post.html",)
+    except:
+        pass
     post = Post.objects.get(Q(status="Published")|Q(status="Hot"),category=category,slug=slug,is_deleted=False)
+
+
     total_comment = 0
     for comment in post.post_comment.all(): #Count all the vaild available undeleted comments
         if comment.level == 0 and comment.is_deleted == False:
@@ -133,6 +145,7 @@ def view_post(request,cat,slug):
                     pass
         else:
             pass
+
     if request.method == "GET":
         page_number = int(request.GET.get('comment_page',1))
         comments = Comment.objects.filter(post=post,is_deleted=False,level=0)
@@ -143,6 +156,15 @@ def view_post(request,cat,slug):
 #fetch post to be displayed in blog by jquery
 def fetch_post(request,pk):
     if request.method == "POST":
+        try:
+            owner_post = Post.objects.get(pk=pk,is_deleted=False)
+            if owner_post.author == request.user:
+                return HttpResponse(owner_post.content)
+            else:
+                messages.error('You may not own the post while the post is not published.')
+                return HttpResponse("You can't see the post while this is not published.")
+        except:
+            pass
         post = Post.objects.get(Q(status="Published")|Q(status="Hot"),pk=pk)
         return HttpResponse(post.content)
     else:
@@ -167,58 +189,55 @@ def edit_post(request,id):
     except:
         raise Http404
 
-    if request.method == "POST":        
+
+    if request.method == "POST":
+        
+        if _post.status == 'Pending':
+            return HttpResponse(json.dumps({"status":"error","message":"While your post are pending under review. You can't make any change for now. Not even by manupulate the request."}))
+        elif _post.status == 'Rejected':
+            return HttpResponse(json.dumps({"status":"error","message":"While your post are rejected. You can't make any change for now. Not even by manupulate the request."}))
 
         title = request.POST.get('title',None)
         description = request.POST.get('description',None)
         cover_photo = request.FILES.get('cover_photo',None)
         content = request.POST.get('content',None)
         status = request.POST.get('status',"Draft")
+        author = request.user
+        tags = tuple(request.POST.getlist('tags',()))
+        feadback_msg = None
+
         if request.user.rank == 'Contributor':
             if status == "Published":
                 status = 'Pending'
-                feadback_msg = "Your post has been successfully submitted & under review. You will get notified about status after review."
+                feadback_msg = "Your post has been successfully edited & under review. You will get notified about status after review."
             else:
-                feadback_msg = "Your post has been successfully edited."
-        else:
-            feadback_msg = "Your post has been successfully edited."
-        author = request.user
+                pass
         try:
-            category = Category.objects.get(pk=int(request.POST.get('category',1)))
+            category = Category.objects.get(pk=int(request.POST.get('category',None)))
         except Exception as error:
-            response = {"status":"error","message":"Did you forgot to categorize your post!"}
-            return HttpResponse(json.dumps(response))
-        
-        tags = tuple(request.POST.getlist('tags',()))
+            response = {"status":"error","message":"Unable to find category you selected!"}
+            return HttpResponse(json.dumps(response))       
 
         if not title:
-            return HttpResponse(json.dumps({"status":"error","message":"Where is the title"}))
-        elif title: #Check if any post already exit with the title
-            title_slug = unislug(title)
-            post = Post.objects.filter(slug=title_slug).exists()
-            if title_slug == _post.slug:
-                pass
-            else:
-                if post and (post.status == 'Published' or post.status == 'Hot'):
-                    post_url = root_url(request)+reverse('Blog:read_post', args=[post.category.slug,post.slug])
-                    return HttpResponse(json.dumps({"status":"error","message":"A post with the same title may already posted. "+f'<u><a href="{post_url}" target="_blank">{post.title}</a></u>'}))
-                elif post:
-                    return HttpResponse(json.dumps({"status":"error","message":"A post with the same title already in someone draft."}))
-                else:
-                    pass
+            return HttpResponse(json.dumps({"status":"error","message":"Where is the title?"}))
         elif cover_photo:
             try:
                 Image.open(cover_photo)
             except:
                 return HttpResponse(json.dumps({"status":"error","message":"Thanks for try to upload not an image or any payload."}))
+        elif not cover_photo and not _post.cover_photo:
+            return HttpResponse(json.dumps({"status":"error","message":"Where is the cover image?"}))
         elif not category:
             return HttpResponse(json.dumps({"status":"error","message":"Did you forgot to categorize your post!"}))
-        elif len(content) < 50:
-            return HttpResponse(json.dumps({"status":"error","message":"Is that is the content of post? At least add some lorem ipsum!"}))
-        elif not post.author == request.user or request.user.is_superuser:
-            return render(request,'_Blog/dashboard/edit_post.html',{'status':"error",'message':'You are not permitted to edit the post'})
+        elif not content:
+            return HttpResponse(json.dumps({"status":"error","message":"Your forgot your aim. Where to the content?"}))
+        elif not description:
+            return HttpResponse(json.dumps({"status":"error","message":"You should add a brief indroduction about your post?"}))
+        elif not status in ['Draft','Published','Pending']:
+            return HttpResponse(json.dumps({"status":"error","message":"Your selected post status is not seems valid."}))
         else:
             pass
+
         _post.title = title
         _post.description = description
         _post.content = content
@@ -232,6 +251,8 @@ def edit_post(request,id):
             pass
         _post.tags.add(*tags)
         _post.save()
+        if not feadback_msg:
+            feadback_msg = "Your post have been successfully edited."
         response = {"status":"success","message":feadback_msg}
         return HttpResponse(json.dumps(response))
     else:
@@ -241,6 +262,12 @@ def edit_post(request,id):
             _post.save()
             messages.success(request,f"Your post titled '{_post.title}' has been deleted.")
             return redirect(reverse('Blog:list_post'))
+        elif _post.status == 'Pending':
+            messages.error(request,"While your post are pending under review. You can't make any change for now.")
+            return render(request,'_Blog/dashboard/edit_post.html',{'post':_post})
+        elif _post.status == 'Rejected':
+            messages.error(request,"While your post are rejected. You can't make any change for now.")
+            return render(request,'_Blog/dashboard/edit_post.html',{'post':_post})
         else:
             post = Post.objects.get(pk=id)
             category = Category.objects.filter(level=0)
@@ -259,10 +286,17 @@ def notifications(request):
 #Comment handler
 def comment(request,pid,cid):
     #Initializing variables
-    post = get_object_or_404(Post,pk=pid)
-    user = request.user if request.user.is_authenticated else None
-    comment = Comment.objects.get(pk=cid,post=post) if Comment.objects.filter(pk=cid,post=post).exists() else None
     referer_url = request.META['HTTP_REFERER']
+    user = request.user if request.user.is_authenticated else None
+
+    try:
+        post = Post.objects.filter(Q(status='Published')|Q(status='Hot'),pk=pid,is_deleted=False)[0]
+    except:
+        messages.error(request,"No published post found to comment.")
+        return redirect(f"{referer_url}#feadback")
+    
+    comment = Comment.objects.get(pk=cid,post=post) if Comment.objects.filter(pk=cid,post=post).exists() else None
+
     if request.method == "POST":
         report_content = request.POST.get("report",None)
         comment_content = request.POST.get("comment",None)
