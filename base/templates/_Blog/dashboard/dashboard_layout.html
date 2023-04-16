@@ -164,7 +164,7 @@
                         </div>
                         <button type="button" class="flex mx-3 text-sm bg-sky-200 rounded-full md:mr-0 focus:ring-4 focus:ring-gray-300 dark:focus:ring-gray-600" id="user-menu-button" aria-expanded="false" data-dropdown-toggle="dropdown">
                             <span class="sr-only">Open user menu</span>
-                            {% if user.profile_photo.url %}
+                            {% if user.profile_photo %}
                                 <img class="w-10 h-10 p-1 rounded-full ring-2 ring-gray-300 dark:ring-gray-500" src="{{user.profile_photo.url}}" alt="{{user.username}}">
                             {% else %}
                                 <svg class="w-10 h-10 p-1 rounded-full ring-2 ring-gray-300 dark:ring-gray-500" width="200" height="200" data-jdenticon-value="{{user.username}}">

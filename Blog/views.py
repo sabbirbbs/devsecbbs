@@ -119,54 +119,44 @@ def write_post(request):
         
 #sending the post instance to be rendered in details
 def view_post(request,cat,slug):
-    category = Category.objects.get(slug=cat)
+    try:
+        category = Category.objects.get(slug=cat)
+    except:
+        category = None
     user = request.user if request.user.is_authenticated else None
     try:
-        owner_post = Post.objects.get(category=category,slug=slug,is_deleted=False)
-        if owner_post.author == user:
-            if owner_post.status != 'Published' or owner_post.status != 'Hot':
-                messages.success(request,"This post preview just for you nobody else can see that until this is published.")
-            return render(request,"_Blog/client/read_post.html",{'post':owner_post,})
-        else:
-            messages.error(request,"You can't see the post while this is not published.")
-            return render(request,"_Blog/client/read_post.html",)
+        post = Post.objects.get(category=category,slug=slug,is_deleted=False)
     except:
+        raise Http404('No post found.')
+    
+    if post.status not in ['Published','Hot'] and post.author == user:
+        messages.success(request,"This post preview just for you nobody else can see that until this is published.")
+    elif post.status in ['Published','Hot']:
         pass
-    post = Post.objects.get(Q(status="Published")|Q(status="Hot"),category=category,slug=slug,is_deleted=False)
-
-
-    total_comment = 0
-    for comment in post.post_comment.all(): #Count all the vaild available undeleted comments
-        if comment.level == 0 and comment.is_deleted == False:
-            for reply in comment.get_descendants(include_self=True):
-                if reply.is_deleted == False:
-                    total_comment += 1
-                else:
-                    pass
-        else:
-            pass
-
+    else:
+        raise Http404('No post found.')
+    
+    
     if request.method == "GET":
         page_number = int(request.GET.get('comment_page',1))
         comments = Comment.objects.filter(post=post,is_deleted=False,level=0)
         comment_paginator = Paginator(comments,5,2)
         comment_page = comment_paginator.get_page(page_number)
-        return render(request,"_Blog/client/read_post.html",{'post':post,'comment_page':comment_page,'total_comment':total_comment})
+        return render(request,"_Blog/client/read_post.html",{'post':post,'comment_page':comment_page,})
 
 #fetch post to be displayed in blog by jquery
 def fetch_post(request,pk):
     if request.method == "POST":
         try:
-            owner_post = Post.objects.get(pk=pk,is_deleted=False)
-            if owner_post.author == request.user:
-                return HttpResponse(owner_post.content)
-            else:
-                messages.error('You may not own the post while the post is not published.')
-                return HttpResponse("You can't see the post while this is not published.")
+            post = Post.objects.get(pk=pk,is_deleted=False)
+            if post.author == request.user:
+                return HttpResponse(post.content)
+            elif post.status in ['Published','Hot']:
+                return HttpResponse(post.content)
+            else: 
+                return HttpResponse("...")
         except:
-            pass
-        post = Post.objects.get(Q(status="Published")|Q(status="Hot"),pk=pk)
-        return HttpResponse(post.content)
+            return HttpResponse("No valid post found with your query.")
     else:
         pass
 

@@ -4,8 +4,7 @@ import datetime
 import os
 import time
 import random
-from django.http import HttpResponse
-from django.contrib.auth.models import AbstractUser,User
+from django.contrib.auth.models import AbstractUser
 from django.conf import settings
 from mptt.models import MPTTModel, TreeForeignKey
 from taggit.managers import TaggableManager
@@ -76,7 +75,7 @@ class Category(MPTTModel):
 
     def save(self,*args,**kwargs):
         if not self.slug:
-            self.slug = unislug(self.name,True)
+            self.slug = unislug(self.name)
         else:
             self.slug = unislug(self.slug)
         return super().save(*args,**kwargs)
@@ -167,25 +166,29 @@ class AuthorUser(AbstractUser):
             return f"{self.username}"
 
 class Notification(models.Model):
+    notification_type = ('Like','Comment','Follow','Notice',)
     user = models.ForeignKey(AuthorUser,on_delete=models.CASCADE,related_name="user_notification")
-    title = models.CharField(max_length=255,null=True,blank=True)
+    content_type = models.ForeignKey(ContentType,on_delete=models.CASCADE)
+    content_id = models.PositiveIntegerField()
+    content_object = GenericForeignKey('content_type','content_id')
     content = models.TextField(null=True,blank=True)
     date = models.DateTimeField(default=datetime.datetime.now)
     read_time = models.DateTimeField(blank=True,null=True)
     note = models.TextField(blank=True,null=True)
+    type = models.CharField(max_length=255,default=None,choices=list(zip(notification_type,notification_type)))
 
     
     class Meta:
         ordering = ('-date',)
 
     def __str__(self):
-        return self.title
+        return self.content
 
 class ReportContent(models.Model):
     report_by = models.ForeignKey(AuthorUser,on_delete=models.CASCADE,related_name="user_report")
     content_type = models.ForeignKey(ContentType,on_delete=models.CASCADE)
     content_id = models.PositiveIntegerField()
-    report_to = GenericForeignKey('content_type','content_id')
+    report_to = GenericForeignKey('content_type','content_id') 
     report_content = models.TextField()
     date = models.DateTimeField(default=datetime.datetime.now)
     status = models.CharField(max_length=255,default="pending",choices=[("solved","Solved"),('pending','Pending'),('rejected','Rejected')])
