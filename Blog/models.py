@@ -166,7 +166,7 @@ class AuthorUser(AbstractUser):
             return f"{self.username}"
 
 class Notification(models.Model):
-    notification_type = ('Like','Comment','Follow','Notice',)
+    notification_type = ('Like','Comment','Follow','Update','Notice',)
     user = models.ForeignKey(AuthorUser,on_delete=models.CASCADE,related_name="user_notification")
     content_type = models.ForeignKey(ContentType,on_delete=models.CASCADE)
     content_id = models.PositiveIntegerField()
@@ -191,7 +191,8 @@ class ReportContent(models.Model):
     report_to = GenericForeignKey('content_type','content_id') 
     report_content = models.TextField()
     date = models.DateTimeField(default=datetime.datetime.now)
-    status = models.CharField(max_length=255,default="pending",choices=[("solved","Solved"),('pending','Pending'),('rejected','Rejected')])
+    status = models.CharField(max_length=255,default="Pending",choices=[("Solved","Solved"),('Pending','Pending'),('Rejected','Rejected')])
+    note = models.TextField(blank=True,null=True)
 
     
     class Meta:

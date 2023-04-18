@@ -91,7 +91,7 @@
                 <!-- Post section -->
                 {% csrf_token %}
                 <h1 align="center" class="text-5xl font-extrabold dark:text-white mb-4">{{post.title}}</h1>
-                    <article id="post" style="font-size:20px;" class="sun-editor-editable select-none opacity-60 dark:bg-gray-900 dark:text-white" data-post="{% url 'Blog:fetch_post' post.pk %}">
+                    <article id="post" style="font-size:20px;" class="sun-editor-editable opacity-60 dark:bg-gray-900 dark:text-white" data-post="{% url 'Blog:fetch_post' post.pk %}">
                         <!--Post content came here-->
                         {{post.content|html_trunc:0}}
                     </article>
