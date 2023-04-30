@@ -145,10 +145,10 @@ def view_post(request,cat,slug):
         return render(request,"_Blog/client/read_post.html",{'post':post,'comment_page':comment_page,})
 
 #fetch post to be displayed in blog by jquery
-def fetch_post(request,pk):
+def fetch_post(request,hash_id):
     if request.method == "POST":
         try:
-            post = Post.objects.get(pk=pk,is_deleted=False)
+            post = Post.objects.get(hash_id=hash_id,is_deleted=False)
             if post.author == request.user:
                 return HttpResponse(post.content)
             elif post.status in ['Published','Hot']:
@@ -270,22 +270,33 @@ def edit_post(request,id):
 
 def notifications(request):
     notifications = Notification.objects.filter(user=request.user)
-    notifications.update(read_time=datetime.datetime.now())
-    return render(request,"blog/notifications.html",{"notifications":notifications[:50]})
+    notifications_page = Paginator(notifications,10,3)
+    current_page = notifications_page.get_page(1)
+    #notifications.update(read_time=datetime.datetime.now())
+    return render(request,"_Blog/dashboard/notifications.html",{"notifications":current_page})
 
 #Comment handler
-def comment(request,pid,cid):
+def comment(request,phash,chash):
     #Initializing variables
     referer_url = request.META['HTTP_REFERER']
     user = request.user if request.user.is_authenticated else None
-
+    
     try:
-        post = Post.objects.filter(Q(status='Published')|Q(status='Hot'),pk=pid,is_deleted=False)[0]
+        post = Post.objects.filter(Q(status='Published')|Q(status='Hot'),hash_id=phash,is_deleted=False)[0]
     except:
         messages.error(request,"No published post found to comment.")
         return redirect(f"{referer_url}#feadback")
     
-    comment = Comment.objects.get(pk=cid,post=post) if Comment.objects.filter(pk=cid,post=post).exists() else None
+    if chash == '0':
+        comment = None
+    else:
+        try:
+            comment = Comment.objects.filter(hash_id=chash,post=post)[0]
+        except:
+            messages.error(request,"No comment found with the id.")
+            return redirect(f"{referer_url}#feadback")
+
+    
 
     if request.method == "POST":
         report_content = request.POST.get("report",None)
@@ -317,15 +328,15 @@ def comment(request,pid,cid):
                     comment.content = comment_content
                     comment.save()
                     messages.success(request,"Your comment have been edited successfully.")
-                    return redirect(f"{referer_url}#comment-{comment.pk}")
+                    return redirect(f"{referer_url}#comment-{comment.hash_id.hex}")
                 else:
                     new_comment = Comment.objects.create(post=post,parent=comment,commenter=user,content=comment_content,status="Published")
                     messages.success(request,"Your reply have been added successfully.")
-                    return redirect(f"{referer_url}#comment-{new_comment.pk}")
+                    return redirect(f"{referer_url}#comment-{new_comment.hash_id.hex}")
             else:
                 new_comment = Comment.objects.create(post=post,commenter=user,content=comment_content,status="Published")
                 messages.success(request,"Your comment have been added successfully.")
-                return redirect(f"{referer_url}#comment-{new_comment.pk}")
+                return redirect(f"{referer_url}#comment-{new_comment.hash_id.hex}")
         elif comment_delete:
             if comment.commenter == request.user:
                 comment.is_deleted = True
@@ -338,3 +349,7 @@ def comment(request,pid,cid):
 
     else:
         return HttpResponse("No parameter passed!")
+    
+    #Create notification redirect view
+    def notification_link(request):
+        pass
