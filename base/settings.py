@@ -70,6 +70,7 @@ TEMPLATES = [
                 'django.contrib.messages.context_processors.messages',
                 'Blog.context_processors.context_extra',
                 'Blog.context_processors.base_category',
+                'Blog.context_processors.current_time',
                 
             ],
         },

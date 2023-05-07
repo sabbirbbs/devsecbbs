@@ -17,8 +17,13 @@ def new_comment(instance,created,*args,**kwargs):
     else:
         commenter = "Anonymous"
     if created and instance.commenter != instance.post.author:
-        content = f"{commenter} commented on your post {instance.post.title}.\n{instance.content[:20]}"
-        create_notification(Comment,instance,instance.post.author,content,'Comment')
+        if instance.level == 0:
+            content = f"{commenter} commented on your post '{instance.post.title}' >> \n{instance.content[:20]}"
+            create_notification(Comment,instance,instance.post.author,content,'Comment')
+        elif instance.level != 0 and instance.commenter != instance.parent.commenter:
+            replied_comment = instance.parent
+            content = f"{commenter} replied to your comment on the post '{instance.post.title}' >> \n {instance.content[:20]}"
+            create_notification(Comment,instance,replied_comment.commenter,content,'Comment')
     else:
         pass
 
@@ -26,6 +31,11 @@ def new_comment(instance,created,*args,**kwargs):
 def post_status(instance,*args,**kwargs):
     if instance.pk:
         post = Post.objects.get(pk=instance.pk)
+        if post.note != instance.note:
+            reason = f"Reason: {instance.note}"
+        else:
+            reason = ''
+
         if post.status in ['Draft','Rejected','Pending'] and instance.status in 'Published':
             content = f"Your post {instance.title} has been Published."
             create_notification(Post,instance,instance.author,content,'Update')
@@ -36,7 +46,7 @@ def post_status(instance,*args,**kwargs):
             content = f"Your post {instance.title} is now under review."
             create_notification(Post,instance,instance.author,content,'Update')
         elif post.status == 'Pending' and instance.status == 'Rejected':
-            content = f"Your post {instance.title} has been rejected.\n Reason: {instance.note}"
+            content = f"Your post {instance.title} has been rejected. {reason}"
             create_notification(Post,instance,instance.author,content,'Notice')
 
     else:
@@ -44,20 +54,25 @@ def post_status(instance,*args,**kwargs):
 
 @receiver(pre_save,sender=AuthorUser)
 def user_status(sender,instance,*args,**kwargs):
-    role = ["Banned",'Contributor',"Author","Moderator","Admin"]
+    role = ["Banned","Contributor","Author","Moderator","Admin"]
     if instance.pk:
         user = sender.objects.get(pk=instance.pk)
+        
+        if user.note != instance.note:
+            reason = f"Reason: {instance.note}"
+        else:
+            reason = ''
+            
         if user.rank != 'Banned' and instance.rank == 'Banned':
-            content = f"Dear {instance.username}, You are now banned, \n Reason {instance.note}."     
+            content = f"Dear {instance.username}, You are now banned. {reason}"
+            create_notification(sender,instance,instance,content,'Notice') 
         elif role.index(user.rank) < role.index(instance.rank):
             content = f"Dear {instance.username}, Your rank updated from {user.rank} to {instance.rank}."
+            create_notification(sender,instance,instance,content,'Update')
         elif role.index(user.rank) > role.index(instance.rank):
             content = f"Dear {instance.username}, Your rank downgraded from {user.rank} to {instance.rank}."
-        else:
-            pass
-        try:
             create_notification(sender,instance,instance,content,'Notice')
-        except:
+        else:
             pass
     else:
         pass
@@ -68,6 +83,12 @@ def report_status_reviewed(sender,instance,*args,**kwargs):
     if instance.pk:
         reported_object = instance.report_to.__class__.__name__
         report = sender.objects.get(pk=instance.pk)
+        
+        if report.note != instance.note:
+            reason = f"Reason: {instance.note}"
+        else:
+            reason = ''
+            
         if report.status != 'Solved' and instance.status == 'Solved':
             if reported_object == 'Post':
                 content = f"Your report to the post {report.report_to.title} has been solved."
@@ -75,9 +96,9 @@ def report_status_reviewed(sender,instance,*args,**kwargs):
                 content = f"Your report to the comment of {report.report_to.commenter.username} has been solved."
         if report.status != 'Rejected' and instance.status == 'Rejected':
             if reported_object == 'Post':
-                content = f"Your report to the post {report.report_to.title} has been rejected. Reason : {instance.note}."
+                content = f"Your report to the post {report.report_to.title} has been rejected. {reason}"
             elif reported_object == 'Comment':
-                content = f"Your report to the comment of {report.report_to.commenter.username} has been rejected. Reason : {instance.note}."
+                content = f"Your report to the comment of {report.report_to.commenter.username} has been rejected. {reason}"
         
         try:
             create_notification(ReportContent,instance,instance.report_by,content,'Update')

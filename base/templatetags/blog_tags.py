@@ -2,6 +2,7 @@ from django import template
 from django.utils.html import strip_spaces_between_tags, strip_tags
 from django.utils.text import Truncator
 import readtime 
+from datetime import timedelta,datetime
 
 register = template.Library()
 
@@ -43,3 +44,8 @@ def read_time(content):
 @register.filter(name='range')
 def filter_range(start, end):
     return range(start,end)
+
+#Add/substract day from date
+@register.filter(name='add_day')
+def add_day(date_obj,day_to_add):
+    return date_obj + timedelta(days=day_to_add)

@@ -26,6 +26,8 @@ app_dir = os.path.dirname(__file__)  # get current directory
 def root_url(request):
     return request.scheme+"://"+request.get_host()
 
+def referel_url(request):
+    return request.META['HTTP_REFERER']
 
 
 #writing views
@@ -50,23 +52,18 @@ def dashboard(request):
 def list_post(request):
     page_number = int(request.GET.get('page',1))
     post = Post.objects.filter(is_deleted=False)
-    paginator = Paginator(post,10,3)
-    if page_number:
-        page = paginator.get_page(page_number)
-        list_page = page.paginator.get_elided_page_range(number=page.number,on_each_side=2,on_ends=1)
-        return render(request,"_Blog/dashboard/list_post.html",{'page':page,'list_page':list_page})
-    else:
-        page = paginator.get_page(1)
-        list_page = page.paginator.get_elided_page_range(number=page.number,on_each_side=2,on_ends=1)
-        return render(request,"_Blog/dashboard/list_post.html",{'page':page,'list_page':list_page})
+    paginator = Paginator(post,10.3)
+    page = paginator.get_page(page_number)
+    list_page = page.paginator.get_elided_page_range(number=page.number,on_each_side=2,on_ends=1)
+    return render(request,"_Blog/dashboard/list_post.html",{'page':page,'list_page':list_page})
 
 
 #validating & saving written post
 def write_post(request):
     if request.method == "POST":
 
-        title = request.POST.get('title',None)
-        description = request.POST.get('description',None)
+        title = request.POST.get('title','0')
+        description = request.POST.get('description','0')
         cover_photo = request.FILES.get('cover_photo',None)
         content = request.POST.get('content',None)
         status = request.POST.get('status',"Draft")
@@ -85,8 +82,10 @@ def write_post(request):
             response = {"status":"error","message":"Unable to find category you selected!"}
             return HttpResponse(json.dumps(response))       
 
-        if not title:
-            return HttpResponse(json.dumps({"status":"error","message":"Where is the title?"}))
+        if 5 > len(title) > 255 :
+            return HttpResponse(json.dumps({"status":"error","message":"Your post title should not be blank and more than 255 character."}))
+        elif len(title) > 254:
+            return HttpResponse(json.dumps({"status":"error","message":"Your post title is too long."}))
         elif cover_photo:
             try:
                 Image.open(cover_photo)
@@ -98,8 +97,8 @@ def write_post(request):
             return HttpResponse(json.dumps({"status":"error","message":"Did you forgot to categorize your post!"}))
         elif not content:
             return HttpResponse(json.dumps({"status":"error","message":"Your forgot your aim. Where to the content?"}))
-        elif not description:
-            return HttpResponse(json.dumps({"status":"error","message":"You should add a brief indroduction about your post?"}))
+        elif len(description) > 255 :
+            return HttpResponse(json.dumps({"status":"error","message":"Your post description should not be more than 255 character."}))
         elif not status in ['Draft','Published','Pending']:
             return HttpResponse(json.dumps({"status":"error","message":"Your selected post status is not seems valid."}))
         else:
@@ -109,7 +108,7 @@ def write_post(request):
         new_post.tags.add(*tags)
         new_post.save()
         messages.success(request,"Your post has been successfully added. Now you are in edit mode.")
-        edit_post_url = root_url(request) +str(reverse('Blog:edit_post', args = [new_post.pk] ))
+        edit_post_url = root_url(request) +str(reverse('Blog:edit_post', args = [new_post.hash_id] ))
         response = {"status":"success","message":"Post has been saved successfully",'destination':edit_post_url}
         return HttpResponse(json.dumps(response))
     else:
@@ -139,8 +138,9 @@ def view_post(request,cat,slug):
     
     if request.method == "GET":
         page_number = int(request.GET.get('comment_page',1))
-        comments = Comment.objects.filter(post=post,is_deleted=False,level=0)
-        comment_paginator = Paginator(comments,5,2)
+        comments = Comment.objects.filter(post=post,is_deleted=False,level=0).order_by('-date')
+        #comment_paginator = Paginator(comments,10,2)
+        comment_paginator = Paginator(comments,1)
         comment_page = comment_paginator.get_page(page_number)
         return render(request,"_Blog/client/read_post.html",{'post':post,'comment_page':comment_page,})
 
@@ -172,10 +172,10 @@ def tag(request,slug):
     return render(request,"blog/tag_post.html",{"posts":posts,"tag":slug})
 
 #Post edit
-def edit_post(request,id):
+def edit_post(request,hash_id):
 
     try:
-        _post = Post.objects.get(pk=id,is_deleted=False)
+        _post = Post.objects.get(hash_id=hash_id,is_deleted=False)
     except:
         raise Http404
 
@@ -187,8 +187,8 @@ def edit_post(request,id):
         elif _post.status == 'Rejected':
             return HttpResponse(json.dumps({"status":"error","message":"While your post are rejected. You can't make any change for now. Not even by manupulate the request."}))
 
-        title = request.POST.get('title',None)
-        description = request.POST.get('description',None)
+        title = request.POST.get('title','0')
+        description = request.POST.get('description','0')
         cover_photo = request.FILES.get('cover_photo',None)
         content = request.POST.get('content',None)
         status = request.POST.get('status',"Draft")
@@ -208,8 +208,8 @@ def edit_post(request,id):
             response = {"status":"error","message":"Unable to find category you selected!"}
             return HttpResponse(json.dumps(response))       
 
-        if not title:
-            return HttpResponse(json.dumps({"status":"error","message":"Where is the title?"}))
+        if 5 > len(title) > 255 :
+            return HttpResponse(json.dumps({"status":"error","message":"Your post title should not be blank and less than 255 character."}))
         elif cover_photo:
             try:
                 Image.open(cover_photo)
@@ -221,8 +221,8 @@ def edit_post(request,id):
             return HttpResponse(json.dumps({"status":"error","message":"Did you forgot to categorize your post!"}))
         elif not content:
             return HttpResponse(json.dumps({"status":"error","message":"Your forgot your aim. Where to the content?"}))
-        elif not description:
-            return HttpResponse(json.dumps({"status":"error","message":"You should add a brief indroduction about your post?"}))
+        elif len(description) > 255 :
+            return HttpResponse(json.dumps({"status":"error","message":"Your post description should not be more than 255 character."}))
         elif not status in ['Draft','Published','Pending']:
             return HttpResponse(json.dumps({"status":"error","message":"Your selected post status is not seems valid."}))
         else:
@@ -267,14 +267,95 @@ def edit_post(request,id):
             else:
                 return render(request,'_Blog/dashboard/edit_post.html',{'status':"Alert",'message':'You are not permitted to edit the post'})
     
+#Notification page
+def get_notification_page(user,page,type=None):
+    try:
+        if type:
+            notifications = Notification.objects.filter(user=user,type=type)
+        else:
+            notifications = Notification.objects.filter(user=user)
+        notifications_page = Paginator(notifications,30,5)
+        current_page = notifications_page.get_page(page)
+    except:
+        current_page = []
+
+    return current_page
 
 def notifications(request):
-    notifications = Notification.objects.filter(user=request.user)
-    notifications_page = Paginator(notifications,10,3)
-    current_page = notifications_page.get_page(1)
-    #notifications.update(read_time=datetime.datetime.now())
-    return render(request,"_Blog/dashboard/notifications.html",{"notifications":current_page})
+    page = request.GET.get('page',1)
+    read = request.GET.get('read',None)
+    notification_category = ['Like','Comment','Follow','Update','Notice']
+    if read and read in notification_category:
+        notification_to_make_read = Notification.objects.filter(user=request.user,read_time=None,type=read)
+        total_unread = len(notification_to_make_read)
+        notification_to_make_read.update(read_time=datetime.datetime.now())
+        if total_unread:
+            messages.success(request,f'Your {total_unread} {read} marked as read.')
+        else:
+            messages.success(request,f'Your all comments are already marked as read.')
+    elif read and read == 'All':
+        notification_to_make_read = Notification.objects.filter(user=request.user,read_time=None)
+        total_unread = len(notification_to_make_read)
+        notification_to_make_read.update(read_time=datetime.datetime.now())
+        if total_unread:
+            messages.success(request,f'Your all {total_unread} notifications marked as read.')
+        else:
+            messages.success(request,f'Your all notifications are already marked as read.')
+    else:
+        pass
 
+    user = request.user
+    all = get_notification_page(user,page)
+    like = get_notification_page(user,page,'Like')
+    comment = get_notification_page(user,page,'Comment')
+    follow = get_notification_page(user,page,'Follow')
+    update = get_notification_page(user,page,'Update')
+    notice = get_notification_page(user,page,'Notice')
+    
+    list_page = all.paginator.get_elided_page_range(number=all.number,on_each_side=2,on_ends=1)
+    
+    context = {
+        'like': like,
+        'comment' : comment,
+        'follow' : follow,
+        'update' : update,
+        'notice' : notice,
+        'page':all,
+        'list_page':list_page
+        }
+    return render(request,"_Blog/dashboard/notifications.html",context)
+
+#Create link for notification
+def notification_link(request,hash_id):
+    try:
+        notification = Notification.objects.get(user=request.user,hash_id=hash_id)
+    except:
+        messages.error(request,'There are have no such notification found.')
+        return redirect(reverse('Blog:notifications'))
+    if notification.type == 'Comment':
+        post = notification.content_object.post
+        comment = notification.content_object
+        comments = Comment.objects.filter(post=post,is_deleted=False,level=0).order_by('-date')
+        paginator = Paginator(comments,1)
+        post_url = reverse('Blog:read_post',args=[post.category.slug,post.slug])
+        url_to_redirect = f"{post_url}?comment_page={paginator.num_pages}#comment-{notification.content_object.hash_id.hex}"
+    elif notification.type == 'Like':
+        post = notification.content_object
+        url_to_redirect = reverse('Blog:read_post',args=[post.category.slug,post.slug])
+    elif notification.type == 'Follow':
+        messages.error(request,"The notification doesn't linked with anything.")
+        url_to_redirect = referel_url(request)
+    elif notification.type == 'Update':
+        messages.error(request,"The notification doesn't linked with anything.")
+        url_to_redirect = referel_url(request)
+    elif notification.type == 'Notice':
+        messages.error(request,"The notification doesn't linked with anything.")
+        url_to_redirect = referel_url(request)
+    else:
+        pass
+    
+    return redirect(url_to_redirect)
+    
 #Comment handler
 def comment(request,phash,chash):
     #Initializing variables
@@ -310,7 +391,7 @@ def comment(request,phash,chash):
                     return redirect(f"{referer_url}#feadback")
                 else:
                     ReportContent.objects.create(content_type=ContentType.objects.get_for_model(Comment),content_id=comment.pk,report_by=user,report_content=report_content)
-                    messages.success(request,"Your reported has been sent to admin. and you will get notified when the issue will be solved.")
+                    messages.success(request,"Your report has been sent to admin. and you will get notified when the issue will be solved.")
                     return redirect(f"{referer_url}#feadback")
             else:
                 messages.error(request,"You can't report your own comment or you may not logged in!")
@@ -336,7 +417,8 @@ def comment(request,phash,chash):
             else:
                 new_comment = Comment.objects.create(post=post,commenter=user,content=comment_content,status="Published")
                 messages.success(request,"Your comment have been added successfully.")
-                return redirect(f"{referer_url}#comment-{new_comment.hash_id.hex}")
+                post_url = reverse('Blog:read_post',args=[post.category.slug,post.slug])
+                return redirect(f"{post_url}#comment-{new_comment.hash_id.hex}")
         elif comment_delete:
             if comment.commenter == request.user:
                 comment.is_deleted = True
@@ -350,6 +432,4 @@ def comment(request,phash,chash):
     else:
         return HttpResponse("No parameter passed!")
     
-    #Create notification redirect view
-    def notification_link(request):
-        pass
+    

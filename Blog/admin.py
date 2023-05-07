@@ -25,6 +25,7 @@ admin.site.register(models.ReportContent)
 #Set up custom user table
 fields = list(UserAdmin.fieldsets)
 fields.append(('Author Info',{'fields':('profile_photo','bio','rank','dob','country','city','phone')}))
+fields.append(('Note',{'fields':('note',)}))
 UserAdmin.fieldsets = tuple(fields)
 
 admin.site.register(models.AuthorUser,UserAdmin)

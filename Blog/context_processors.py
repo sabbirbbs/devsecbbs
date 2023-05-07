@@ -1,12 +1,13 @@
 from .models import *
 from django.db.models import Count
+import datetime
 
 
 def context_extra(request):
     if request.user.is_authenticated:
-        notifications = Notification.objects.filter(user=request.user,read_time=None)
+        new_notifications = Notification.objects.filter(user=request.user,read_time=None)
         context = {
-            "new_notifications":notifications
+            "new_notifications" : new_notifications,
         }
         return context
     else:
@@ -37,3 +38,6 @@ def base_category(request):
     except:
         catx3 = None
     return {'base_category':catx3,'top_category':top_category_listi,'category':category}
+
+def current_time(request):
+    return {'current_time':datetime.datetime.now()}

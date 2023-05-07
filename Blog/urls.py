@@ -18,6 +18,7 @@ urlpatterns = [
     path("dashboard/write_post",views.write_post,name="write_post"),
     path("dashboard/post/list",views.list_post,name="list_post"),
     path("dashboard/notifications",views.notifications,name="notifications"),
+    path("dashboard/notification/<str:hash_id>",views.notification_link,name="notification_link"),
     
     
 

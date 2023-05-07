@@ -65,8 +65,9 @@ def author_profile(instance, filename):
 
 
 #writing database models
+
 class Category(MPTTModel):
-    hash_id = models.UUIDField(default=uuid.uuid4,editable=False)
+    hash_id = models.UUIDField(unique=True,default=uuid.uuid4,editable=False)
     parent = TreeForeignKey('self', on_delete=models.CASCADE,null=True,blank=True, related_name='children')
     name = models.CharField(max_length=255)
     slug = models.CharField(unique=True,null=True,blank=True,max_length=255)
@@ -86,7 +87,7 @@ class Category(MPTTModel):
         return self.name
 
 class Post(models.Model):
-    hash_id = models.UUIDField(default=uuid.uuid4,editable=False)
+    hash_id = models.UUIDField(unique=True,default=uuid.uuid4,editable=False)
     title = models.CharField(max_length=255)
     slug = models.CharField(unique=True,null=True,blank=True,max_length=255)
     description = models.CharField(max_length=255,blank=True)
@@ -130,10 +131,10 @@ class Post(models.Model):
         return f"{self.title}"
 
 class Comment(MPTTModel):
-    hash_id = models.UUIDField(default=uuid.uuid4,editable=False)
+    hash_id = models.UUIDField(unique=True,default=uuid.uuid4,editable=False)
     post = models.ForeignKey(Post,on_delete=models.CASCADE,blank=True,null=True,related_name="post_comment")
     parent = TreeForeignKey('self', on_delete=models.CASCADE, blank=True,null=True,related_name='children')
-    commenter = models.ForeignKey('AuthorUser',on_delete=models.SET_NULL,null=True,related_name="user_comment")
+    commenter = models.ForeignKey('AuthorUser',on_delete=models.SET_NULL,null=True,blank=True,related_name="user_comment")
     content = models.TextField()
     date = models.DateTimeField(default=datetime.datetime.now)
     status = models.CharField(max_length=255,choices=[("Published","Published"),("Rejected","Rejected")],null=True,blank=True)
@@ -147,10 +148,10 @@ class Comment(MPTTModel):
         return str(self.content)
 
 class AuthorUser(AbstractUser):
-    hash_id = models.UUIDField(default=uuid.uuid4,editable=False)
+    hash_id = models.UUIDField(unique=True,default=uuid.uuid4,editable=False)
     profile_photo = models.ImageField(upload_to=author_profile,blank=True,null=True)
     bio = models.CharField(max_length=255,blank=True,null=True)
-    rank = models.CharField(max_length=255,choices=[('Contributor',"Contributor"),("Author","Author"),("Moderator","Moderator"),("Admin","Admin"),("Banned","Banned")])
+    rank = models.CharField(max_length=255,default="Contributor",choices=[('Contributor',"Contributor"),("Author","Author"),("Moderator","Moderator"),("Admin","Admin"),("Banned","Banned")])
     dob = models.DateTimeField(null=True,blank=True)
     gender = models.CharField(max_length=10,blank=True,null=True,choices=[("Male","Male"),("Female","Female")])
     website = models.SlugField(null=True,blank=True)
@@ -171,7 +172,7 @@ class AuthorUser(AbstractUser):
             return f"{self.username}"
 
 class Notification(models.Model):
-    hash_id = models.UUIDField(default=uuid.uuid4,editable=False)
+    hash_id = models.UUIDField(unique=True,default=uuid.uuid4,editable=False)
     notification_type = ('Like','Comment','Follow','Update','Notice',)
     user = models.ForeignKey(AuthorUser,on_delete=models.CASCADE,related_name="user_notification")
     content_type = models.ForeignKey(ContentType,on_delete=models.CASCADE)
@@ -191,7 +192,7 @@ class Notification(models.Model):
         return self.content
 
 class ReportContent(models.Model):
-    hash_id = models.UUIDField(default=uuid.uuid4,editable=False)
+    hash_id = models.UUIDField(unique=True,default=uuid.uuid4,editable=False)
     report_by = models.ForeignKey(AuthorUser,on_delete=models.CASCADE,related_name="user_report")
     content_type = models.ForeignKey(ContentType,on_delete=models.CASCADE)
     content_id = models.PositiveIntegerField()
