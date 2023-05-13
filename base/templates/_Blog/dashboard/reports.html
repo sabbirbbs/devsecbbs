@@ -1,0 +1,526 @@
+{% extends "_Blog/dashboard/dashboard_layout.html" %}
+{% load static %}
+{% load blog_tags %}
+{% block title %} All Reports {% endblock %}
+
+{% block body %}
+
+<!-- Django message handler -->
+<div id="feadback" class="no-target mt-4">
+    {% for message in messages %}
+    {% if message.tags == 'success' %}
+        <div id="success-{{forloop.counter}}" class="flex p-4 mb-4 text-green-800 rounded-lg bg-green-50 dark:bg-gray-800 dark:text-green-400" role="alert">
+            <svg aria-hidden="true" class="flex-shrink-0 w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path></svg>
+            <span class="sr-only">Info</span>
+            <div class="ml-3 text-sm font-medium">
+            {{message}}
+            </div>
+            <button type="button" class="ml-auto -mx-1.5 -my-1.5 bg-green-50 text-green-500 rounded-lg focus:ring-2 focus:ring-green-400 p-1.5 hover:bg-green-200 inline-flex h-8 w-8 dark:bg-gray-800 dark:text-green-400 dark:hover:bg-gray-700" data-dismiss-target="#success-{{forloop.counter}}" aria-label="Close">
+            <span class="sr-only">Close</span>
+            <svg aria-hidden="true" class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>
+            </button>
+        </div>
+    {% elif message.tags == 'error' %}
+        <div id="info-{{forloop.counter}}" class="flex p-4 mb-4 text-red-800 rounded-lg bg-red-50 dark:bg-gray-800 dark:text-red-400" role="alert">
+            <svg aria-hidden="true" class="flex-shrink-0 w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path></svg>
+            <span class="sr-only">Info</span>
+            <div class="ml-3 text-sm font-medium">
+            {{message}}
+            </div>
+            <button type="button" class="ml-auto -mx-1.5 -my-1.5 bg-red-50 text-red-500 rounded-lg focus:ring-2 focus:ring-red-400 p-1.5 hover:bg-red-200 inline-flex h-8 w-8 dark:bg-gray-800 dark:text-red-400 dark:hover:bg-gray-700" data-dismiss-target="#info-{{forloop.counter}}" aria-label="Close">
+            <span class="sr-only">Close</span>
+            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>
+            </button>
+        </div>
+    {% endif %}
+    {% endfor %}
+</div>
+<!-- End django message handler -->
+
+<!-- Start report tab -->
+<h1 class="mb-4 py-4 text-center text-2xl font-extrabold leading-none tracking-tight text-gray-900 md:text-2xl lg:text-6xl dark:text-white">Report : All the user's complain. </h1>
+<div class="border-b border-gray-200 dark:border-gray-700 dark:bg-gray-700">
+    <ul class="flex flex-wrap -mb-px text-sm font-medium text-center text-gray-500 dark:text-gray-400" id="myTab" data-tabs-toggle="#ReportTabContent" role="tablist">
+        <li class="mr-2" role="presentation">
+            <button class="inline-flex aria-selected:dark:bg-gray-600 aria-selected:bg-gray-100 aria-selected:dark:text-white aria-selected:text-gray-900 p-4 border-b-2 border-transparent rounded-t-lg hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300 group" data-tabs-target="#all" type="button" role="tab" aria-selected="false">
+                <svg class="w-5 h-5 mr-2 text-gray-400 group-hover:text-gray-500 dark:text-gray-500 dark:group-hover:text-gray-300" viewBox="0 -0.5 21 21" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" fill="#000000"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd"> <g id="Dribbble-Light-Preview" transform="translate(-99.000000, -640.000000)" fill="#000000"> <g id="icons" transform="translate(56.000000, 160.000000)"> <path d="M61.9,483 C61.9,482.448 61.4296,482 60.85,482 L49.3,482 L49.3,490 L60.85,490 C61.4296,490 61.9,489.552 61.9,489 L61.9,483 Z M64,482 L64,490 C64,491.105 63.06025,492 61.9,492 L47.2,492 L47.2,480 L61.9,480 C63.06025,480 64,480.895 64,482 L64,482 Z M44.05,480 L45.1,480 L45.1,499 C45.1,499.552 44.6296,500 44.05,500 C43.4704,500 43,499.552 43,499 L43,481 C43,480.448 43.4704,480 44.05,480 L44.05,480 Z" id="report_flag-[#1419]"> </path> </g> </g> </g> </g></svg>All
+            </button>
+        </li>
+        <li class="mr-2">
+            <button class="inline-flex aria-selected:dark:bg-gray-600 aria-selected:bg-gray-100 aria-selected:dark:text-white aria-selected:text-gray-900 p-4 border-b-2 border-transparent rounded-t-lg hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300 group" data-tabs-target="#comment" type="button" role="tab">
+                <svg class="w-5 h-5 mr-2 text-gray-400 group-hover:text-gray-500 dark:text-gray-500 dark:group-hover:text-gray-300" xmlns="http://www.w3.org/2000/svg" fill="#000000" viewBox="0 0 24 24"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"><path d="M21.99 4c0-1.1-.89-2-1.99-2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h14l4 4-.01-18zM18 14H6v-2h12v2zm0-3H6V9h12v2zm0-3H6V6h12v2z"></path></g></svg>Comment
+            </button>
+        </li>
+        <li class="mr-2">
+            <button class="inline-flex aria-selected:dark:bg-gray-600 aria-selected:bg-gray-100 aria-selected:dark:text-white aria-selected:text-gray-900 p-4 border-b-2 border-transparent rounded-t-lg hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300 group" data-tabs-target="#post" type="button" role="tab">
+                <svg class="w-5 h-5 mr-2 text-gray-400 group-hover:text-gray-500 dark:text-gray-500 dark:group-hover:text-gray-300" version="1.1" id="_x32_" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 512 512" xml:space="preserve" fill="#000000"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <style type="text/css"> .st0{fill:#000000;} </style> <g> <rect x="106.667" y="106.667" class="st0" width="298.666" height="106.666"></rect> <path class="st0" d="M0,0v512h512V0H0z M458.667,458.667H53.333V53.333h405.334V458.667z"></path> <rect x="256" y="277.333" class="st0" width="149.333" height="32"></rect> <rect x="256" y="362.667" class="st0" width="149.333" height="32"></rect> <rect x="106.667" y="277.333" class="st0" width="106.666" height="117.334"></rect> </g> </g></svg> Post                   
+            </button>
+        </li>
+        <li class="mr-2">
+            <button class="inline-flex aria-selected:dark:bg-gray-600 aria-selected:bg-gray-100 aria-selected:dark:text-white aria-selected:text-gray-900 p-4 border-b-2 border-transparent rounded-t-lg hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300 group"  data-tabs-target="#user" type="button" role="tab">
+                <svg class="w-5 h-5 mr-2 text-gray-400 group-hover:text-gray-500 dark:text-gray-500 dark:group-hover:text-gray-300" fill="#000000" viewBox="0 0 32 32" version="1.1" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <title>user-circle</title> <path d="M0 16q0 3.264 1.28 6.208t3.392 5.12 5.12 3.424 6.208 1.248 6.208-1.248 5.12-3.424 3.392-5.12 1.28-6.208-1.28-6.208-3.392-5.12-5.088-3.392-6.24-1.28q-3.264 0-6.208 1.28t-5.12 3.392-3.392 5.12-1.28 6.208zM4 16q0-3.264 1.6-6.016t4.384-4.352 6.016-1.632 6.016 1.632 4.384 4.352 1.6 6.016-1.6 6.048-4.384 4.352-6.016 1.6-6.016-1.6-4.384-4.352-1.6-6.048zM10.016 23.008q0 0.576 0.224 1.152 2.592 1.856 5.76 1.856t5.76-1.856q0.256-0.576 0.256-1.152-0.256-1.344-1.088-2.464t-2.048-1.792q1.12-1.152 1.12-2.752v-1.984q0-1.664-1.184-2.848t-2.816-1.152-2.816 1.152-1.184 2.848v1.984q0 1.6 1.12 2.752-1.216 0.672-2.048 1.792t-1.056 2.464z"></path> </g></svg>User
+            </a>
+        </li>
+        <li class="mr-2">
+            <button class="inline-flex aria-selected:dark:bg-gray-600 aria-selected:bg-gray-100 aria-selected:dark:text-white aria-selected:text-gray-900 p-4 border-b-2 border-transparent rounded-t-lg hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300 group"  data-tabs-target="#other" type="button" role="tab">
+                <svg class="w-5 h-5 mr-2 text-gray-400 group-hover:text-gray-500 dark:text-gray-500 dark:group-hover:text-gray-300" fill="#000000" viewBox="0 0 32 32" version="1.1" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <path d="M15.5 3.5c-7.18 0-13 5.82-13 13s5.82 13 13 13 13-5.82 13-13-5.82-13-13-13zM15.5 23.875c-0.829 0-1.5-0.672-1.5-1.5s0.671-1.5 1.5-1.5c0.828 0 1.5 0.672 1.5 1.5s-0.672 1.5-1.5 1.5zM17 17.375c0 0.828-0.672 1.5-1.5 1.5-0.829 0-1.5-0.672-1.5-1.5v-7c0-0.829 0.671-1.5 1.5-1.5 0.828 0 1.5 0.671 1.5 1.5v7z"></path> </g></svg>Other
+            </a>
+        </li>
+    </ul>
+</div>
+
+<!-- End report tab -->
+
+<!-- Start report list -->
+
+<div id="ReportTabContent h-64">
+    <div class="hidden p-4 rounded-lg bg-gray-50 dark:bg-gray-800" id="all" role="tabpanel">
+        {% if page.paginator.count >= 1 %}
+            <div class="flex justify-between w-2/3 mx-auto"><div class="font-bold p-2 dark:text-white">Total : {{page.paginator.count}} </div> </div>
+        {% endif %}
+        {% if page %}
+            <table class="w-full min-w-64 overflow-x-auto text-sm text-left text-gray-500 dark:text-gray-400">
+                <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+                    <tr>
+                        <th scope="col" class="px-6 py-3 text-center">
+                            Report to
+                        </th>
+                        <th scope="col" class="px-6 py-3">
+                            Issue
+                        </th>
+                        <th scope="col" class="px-6 py-3">
+                            Date
+                        </th>
+                        <th scope="col" class="px-6 py-3">
+                            Status
+                        </th>
+                        <th scope="col" class="px-6 py-3">
+                            Action
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for report in page %}
+                    <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
+                        <th scope="row" class="flex items-center px-6 py-4">
+                            {% if report.type == 'Comment' %}
+                                <svg class="w-10 h-10 rounded-full" xmlns="http://www.w3.org/2000/svg" fill="#000000" viewBox="0 0 24 24"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"><path d="M21.99 4c0-1.1-.89-2-1.99-2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h14l4 4-.01-18zM18 14H6v-2h12v2zm0-3H6V9h12v2zm0-3H6V6h12v2z"></path></g></svg>
+                                <div class="pl-3">
+                                    <div class="text-base font-semibold"><a href="{% url 'Blog:report_link' report.hash_id.hex %}">{{ report.report_to.content }}</a></div>
+                                </div>  
+                            {% elif report.type == 'User' %}
+                                <svg class="w-10 h-10 rounded-full" fill="#000000" viewBox="0 0 32 32" version="1.1" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <title>user-circle</title> <path d="M0 16q0 3.264 1.28 6.208t3.392 5.12 5.12 3.424 6.208 1.248 6.208-1.248 5.12-3.424 3.392-5.12 1.28-6.208-1.28-6.208-3.392-5.12-5.088-3.392-6.24-1.28q-3.264 0-6.208 1.28t-5.12 3.392-3.392 5.12-1.28 6.208zM4 16q0-3.264 1.6-6.016t4.384-4.352 6.016-1.632 6.016 1.632 4.384 4.352 1.6 6.016-1.6 6.048-4.384 4.352-6.016 1.6-6.016-1.6-4.384-4.352-1.6-6.048zM10.016 23.008q0 0.576 0.224 1.152 2.592 1.856 5.76 1.856t5.76-1.856q0.256-0.576 0.256-1.152-0.256-1.344-1.088-2.464t-2.048-1.792q1.12-1.152 1.12-2.752v-1.984q0-1.664-1.184-2.848t-2.816-1.152-2.816 1.152-1.184 2.848v1.984q0 1.6 1.12 2.752-1.216 0.672-2.048 1.792t-1.056 2.464z"></path> </g></svg>
+                                <div class="pl-3">
+                                    <div class="text-base font-semibold"><a href="{% url 'Blog:report_link' report.hash_id.hex %}">{{ report.report_to.username }}</a></div>
+                                </div>  
+                            {% elif report.type == 'Post' %}
+                                <svg class="w-10 h-10 rounded-full" version="1.1" id="_x32_" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 512 512" xml:space="preserve" fill="#000000"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <style type="text/css"> .st0{fill:#000000;} </style> <g> <rect x="106.667" y="106.667" class="st0" width="298.666" height="106.666"></rect> <path class="st0" d="M0,0v512h512V0H0z M458.667,458.667H53.333V53.333h405.334V458.667z"></path> <rect x="256" y="277.333" class="st0" width="149.333" height="32"></rect> <rect x="256" y="362.667" class="st0" width="149.333" height="32"></rect> <rect x="106.667" y="277.333" class="st0" width="106.666" height="117.334"></rect> </g> </g></svg>                    
+                                <div class="pl-3">
+                                    <div class="text-base font-semibold"><a href="{% url 'Blog:report_link' report.hash_id.hex %}">{{ report.report_to.title }}</a></div>
+                                </div>  
+                            {% else %}
+                                <svg class="w-10 h-10 rounded-full" fill="#000000" viewBox="0 0 32 32" version="1.1" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <path d="M15.5 3.5c-7.18 0-13 5.82-13 13s5.82 13 13 13 13-5.82 13-13-5.82-13-13-13zM15.5 23.875c-0.829 0-1.5-0.672-1.5-1.5s0.671-1.5 1.5-1.5c0.828 0 1.5 0.672 1.5 1.5s-0.672 1.5-1.5 1.5zM17 17.375c0 0.828-0.672 1.5-1.5 1.5-0.829 0-1.5-0.672-1.5-1.5v-7c0-0.829 0.671-1.5 1.5-1.5 0.828 0 1.5 0.671 1.5 1.5v7z"></path> </g></svg>
+                                <div class="pl-3">
+                                    <div class="text-base font-semibold"><a href="{% url 'Blog:report_link' report.hash_id.hex %}">{{ report.type }}</a></div>
+                                </div>  
+                            {% endif %}
+                        </th>
+                        <td class="px-6 py-4">
+                            {{ report.report_content }}
+                        </td>
+                        <td class="px-6 py-4">
+                            {{ report.date }}
+                        </td>
+                        <td class="px-6 py-4">
+                            {% if report.status == 'Solved' %}
+                                <div class="flex items-center">
+                                    <div class="h-2.5 w-2.5 rounded-full bg-green-500 mr-2"></div> {{ report.status }}
+                                </div>
+                            {% else %}
+                                <div class="flex items-center">
+                                    <div class="h-2.5 w-2.5 rounded-full bg-red-500 mr-2"></div> {{report.status}}
+                                </div>
+                            {% endif %}
+                        </td>
+                        <td class="px-6 py-4">
+                            <button type="button" data-modal-target="report-modal" data-modal-toggle="report-modal" data-report-link="{% url 'Blog:report_link' report.hash_id.hex %}" class="text-white response_report bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
+                                Solve | Reject
+                            </button>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <div class="relative m-10 mx-auto dark:bg-gray-600 flex w-2/3 cursor-pointer items-center rounded-lg bg-white p-4 shadow-xl hover:bg-gray-200 dark:hover:bg-gray-700">
+                <svg class="w-12 h-12 round-full" viewBox="0 -0.5 21 21" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" fill="#000000"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd"> <g id="Dribbble-Light-Preview" transform="translate(-99.000000, -640.000000)" fill="#000000"> <g id="icons" transform="translate(56.000000, 160.000000)"> <path d="M61.9,483 C61.9,482.448 61.4296,482 60.85,482 L49.3,482 L49.3,490 L60.85,490 C61.4296,490 61.9,489.552 61.9,489 L61.9,483 Z M64,482 L64,490 C64,491.105 63.06025,492 61.9,492 L47.2,492 L47.2,480 L61.9,480 C63.06025,480 64,480.895 64,482 L64,482 Z M44.05,480 L45.1,480 L45.1,499 C45.1,499.552 44.6296,500 44.05,500 C43.4704,500 43,499.552 43,499 L43,481 C43,480.448 43.4704,480 44.05,480 L44.05,480 Z" id="report_flag-[#1419]"> </path> </g> </g> </g> </g></svg>            
+                <div class="ml-5">
+                    <p class="text-lg text-gray-600 dark:text-white">There are have no pending complain yet!</p>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+    <div class="hidden p-4 rounded-lg bg-gray-50 dark:bg-gray-800" id="comment" role="tabpanel">
+        {% if comment.paginator.count >= 1 %}
+            <div class="flex justify-between w-2/3 mx-auto"><div class="font-bold p-2 dark:text-white">Total : {{comment.paginator.count}} </div> </div>
+        {% endif %}
+        {% if comment %}
+            <table class="w-full min-w-64 overflow-x-auto text-sm text-left text-gray-500 dark:text-gray-400">
+                <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+                    <tr>
+                        <th scope="col" class="px-6 py-3 text-center">
+                            Report to
+                        </th>
+                        <th scope="col" class="px-6 py-3">
+                            Issue
+                        </th>
+                        <th scope="col" class="px-6 py-3">
+                            Date
+                        </th>
+                        <th scope="col" class="px-6 py-3">
+                            Status
+                        </th>
+                        <th scope="col" class="px-6 py-3">
+                            Action
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for report in comment %}
+                    <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
+                        <th scope="row" class="flex items-center px-6 py-4">
+                            <svg class="w-10 h-10 rounded-full" xmlns="http://www.w3.org/2000/svg" fill="#000000" viewBox="0 0 24 24"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"><path d="M21.99 4c0-1.1-.89-2-1.99-2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h14l4 4-.01-18zM18 14H6v-2h12v2zm0-3H6V9h12v2zm0-3H6V6h12v2z"></path></g></svg>
+                            <div class="pl-3">
+                                <div class="text-base font-semibold"><a href="{% url 'Blog:report_link' report.hash_id.hex %}">{{ report.report_to.content }}</a></div>
+                            </div>  
+                        </th>
+                        <td class="px-6 py-4">
+                            {{ report.report_content }}
+                        </td>
+                        <td class="px-6 py-4">
+                            {{ report.date }}
+                        </td>
+                        <td class="px-6 py-4">
+                            {% if report.status == 'Solved' %}
+                                <div class="flex items-center">
+                                    <div class="h-2.5 w-2.5 rounded-full bg-green-500 mr-2"></div> {{ report.status }}
+                                </div>
+                            {% else %}
+                                <div class="flex items-center">
+                                    <div class="h-2.5 w-2.5 rounded-full bg-red-500 mr-2"></div> {{report.status}}
+                                </div>
+                            {% endif %}
+                        </td>
+                        <td class="px-6 py-4">
+                            <button type="button" data-modal-target="report-modal" data-modal-toggle="report-modal" data-report-link="{% url 'Blog:report_link' report.hash_id.hex %}" class="text-white response_report bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
+                                Solve | Reject
+                            </button>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <div class="relative m-10 mx-auto dark:bg-gray-600 flex w-2/3 cursor-pointer items-center rounded-lg bg-white p-4 shadow-xl hover:bg-gray-200 dark:hover:bg-gray-700">
+                <svg class="w-12 h-12 round-full" viewBox="0 -0.5 21 21" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" fill="#000000"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd"> <g id="Dribbble-Light-Preview" transform="translate(-99.000000, -640.000000)" fill="#000000"> <g id="icons" transform="translate(56.000000, 160.000000)"> <path d="M61.9,483 C61.9,482.448 61.4296,482 60.85,482 L49.3,482 L49.3,490 L60.85,490 C61.4296,490 61.9,489.552 61.9,489 L61.9,483 Z M64,482 L64,490 C64,491.105 63.06025,492 61.9,492 L47.2,492 L47.2,480 L61.9,480 C63.06025,480 64,480.895 64,482 L64,482 Z M44.05,480 L45.1,480 L45.1,499 C45.1,499.552 44.6296,500 44.05,500 C43.4704,500 43,499.552 43,499 L43,481 C43,480.448 43.4704,480 44.05,480 L44.05,480 Z" id="report_flag-[#1419]"> </path> </g> </g> </g> </g></svg>            <div class="ml-5">
+                    <p class="text-lg text-gray-600 dark:text-white">There are have no such complain yet!</p>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+    <div class="hidden p-4 rounded-lg bg-gray-50 dark:bg-gray-800" id="post" role="tabpanel">
+        {% if post.paginator.count >= 1 %}
+            <div class="flex justify-between w-2/3 mx-auto"><div class="font-bold p-2 dark:text-white">Total : {{post.paginator.count}} </div> </div>
+        {% endif %}
+        {% if post %}
+            <table class="w-full min-w-64 overflow-x-auto text-sm text-left text-gray-500 dark:text-gray-400">
+                <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+                    <tr>
+                        <th scope="col" class="px-6 py-3 text-center">
+                            Report to
+                        </th>
+                        <th scope="col" class="px-6 py-3">
+                            Issue
+                        </th>
+                        <th scope="col" class="px-6 py-3">
+                            Date
+                        </th>
+                        <th scope="col" class="px-6 py-3">
+                            Status
+                        </th>
+                        <th scope="col" class="px-6 py-3">
+                            Action
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for report in post %}
+                    <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
+                        <th scope="row" class="flex items-center px-6 py-4">
+                            <svg class="w-10 h-10 rounded-full" version="1.1" id="_x32_" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 512 512" xml:space="preserve" fill="#000000"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <style type="text/css"> .st0{fill:#000000;} </style> <g> <rect x="106.667" y="106.667" class="st0" width="298.666" height="106.666"></rect> <path class="st0" d="M0,0v512h512V0H0z M458.667,458.667H53.333V53.333h405.334V458.667z"></path> <rect x="256" y="277.333" class="st0" width="149.333" height="32"></rect> <rect x="256" y="362.667" class="st0" width="149.333" height="32"></rect> <rect x="106.667" y="277.333" class="st0" width="106.666" height="117.334"></rect> </g> </g></svg>                    
+                            <div class="pl-3">
+                                <div class="text-base font-semibold"><a href="{% url 'Blog:report_link' report.hash_id.hex %}">{{ report.report_to.title }}</a></div>
+                            </div>  
+                        </th>
+                        <td class="px-6 py-4">
+                            {{ report.report_content }}
+                        </td>
+                        <td class="px-6 py-4">
+                            {{ report.date }}
+                        </td>
+                        <td class="px-6 py-4">
+                            {% if report.status == 'Solved' %}
+                                <div class="flex items-center">
+                                    <div class="h-2.5 w-2.5 rounded-full bg-green-500 mr-2"></div> {{ report.status }}
+                                </div>
+                            {% else %}
+                                <div class="flex items-center">
+                                    <div class="h-2.5 w-2.5 rounded-full bg-red-500 mr-2"></div> {{report.status}}
+                                </div>
+                            {% endif %}
+                        </td>
+                        <td class="px-6 py-4">
+                            <button type="button" data-modal-target="report-modal" data-modal-toggle="report-modal" data-report-link="{% url 'Blog:report_link' report.hash_id.hex %}" class="text-white response_report bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
+                                Solve | Reject
+                            </button>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <div class="relative m-10 mx-auto dark:bg-gray-600 flex w-2/3 cursor-pointer items-center rounded-lg bg-white p-4 shadow-xl hover:bg-gray-200 dark:hover:bg-gray-700">
+                <svg class="w-12 h-12 round-full" viewBox="0 -0.5 21 21" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" fill="#000000"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd"> <g id="Dribbble-Light-Preview" transform="translate(-99.000000, -640.000000)" fill="#000000"> <g id="icons" transform="translate(56.000000, 160.000000)"> <path d="M61.9,483 C61.9,482.448 61.4296,482 60.85,482 L49.3,482 L49.3,490 L60.85,490 C61.4296,490 61.9,489.552 61.9,489 L61.9,483 Z M64,482 L64,490 C64,491.105 63.06025,492 61.9,492 L47.2,492 L47.2,480 L61.9,480 C63.06025,480 64,480.895 64,482 L64,482 Z M44.05,480 L45.1,480 L45.1,499 C45.1,499.552 44.6296,500 44.05,500 C43.4704,500 43,499.552 43,499 L43,481 C43,480.448 43.4704,480 44.05,480 L44.05,480 Z" id="report_flag-[#1419]"> </path> </g> </g> </g> </g></svg>            <div class="ml-5">
+                    <p class="text-lg text-gray-600 dark:text-white">There are have no complain yet!</p>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+    <div class="hidden p-4 rounded-lg bg-gray-50 dark:bg-gray-800" id="user" role="tabpanel">
+        {% if user.paginator.count >= 1 %}
+            <div class="flex justify-between w-2/3 mx-auto"><div class="font-bold p-2 dark:text-white">Total : {{user.paginator.count}} </div> </div>
+        {% endif %}
+        {% if user %}
+            <table class="w-full min-w-64 overflow-x-auto text-sm text-left text-gray-500 dark:text-gray-400">
+                <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+                    <tr>
+                        <th scope="col" class="px-6 py-3 text-center">
+                            Report to
+                        </th>
+                        <th scope="col" class="px-6 py-3">
+                            Issue
+                        </th>
+                        <th scope="col" class="px-6 py-3">
+                            Date
+                        </th>
+                        <th scope="col" class="px-6 py-3">
+                            Status
+                        </th>
+                        <th scope="col" class="px-6 py-3">
+                            Action
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for report in user %}
+                    <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
+                        <th scope="row" class="flex items-center px-6 py-4">
+                            <svg class="w-10 h-10 rounded-full" fill="#000000" viewBox="0 0 32 32" version="1.1" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <title>user-circle</title> <path d="M0 16q0 3.264 1.28 6.208t3.392 5.12 5.12 3.424 6.208 1.248 6.208-1.248 5.12-3.424 3.392-5.12 1.28-6.208-1.28-6.208-3.392-5.12-5.088-3.392-6.24-1.28q-3.264 0-6.208 1.28t-5.12 3.392-3.392 5.12-1.28 6.208zM4 16q0-3.264 1.6-6.016t4.384-4.352 6.016-1.632 6.016 1.632 4.384 4.352 1.6 6.016-1.6 6.048-4.384 4.352-6.016 1.6-6.016-1.6-4.384-4.352-1.6-6.048zM10.016 23.008q0 0.576 0.224 1.152 2.592 1.856 5.76 1.856t5.76-1.856q0.256-0.576 0.256-1.152-0.256-1.344-1.088-2.464t-2.048-1.792q1.12-1.152 1.12-2.752v-1.984q0-1.664-1.184-2.848t-2.816-1.152-2.816 1.152-1.184 2.848v1.984q0 1.6 1.12 2.752-1.216 0.672-2.048 1.792t-1.056 2.464z"></path> </g></svg>
+                            <div class="pl-3">
+                                <div class="text-base font-semibold"><a href="{% url 'Blog:report_link' report.hash_id.hex %}">{{ report.report_to.username }}</a></div>
+                            </div>  
+                        </th>
+                        <td class="px-6 py-4">
+                            {{ report.report_content }}
+                        </td>
+                        <td class="px-6 py-4">
+                            {{ report.date }}
+                        </td>
+                        <td class="px-6 py-4">
+                            {% if report.status == 'Solved' %}
+                                <div class="flex items-center">
+                                    <div class="h-2.5 w-2.5 rounded-full bg-green-500 mr-2"></div> {{ report.status }}
+                                </div>
+                            {% else %}
+                                <div class="flex items-center">
+                                    <div class="h-2.5 w-2.5 rounded-full bg-red-500 mr-2"></div> {{report.status}}
+                                </div>
+                            {% endif %}
+                        </td>
+                        <td class="px-6 py-4">
+                            <button type="button" data-modal-target="report-modal" data-modal-toggle="report-modal" data-report-link="{% url 'Blog:report_link' report.hash_id.hex %}" class="text-white response_report bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
+                                Solve | Reject
+                            </button>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <div class="relative m-10 mx-auto dark:bg-gray-600 flex w-2/3 cursor-pointer items-center rounded-lg bg-white p-4 shadow-xl hover:bg-gray-200 dark:hover:bg-gray-700">
+                <svg class="w-12 h-12 round-full" viewBox="0 -0.5 21 21" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" fill="#000000"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd"> <g id="Dribbble-Light-Preview" transform="translate(-99.000000, -640.000000)" fill="#000000"> <g id="icons" transform="translate(56.000000, 160.000000)"> <path d="M61.9,483 C61.9,482.448 61.4296,482 60.85,482 L49.3,482 L49.3,490 L60.85,490 C61.4296,490 61.9,489.552 61.9,489 L61.9,483 Z M64,482 L64,490 C64,491.105 63.06025,492 61.9,492 L47.2,492 L47.2,480 L61.9,480 C63.06025,480 64,480.895 64,482 L64,482 Z M44.05,480 L45.1,480 L45.1,499 C45.1,499.552 44.6296,500 44.05,500 C43.4704,500 43,499.552 43,499 L43,481 C43,480.448 43.4704,480 44.05,480 L44.05,480 Z" id="report_flag-[#1419]"> </path> </g> </g> </g> </g></svg>            <div class="ml-5">
+                    <p class="text-lg text-gray-600 dark:text-white">There are have no complain yet!</p>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+    <div class="hidden p-4 rounded-lg bg-gray-50 dark:bg-gray-800" id="other" role="tabpanel">
+        {% if other.paginator.count >= 1 %}
+            <div class="flex justify-between w-2/3 mx-auto"><div class="font-bold p-2 dark:text-white">Total : {{other.paginator.count}} </div> </div>
+        {% endif %}
+        {% if other %}
+            <table class="w-full min-w-64 overflow-x-auto text-sm text-left text-gray-500 dark:text-gray-400">
+                <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+                    <tr>
+                        <th scope="col" class="px-6 py-3 text-center">
+                            Report to
+                        </th>
+                        <th scope="col" class="px-6 py-3">
+                            Issue
+                        </th>
+                        <th scope="col" class="px-6 py-3">
+                            Date
+                        </th>
+                        <th scope="col" class="px-6 py-3">
+                            Status
+                        </th>
+                        <th scope="col" class="px-6 py-3">
+                            Action
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for report in other %}
+                    <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
+                        <th scope="row" class="flex items-center px-6 py-4">
+                            <svg class="w-10 h-10 rounded-full" fill="#000000" viewBox="0 0 32 32" version="1.1" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <path d="M15.5 3.5c-7.18 0-13 5.82-13 13s5.82 13 13 13 13-5.82 13-13-5.82-13-13-13zM15.5 23.875c-0.829 0-1.5-0.672-1.5-1.5s0.671-1.5 1.5-1.5c0.828 0 1.5 0.672 1.5 1.5s-0.672 1.5-1.5 1.5zM17 17.375c0 0.828-0.672 1.5-1.5 1.5-0.829 0-1.5-0.672-1.5-1.5v-7c0-0.829 0.671-1.5 1.5-1.5 0.828 0 1.5 0.671 1.5 1.5v7z"></path> </g></svg>
+                            <div class="pl-3">
+                                <div class="text-base font-semibold"><a href="{% url 'Blog:report_link' report.hash_id.hex %}">{{ report.type }}</a></div>
+                            </div>  
+                        </th>
+                        <td class="px-6 py-4">
+                            {{ report.report_content }}
+                        </td>
+                        <td class="px-6 py-4">
+                            {{ report.date }}
+                        </td>
+                        <td class="px-6 py-4">
+                            {% if report.status == 'Solved' %}
+                                <div class="flex items-center">
+                                    <div class="h-2.5 w-2.5 rounded-full bg-green-500 mr-2"></div> {{ report.status }}
+                                </div>
+                            {% else %}
+                                <div class="flex items-center">
+                                    <div class="h-2.5 w-2.5 rounded-full bg-red-500 mr-2"></div> {{report.status}}
+                                </div>
+                            {% endif %}
+                        </td>
+                        <td class="px-6 py-4">
+                            <button type="button" data-modal-target="report-modal" data-modal-toggle="report-modal" data-report-link="{% url 'Blog:report_link' report.hash_id.hex %}" class="text-white response_report bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
+                                Solve | Reject
+                            </button>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <div class="relative m-10 mx-auto dark:bg-gray-600 flex w-2/3 cursor-pointer items-center rounded-lg bg-white p-4 shadow-xl hover:bg-gray-200 dark:hover:bg-gray-700">
+                <svg class="w-12 h-12 round-full" viewBox="0 -0.5 21 21" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" fill="#000000"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd"> <g id="Dribbble-Light-Preview" transform="translate(-99.000000, -640.000000)" fill="#000000"> <g id="icons" transform="translate(56.000000, 160.000000)"> <path d="M61.9,483 C61.9,482.448 61.4296,482 60.85,482 L49.3,482 L49.3,490 L60.85,490 C61.4296,490 61.9,489.552 61.9,489 L61.9,483 Z M64,482 L64,490 C64,491.105 63.06025,492 61.9,492 L47.2,492 L47.2,480 L61.9,480 C63.06025,480 64,480.895 64,482 L64,482 Z M44.05,480 L45.1,480 L45.1,499 C45.1,499.552 44.6296,500 44.05,500 C43.4704,500 43,499.552 43,499 L43,481 C43,480.448 43.4704,480 44.05,480 L44.05,480 Z" id="report_flag-[#1419]"> </path> </g> </g> </g> </g></svg>            <div class="ml-5">
+                    <p class="text-lg text-gray-600 dark:text-white">There are have no complain yet!</p>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+</div>
+ <!-- End report list -->
+ <!-- Start pagination link -->
+ {% if page %}
+ <nav class="flex items-center mb-2 justify-between pt-4" aria-label="Table navigation">
+    <span class="text-sm font-normal ml-4 text-gray-500 dark:text-gray-400">
+        Showing <span class="font-semibold text-gray-900 dark:text-white">{{ page.start_index }}-{% if page.end_index > page.paginator.count %}{{ page.paginator.count }}{% else %}{{ page.end_index }}{% endif %}</span> of <span class="font-semibold text-gray-900 dark:text-white">{{ page.paginator.count }}</span></span>
+    
+    {% if page.has_other_pages %}
+    <ul class="inline-flex items-center mb-2 mr-2 -space-x-px">
+        {% if page.has_previous %}
+        <li>
+            <a href="?page={{page.previous_page_number}}" class="block px-3 py-2 ml-0 leading-tight text-gray-500 bg-white border border-gray-300 rounded-l-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">
+                <span class="sr-only">Previous</span>
+                <svg class="w-5 h-5" aria-hidden="true" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg>
+            </a>
+        </li>
+        {% endif %}
+        {% for page_number in list_page %}
+            {% if page_number == page.paginator.ELLIPSIS %}
+            <li>
+                <a href="#" disabled class="px-3 py-2 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">{{page_number}}</a>
+            </li>
+            {% elif page_number == page.number %}
+                <li>
+                    <a href="#" aria-current="page" class="z-10 px-3 py-2 leading-tight text-blue-600 border border-blue-300 bg-blue-50 hover:bg-blue-100 hover:text-blue-700 dark:border-gray-700 dark:bg-gray-700 dark:text-white">{{page_number}}</a>
+                </li>
+            {% else %}
+                <li>
+                    <a href="?page={{page_number}}" class="px-3 py-2 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">{{page_number}}</a>
+                </li>
+            {% endif %}
+        {% endfor %}
+        {% if page.has_next %}
+        <li>
+            <a href="?page={{page.next_page_number}}" class="block px-3 py-2 leading-tight text-gray-500 bg-white border border-gray-300 rounded-r-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">
+                <span class="sr-only">Next</span>
+                <svg class="w-5 h-5" aria-hidden="true" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path></svg>
+            </a>
+        </li>
+        {% endif %}
+    </ul>
+    {% endif %}
+</nav>
+{% endif %}
+
+
+<!-- Start report modal -->
+<div id="report-modal" tabindex="-1" aria-hidden="true" class="fixed top-0 left-0 right-0 z-50 hidden w-full p-4 overflow-x-hidden overflow-y-auto md:inset-0 h-[calc(100%-1rem)] max-h-full">
+    <div class="relative w-full max-w-md max-h-full">
+        <!-- Modal content -->
+        <div class="relative bg-white rounded-lg shadow dark:bg-gray-700">
+            <button type="button" class="absolute top-3 right-2.5 text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center dark:hover:bg-gray-800 dark:hover:text-white" data-modal-hide="report-modal">
+                <svg aria-hidden="true" class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>
+                <span class="sr-only">Close modal</span>
+            </button>
+            <div class="px-6 py-6 lg:px-8">
+                <h3 class="mb-4 text-xl font-medium text-gray-900 dark:text-white">Solve the issue</h3>
+                <form class="space-y-6" action="#" method="POST" id="report_reponse">
+                    {% csrf_token %}
+                <div>
+                    <label for="status" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Select Status</label>
+                    <select id="status" name='status' class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+                        <option selected>Choose status</option>
+                        <option value="Solved" selected>Solved</option>
+                        <option value="Rejected">Rejected</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="reason" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Your message</label>
+                    <textarea id="reason" rows="4" name='reason' class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Write your thoughts here..."></textarea>
+                </div>
+                <button type="submit" class="w-full text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Done review</button>
+                    
+                </form>
+            </div>
+        </div>
+    </div>
+</div> 
+<!-- End report modal -->
+
+<!-- End pagination page -->
+{% endblock %}
+{% block script %}
+<script>
+    $('.response_report').on('click',function(){
+        form = $('#report_reponse')
+        link = $(this).data('report-link')
+        form.attr('action',link)
+    })
+</script>
+{% endblock %}

@@ -81,7 +81,7 @@ def user_status(sender,instance,*args,**kwargs):
 @receiver(pre_save,sender=ReportContent)
 def report_status_reviewed(sender,instance,*args,**kwargs):
     if instance.pk:
-        reported_object = instance.report_to.__class__.__name__
+        report_type = instance.type
         report = sender.objects.get(pk=instance.pk)
         
         if report.note != instance.note:
@@ -90,15 +90,19 @@ def report_status_reviewed(sender,instance,*args,**kwargs):
             reason = ''
             
         if report.status != 'Solved' and instance.status == 'Solved':
-            if reported_object == 'Post':
-                content = f"Your report to the post {report.report_to.title} has been solved."
-            elif reported_object == 'Comment':
-                content = f"Your report to the comment of {report.report_to.commenter.username} has been solved."
+            if report_type == 'Post':
+                content = f"Your report to the post {report.report_to.title} has been solved. {reason}"
+            elif report_type == 'Comment':
+                content = f"Your report to the comment of {report.report_to.commenter.username} has been solved. {reason}"
+            elif report_type == 'User':
+                content = f"Your report to the user {report.report_to.username} has been solved. {reason}"
         if report.status != 'Rejected' and instance.status == 'Rejected':
-            if reported_object == 'Post':
+            if report_type == 'Post':
                 content = f"Your report to the post {report.report_to.title} has been rejected. {reason}"
-            elif reported_object == 'Comment':
+            elif report_type == 'Comment':
                 content = f"Your report to the comment of {report.report_to.commenter.username} has been rejected. {reason}"
+            elif report_type == 'User':
+                content = f"Your report to the user {report.report_to.username} has been rejected. {reason}"
         
         try:
             create_notification(ReportContent,instance,instance.report_by,content,'Update')
@@ -108,15 +112,15 @@ def report_status_reviewed(sender,instance,*args,**kwargs):
 @receiver(post_save,sender=ReportContent)
 def report_status(instance,created,*args,**kwargs):
     if created:
-        reported_object = instance.report_to.__class__.__name__
-        if reported_object == 'Post':
+        report_type = instance.type
+        if report_type == 'Post':
             content = f"Your report to the post {instance.report_to.title} is under review."
-        elif reported_object == 'Comment':
+        elif report_type == 'Comment':
             content = f"Your report to the comment of {instance.report_to.commenter.username} is under review."
         else:
             pass
         try:
-            create_notification(ReportContent,instance,instance.report_by,content,'Update')
+            create_notification(ReportContent,instance,instance.report_by,content,'Notice')
         except:
             pass
     else:

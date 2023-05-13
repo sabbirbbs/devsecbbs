@@ -29,6 +29,22 @@ def root_url(request):
 def referel_url(request):
     return request.META['HTTP_REFERER']
 
+def comment_page(objects,object):   #Look for a page where a specific comment exist
+    page_of_comment = 0
+    paginator = Paginator(objects,1)
+    for page in paginator:  #Find the page number where the comment available
+        for comment in page:
+            if comment == object:
+                page_of_comment = page.number
+            elif comment.get_descendants().exists():
+                for child in comment.get_children():
+                    if child == object:
+                        page_of_comment = page.number
+                    else:
+                        pass
+            else:
+                pass
+    return page_of_comment
 
 #writing views
 #home page of blog to show posts
@@ -334,11 +350,10 @@ def notification_link(request,hash_id):
         return redirect(reverse('Blog:notifications'))
     if notification.type == 'Comment':
         post = notification.content_object.post
-        comment = notification.content_object
         comments = Comment.objects.filter(post=post,is_deleted=False,level=0).order_by('-date')
-        paginator = Paginator(comments,1)
+        page_of_comment = comment_page(comments,notification.content_object) #get the comment page
         post_url = reverse('Blog:read_post',args=[post.category.slug,post.slug])
-        url_to_redirect = f"{post_url}?comment_page={paginator.num_pages}#comment-{notification.content_object.hash_id.hex}"
+        url_to_redirect = f"{post_url}?comment_page={page_of_comment}#comment-{notification.content_object.hash_id.hex}"
     elif notification.type == 'Like':
         post = notification.content_object
         url_to_redirect = reverse('Blog:read_post',args=[post.category.slug,post.slug])
@@ -353,7 +368,8 @@ def notification_link(request,hash_id):
         url_to_redirect = referel_url(request)
     else:
         pass
-    
+    notification.read_time = datetime.datetime.now() #Mark the notification as read
+    notification.save()
     return redirect(url_to_redirect)
     
 #Comment handler
@@ -390,7 +406,7 @@ def comment(request,phash,chash):
                     messages.error(request,"Your report is have to more than single character & less than 255.")
                     return redirect(f"{referer_url}#feadback")
                 else:
-                    ReportContent.objects.create(content_type=ContentType.objects.get_for_model(Comment),content_id=comment.pk,report_by=user,report_content=report_content)
+                    ReportContent.objects.create(type='Comment',content_type=ContentType.objects.get_for_model(Comment),content_id=comment.pk,report_by=user,report_content=report_content)
                     messages.success(request,"Your report has been sent to admin. and you will get notified when the issue will be solved.")
                     return redirect(f"{referer_url}#feadback")
             else:
@@ -432,4 +448,79 @@ def comment(request,phash,chash):
     else:
         return HttpResponse("No parameter passed!")
     
-    
+
+#Report pages
+def get_report_page(page,type=None):
+    try:
+        if type:
+            reports = ReportContent.objects.filter(type=type)
+        else:
+            reports = ReportContent.objects.filter()
+        reports_page = Paginator(reports,3)
+        current_page = reports_page.get_page(page)
+    except:
+        current_page = []
+
+    return current_page
+
+#Generate link of report content
+def report_link(request,hash_id):
+    try:
+        report = ReportContent.objects.get(hash_id=hash_id)
+    except:
+        messages.error(request,'There are have no such notification found.')
+        return redirect(reverse('Blog:reports'))
+    if request.method ==  'POST':
+        status = request.POST.get('status','Pending')
+        reason = request.POST.get('reason','')
+        if status in ['Solved','Rejected']:
+            report.status = status
+            report.note = reason
+            report.save()
+            messages.success(request,f'The report has been marked as {status}.')
+        else:
+            pass
+        return redirect(referel_url(request))
+    else:
+        if report.type == 'Comment':
+            comment = report.report_to
+            comments = Comment.objects.filter(post=comment.post,is_deleted=False,level=0).order_by('-date')
+            page_of_comment = comment_page(comments,comment) #get the comment page
+            post_url = reverse('Blog:read_post',args=[comment.post.category.slug,comment.post.slug])
+            url_to_redirect = f"{post_url}?comment_page={page_of_comment}#comment-{report.report_to.hash_id.hex}"
+        elif report.type == 'User':
+            user = report.report_to.username
+            messages.error(request,f"The user page for {user} under build.")
+            url_to_redirect = referel_url(request)
+        elif report.type == 'Post':
+            post = report.report_to
+            url_to_redirect = reverse('Blog:read_post',args=[post.category.slug,post.slug])
+        else:
+            messages.error(request,"The notification doesn't linked with anything.")
+            url_to_redirect = referel_url(request)
+            
+        return redirect(url_to_redirect)
+
+#Saving report for further review
+def reports(request):
+    if request.method == 'POST':
+        pass
+    else:
+        page = request.GET.get('page',1)
+        all = get_report_page(page,)
+        comment = get_report_page(page,'Comment')
+        post = get_report_page(page,'Post')
+        user = get_report_page(page,'User')
+        other = get_report_page(page,'Other')
+        
+        list_page = all.paginator.get_elided_page_range(number=all.number,on_each_side=2,on_ends=1)
+
+        context = {
+            'page' : all,
+            'comment' : comment,
+            'post' : post,
+            'user' : user,
+            'other' : other,
+            'list_page' : list_page
+        }
+        return render(request,'_Blog/dashboard/reports.html',context)

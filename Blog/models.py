@@ -174,6 +174,7 @@ class AuthorUser(AbstractUser):
 class Notification(models.Model):
     hash_id = models.UUIDField(unique=True,default=uuid.uuid4,editable=False)
     notification_type = ('Like','Comment','Follow','Update','Notice',)
+    type = models.CharField(max_length=255,default=None,choices=list(zip(notification_type,notification_type)))
     user = models.ForeignKey(AuthorUser,on_delete=models.CASCADE,related_name="user_notification")
     content_type = models.ForeignKey(ContentType,on_delete=models.CASCADE)
     content_id = models.PositiveIntegerField()
@@ -182,7 +183,6 @@ class Notification(models.Model):
     date = models.DateTimeField(default=datetime.datetime.now)
     read_time = models.DateTimeField(blank=True,null=True)
     note = models.TextField(blank=True,null=True)
-    type = models.CharField(max_length=255,default=None,choices=list(zip(notification_type,notification_type)))
 
     
     class Meta:
@@ -193,6 +193,8 @@ class Notification(models.Model):
 
 class ReportContent(models.Model):
     hash_id = models.UUIDField(unique=True,default=uuid.uuid4,editable=False)
+    report_type = ('Comment','User','Post','Other',)
+    type = models.CharField(max_length=255,default='Other',choices=list(zip(report_type,report_type)))
     report_by = models.ForeignKey(AuthorUser,on_delete=models.CASCADE,related_name="user_report")
     content_type = models.ForeignKey(ContentType,on_delete=models.CASCADE)
     content_id = models.PositiveIntegerField()

@@ -19,6 +19,8 @@ urlpatterns = [
     path("dashboard/post/list",views.list_post,name="list_post"),
     path("dashboard/notifications",views.notifications,name="notifications"),
     path("dashboard/notification/<str:hash_id>",views.notification_link,name="notification_link"),
+    path("dashboard/reports",views.reports,name="reports"),
+    path("dashboard/report/<str:hash_id>",views.report_link,name="report_link"),
     
     
 
