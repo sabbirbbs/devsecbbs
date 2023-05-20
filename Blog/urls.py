@@ -14,13 +14,16 @@ urlpatterns = [
     path("test",views.test,name="test"),
     #Dashboard
     path("dashboard",views.dashboard,name="dashboard"),
-    path("dashboard/post/edit/<int:id>",views.edit_post,name="edit_post"),
+    path("dashboard/post/edit/<str:hash_id>",views.edit_post,name="edit_post"),
     path("dashboard/write_post",views.write_post,name="write_post"),
     path("dashboard/post/list",views.list_post,name="list_post"),
     path("dashboard/notifications",views.notifications,name="notifications"),
     path("dashboard/notification/<str:hash_id>",views.notification_link,name="notification_link"),
     path("dashboard/reports",views.reports,name="reports"),
     path("dashboard/report/<str:hash_id>",views.report_link,name="report_link"),
+    path("dashboard/pending",views.pending_post,name='pending_post'),
+    path("dashboard/pending_comment",views.pending_comment,name='pending_comment'),
+    path("dashboard/pending_request",views.pending_request,name='pending_request'),
     
     
 

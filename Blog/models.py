@@ -95,6 +95,7 @@ class Post(models.Model):
     content = models.TextField()
     author = models.ForeignKey('AuthorUser',on_delete=models.SET_NULL,null=True,related_name="user_post")
     category = models.ForeignKey(Category,on_delete=models.SET_NULL,null=True,related_name="category_post")
+    series = models.ForeignKey('Series',blank=True,null=True,on_delete=models.CASCADE)
     tags = TaggableManager(blank=True)
     date = models.DateTimeField(default=datetime.datetime.now)
     last_modified = models.DateTimeField(default=datetime.datetime.now)
@@ -137,7 +138,7 @@ class Comment(MPTTModel):
     commenter = models.ForeignKey('AuthorUser',on_delete=models.SET_NULL,null=True,blank=True,related_name="user_comment")
     content = models.TextField()
     date = models.DateTimeField(default=datetime.datetime.now)
-    status = models.CharField(max_length=255,choices=[("Published","Published"),("Rejected","Rejected")],null=True,blank=True)
+    status = models.CharField(max_length=255,choices=[("Published","Published"),("Rejected","Rejected"),("Pending","Pending")],null=True,blank=True)
     is_deleted = models.BooleanField(default=False)
     note = models.TextField(blank=True,null=True)
     
@@ -161,6 +162,7 @@ class AuthorUser(AbstractUser):
     country = models.CharField(max_length=255,blank=True,null=True)
     city = models.CharField(max_length=255,null=True,blank=True)
     phone = models.IntegerField(null=True,blank=True)
+    series = models.ManyToManyField('Series',related_name="user_series")
     is_deleted = models.BooleanField(default=False)
     note = models.TextField(blank=True,null=True)
 
@@ -210,3 +212,38 @@ class ReportContent(models.Model):
 
     def __str__(self):
         return f"{self.report_content}"
+    
+class UserRequest(models.Model):
+    hash_id = models.UUIDField(unique=True,default=uuid.uuid4,editable=False)
+    title = models.CharField(max_length=255)
+    user = models.ForeignKey(AuthorUser,on_delete=models.CASCADE,related_name="user_request")
+    content = models.TextField()
+    date = models.DateTimeField(default=datetime.datetime.now)
+    review_date = models.DateTimeField(blank=True,null=True)
+    status = models.CharField(max_length=255,default="Pending",choices=[("Accepted","Accepted"),('Pending','Pending'),('Rejected','Rejected')])
+    type = models.CharField(max_length=255,default="Other",choices=[("Author","Author"),('Other','Other'),('Request','Request')])
+    note = models.TextField(blank=True,null=True)
+
+    def __str__(self):
+        return f"{self.title} by {self.user.username}"
+    
+class Series(models.Model):
+    hash_id = models.UUIDField(unique=True,default=uuid.uuid4,editable=False)
+    name = models.CharField(max_length=255)
+    created_by = models.ForeignKey(AuthorUser,on_delete=models.CASCADE,related_name="user_series")
+    created_date = models.DateTimeField(default=datetime.datetime.now)
+    description = models.TextField(blank=True)
+    status = models.CharField(max_length=255,default="Public",choices=[("Public","Public"),('Draft','Draft')])
+    note = models.TextField(blank=True,null=True)
+
+    def __str__(self):
+        return f"{self.name} by {self.created_by.username}"
+
+    class Meta:
+        verbose_name_plural = "Series"
+    
+     
+    
+
+
+

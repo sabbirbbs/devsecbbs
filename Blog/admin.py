@@ -8,18 +8,24 @@ from . import models
 class CommentAdmin(admin.ModelAdmin):
     list_display = ['id','content','is_deleted']
     search_fields = ['content']
-    def get_queryset(self, request):
-        # Use the default manager to show all instances, including those where is_deleted is True,
-        # in the Django admin panel
-        return super().get_queryset(request)
+    # def get_queryset(self, request):
+    #     # Use the default manager to show all instances, including those where is_deleted is True,
+    #     # in the Django admin panel
+    #     return super().get_queryset(request)
+
+class PostAdmin(admin.ModelAdmin):
+    list_display = ['title','status','date','note']
+    search_fields = ['hash_id','status']
 
 #configuring django admin
 
-admin.site.register(models.Post)
+admin.site.register(models.Post,PostAdmin)
 admin.site.register(models.Category)
 admin.site.register(models.Comment,CommentAdmin)
 admin.site.register(models.Notification)
 admin.site.register(models.ReportContent)
+admin.site.register(models.UserRequest)
+admin.site.register(models.Series)
 
 
 #Set up custom user table

@@ -15,6 +15,7 @@ from better_profanity import profanity
 from django.contrib import messages
 from django.contrib.contenttypes.models import ContentType
 from django.core.paginator import Paginator
+import uuid
 
 #Additional variable
 app_dir = os.path.dirname(__file__)  # get current directory
@@ -45,6 +46,13 @@ def comment_page(objects,object):   #Look for a page where a specific comment ex
             else:
                 pass
     return page_of_comment
+
+def is_valid_uuid(uuid_str):
+    try:
+        uuid_obj = uuid.UUID(uuid_str)
+        return uuid_obj.hex == uuid_str
+    except ValueError:
+        return False
 
 #writing views
 #home page of blog to show posts
@@ -201,7 +209,7 @@ def edit_post(request,hash_id):
         if _post.status == 'Pending':
             return HttpResponse(json.dumps({"status":"error","message":"While your post are pending under review. You can't make any change for now. Not even by manupulate the request."}))
         elif _post.status == 'Rejected':
-            return HttpResponse(json.dumps({"status":"error","message":"While your post are rejected. You can't make any change for now. Not even by manupulate the request."}))
+            return HttpResponse(json.dumps({"status":"error","message":"While your post are rejected. Please improve that for being accepted."}))
 
         title = request.POST.get('title','0')
         description = request.POST.get('description','0')
@@ -272,10 +280,10 @@ def edit_post(request,hash_id):
             messages.error(request,"While your post are pending under review. You can't make any change for now.")
             return render(request,'_Blog/dashboard/edit_post.html',{'post':_post})
         elif _post.status == 'Rejected':
-            messages.error(request,"While your post are rejected. You can't make any change for now.")
+            messages.error(request,"While your post are rejected. Please improve that for being accepted.")
             return render(request,'_Blog/dashboard/edit_post.html',{'post':_post})
         else:
-            post = Post.objects.get(pk=id)
+            post = Post.objects.get(hash_id=hash_id)
             category = Category.objects.filter(level=0)
             tags = Tag.objects.all()
             if post.author == request.user or request.user.is_superuser:
@@ -308,7 +316,7 @@ def notifications(request):
         if total_unread:
             messages.success(request,f'Your {total_unread} {read} marked as read.')
         else:
-            messages.success(request,f'Your all comments are already marked as read.')
+            messages.success(request,f'Your all {read} are already marked as read.')
     elif read and read == 'All':
         notification_to_make_read = Notification.objects.filter(user=request.user,read_time=None)
         total_unread = len(notification_to_make_read)
@@ -453,9 +461,9 @@ def comment(request,phash,chash):
 def get_report_page(page,type=None):
     try:
         if type:
-            reports = ReportContent.objects.filter(type=type)
+            reports = ReportContent.objects.filter(type=type,status='Pending')
         else:
-            reports = ReportContent.objects.filter()
+            reports = ReportContent.objects.filter(status='Pending')
         reports_page = Paginator(reports,3)
         current_page = reports_page.get_page(page)
     except:
@@ -524,3 +532,92 @@ def reports(request):
             'list_page' : list_page
         }
         return render(request,'_Blog/dashboard/reports.html',context)
+
+#Pending post
+def pending_post(request):
+    if request.method == "POST":
+        post_hash_id = request.POST.get('post_hash_id',"")
+        if is_valid_uuid(post_hash_id) and Post.objects.filter(hash_id=post_hash_id).exists():
+            post = Post.objects.get(hash_id=post_hash_id)
+            status = request.POST.get('status',None)
+            reason = request.POST.get('reason',None)
+            if status in ['Published','Hot','Rejected']:
+                post.status = status
+                if reason:
+                    post.note = reason
+            post.save() #Saving the post after updating status
+            messages.success(request,f'The post is successfully marked as {status}.')
+            return redirect(referel_url(request))
+        else:
+            messages.error(request,'The post that your are trying to review not found.')
+            return redirect(referel_url(request))
+    else:
+        page = request.GET.get('page',1)
+        posts = Post.objects.filter(status='Pending')
+        posts_page = Paginator(posts,1)
+        current_page = posts_page.get_page(page)
+
+        context = {
+            'page' : current_page,
+        }
+        return render(request,'_Blog/dashboard/pending_item/pending_post.html',context)
+
+#Pending comment  
+def pending_comment(request):
+    if request.method == "POST":
+        comment_hash_id = request.POST.get('comment_hash_id',"")
+        if is_valid_uuid(comment_hash_id) and Comment.objects.filter(hash_id=comment_hash_id).exists():
+            post = Comment.objects.get(hash_id=comment_hash_id)
+            status = request.POST.get('status',None)
+            reason = request.POST.get('reason',None)
+            if status in ['Published','Hot','Rejected']:
+                post.status = status
+                if reason:
+                    post.note = reason
+            post.save() #Saving the post after updating status
+            messages.success(request,f'The post is successfully marked as {status}.')
+            return redirect(referel_url(request))
+        else:
+            messages.error(request,'The post that your are trying to review not found.')
+            return redirect(referel_url(request))
+    else:
+        page = request.GET.get('page',1)
+        comments = Comment.objects.filter(status='Pending')
+        comments_page = Paginator(comments,3)
+        current_page = comments_page.get_page(page)
+
+        context = {
+            'page' : current_page,
+        }
+        return render(request,'_Blog/dashboard/pending_item/pending_comment.html',context)
+
+#Pending request
+def pending_request(request):
+    if request.method == "POST":
+        request_hash_id = request.POST.get('request_hash_id',"")
+        if is_valid_uuid(request_hash_id) and UserRequest.objects.filter(hash_id=request_hash_id).exists():
+            user_request = UserRequest.objects.get(hash_id=request_hash_id)
+            status = request.POST.get('status',None)
+            reason = request.POST.get('reason',None)
+            if status in ['Accepted','Rejected']:
+                user_request.status = status
+                if reason:
+                    user_request.note = reason
+            user_request.review_date = datetime.datetime.now()
+            user_request.save() #Saving the post after updating status
+            messages.success(request,f'The request is successfully marked as {status}.')
+            return redirect(referel_url(request))
+        else:
+            messages.error(request,'The request that your are trying to review not found.')
+            return redirect(referel_url(request))
+    else:
+        page = request.GET.get('page',1)
+        user_requests = UserRequest.objects.filter(status='Pending')
+        request_page = Paginator(user_requests,3)
+        current_page = request_page.get_page(page)
+
+        context = {
+            'page' : current_page,
+        }
+        return render(request,'_Blog/dashboard/pending_item/pending_request.html',context)
+    

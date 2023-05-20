@@ -88,17 +88,17 @@
     <!-- Title -->
     <div class="mb-3">
         <label for="title" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Title <span class="text-red-600">*</span></label>
-        <input {% if post.status == 'Pending' or post.status == 'Rejected' %} disabled {% endif %} type="text" id="title" name="title" value="{{post.title}}" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Post title the core of topic">
+        <input {% if post.status == 'Pending'%} disabled {% endif %} type="text" id="title" name="title" value="{{post.title}}" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Post title the core of topic">
     </div>
     <!-- Description -->
     <div class="mb-3">
         <label for="description" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Description <span class="text-red-600">*</span></label>
-        <textarea {% if post.status == 'Pending' or post.status == 'Rejected' %} disabled {% endif %}  id="description" name="description" rows="4" class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Write a little summary of your post.">{{post.description}}</textarea>
+        <textarea {% if post.status == 'Pending' %} disabled {% endif %}  id="description" name="description" rows="4" class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Write a little summary of your post.">{{post.description}}</textarea>
     </div>
     <!-- Category -->
     <div class="mb-3">
         <label for="category" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Category <span class="text-red-600">*</span></label>
-        <select {% if post.status == 'Pending' or post.status == 'Rejected' %} disabled {% endif %}  id="category" name="category" class="bg-gray-50 post-category border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+        <select {% if post.status == 'Pending' %} disabled {% endif %}  id="category" name="category" class="bg-gray-50 post-category border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
             <option value="0" selected>Choose a Category</option>
             {% for cat in category %}
                 <optgroup label="{{cat.name}}"></optgroup>
@@ -115,18 +115,18 @@
     <!-- Cover photo -->
     <div class="mb-3">
         <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white" for="cover_photo">Cover photo <span class="text-red-600">*</span></label>
-        <input {% if post.status == 'Pending' or post.status == 'Rejected' %} disabled {% endif %}  class="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 dark:text-gray-400 focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400" aria-describedby="cover_photo_help" id="cover_photo" name="cover_photo" type="file">
+        <input {% if post.status == 'Pending' %} disabled {% endif %}  class="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 dark:text-gray-400 focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400" aria-describedby="cover_photo_help" id="cover_photo" name="cover_photo" type="file">
         <div class="mt-1 text-sm text-gray-500 dark:text-gray-300" id="cover_photo_help">A cover picture is useful to identifiy your post & listing beautifully.( jpg,jpeg,png,gif )</div>
     </div>
     <!-- Content -->
     <div class="mb-3">
         <label for="content" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Content <span class="text-red-600">*</span></label>
-        <textarea {% if post.status == 'Pending' or post.status == 'Rejected' %} disabled {% endif %}  id="post_editor" name="content" rows="10" class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Start writing.">{{post.content}}</textarea>
+        <textarea {% if post.status == 'Pending' %} disabled {% endif %}  id="post_editor" name="content" rows="10" class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Start writing.">{{post.content}}</textarea>
     </div>
     <!-- Tags -->
     <div class="mb-3">
         <label for="tags" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Tags</label>
-        <select {% if post.status == 'Pending' or post.status == 'Rejected' %} disabled {% endif %}  id="tags" name="tags" multiple class="bg-gray-50 post-tags border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+        <select {% if post.status == 'Pending' %} disabled {% endif %}  id="tags" name="tags" multiple class="bg-gray-50 post-tags border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
             {% for tag in tags %}
                 {% if tag.name == post.tag.name %}
                     <option selected value="{{tag.name}}">{{tag.name}}</option>
@@ -139,7 +139,7 @@
     <!-- Status -->    
     <div class="mb-3">
         <label for="status" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Status</label>
-        <select {% if post.status == 'Pending' or post.status == 'Rejected' %} disabled {% endif %}  id="status" name="status" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+        <select {% if post.status == 'Pending' %} disabled {% endif %}  id="status" name="status" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
             {% if post.status == 'Published' %}
                 <option selected value="Published">Published</option>
                 <option value="Draft">Draft</option>
@@ -150,7 +150,7 @@
         </select>
     </div>
     <button type="button" data-modal-target="popup-delete-modal" data-modal-toggle="popup-delete-modal" class="focus:outline-none text-white bg-red-700 hover:bg-red-800 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 mr-2 mb-2 dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-900">Delete</button>
-    <button {% if post.status == 'Pending' or post.status == 'Rejected' %} disabled {% endif %}  type="submit" name="sumit_post" class="text-white mr-4 bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Submit Post</button>
+    <button {% if post.status == 'Pending' %} disabled {% endif %}  type="submit" name="sumit_post" class="text-white mr-4 bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Submit Post</button>
     
 </form>
 <!-- Post delete button modal -->
@@ -178,7 +178,7 @@
 {% include "_Blog/dashboard/sun_editor_js.html" %}
 {% endblock %}
     <script src="{% static '_Blog/script/sun_editor/sun_editor_init.js' %}"></script>
-    {% if post.status == 'Pending' or post.status == 'Rejected' %} 
+    {% if post.status == 'Pending' %} 
     <script>editor.disable()</script>
     {% endif %}
 
