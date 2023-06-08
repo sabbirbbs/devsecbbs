@@ -114,6 +114,7 @@ function removeBorderBottom(){
 $(document).ready(function(){
     //Load jdenticon
     loadJicon()
+    highlight_code()
 
     //Render blog post
     post = $("#post")

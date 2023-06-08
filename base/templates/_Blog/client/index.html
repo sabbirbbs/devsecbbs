@@ -56,7 +56,10 @@
                       <svg class="mr-1 w-4 h-4" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" fill="#000000"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <rect x="0" fill="none" width="20" height="20"></rect> <g> <path d="M5 7h13v10H2V4h7l2 2H4v9h1V7z"></path> </g> </g></svg>
                       {% if post.category.level > 1 %} {{post.category.get_root}} ... {{post.category}} {% elif post.category.is_root_node %} {{post.category}} {% elif post.category == None %} Not categorized {% else %} {{post.category.get_root}} >> {{post.category}} {% endif %}
                   </span>
-                  <span class="text-sm">{{ post.date|timesince }} ago</span>
+                  <span class="bg-gray-100 text-gray-800 text-xs font-medium inline-flex items-center px-2.5 py-0.5 rounded mr-2 dark:bg-gray-700 dark:text-gray-400">
+                    <svg aria-hidden="true" class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"></path></svg>
+                    {{ post.date|timesince }} ago
+                  </span>
               </div>
               <div class="mb-2 overflow-hidden rounded h-64 cursor-pointer">
                 <a href="{% if post.category %} {% url 'Blog:read_post' post.category.slug post.slug %} {% else %} {% url 'Blog:read_post' 'uncategorized' post.slug %} {% endif %}"><img class="m-auto w-full scale-110 transition-all duration-400 hover:scale-95" src="{% if post.cover_photo %} {{ post.cover_photo.url }} {% else %} https://upload.wikimedia.org/wikipedia/commons/6/65/No-Image-Placeholder.svg {% endif %}" alt="Thumbnail" onerror="this.onerror=null;this.src='https://upload.wikimedia.org/wikipedia/commons/6/65/No-Image-Placeholder.svg';"></a>

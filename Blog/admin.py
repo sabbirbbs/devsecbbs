@@ -31,6 +31,8 @@ admin.site.register(models.Series)
 #Set up custom user table
 fields = list(UserAdmin.fieldsets)
 fields.append(('Author Info',{'fields':('profile_photo','bio','rank','dob','country','city','phone')}))
+fields.append(('Social Media',{'fields':('facebook_profile','twitter_profile','github_profile','website_url')}))
+fields.append(('Access',{'fields':('series','follower','mute_list')}))
 fields.append(('Note',{'fields':('note',)}))
 UserAdmin.fieldsets = tuple(fields)
 

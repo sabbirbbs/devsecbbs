@@ -11,6 +11,7 @@ urlpatterns = [
     path("tag/<str:slug>",views.tag,name="tag"),
     path("post/<str:cat>/<str:slug>",views.view_post,name="read_post"),
     path("comment/<str:phash>/<str:chash>",views.comment,name="comment"),
+    path("user/<str:username>",views.user_profile,name='user_profile'),
     path("test",views.test,name="test"),
     #Dashboard
     path("dashboard",views.dashboard,name="dashboard"),

@@ -12,7 +12,7 @@ import re
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 import uuid
-
+from django.db.models import Q
 
 #Slugify unicode bangla text
 def unislug(value,unique=False):
@@ -95,7 +95,7 @@ class Post(models.Model):
     content = models.TextField()
     author = models.ForeignKey('AuthorUser',on_delete=models.SET_NULL,null=True,related_name="user_post")
     category = models.ForeignKey(Category,on_delete=models.SET_NULL,null=True,related_name="category_post")
-    series = models.ForeignKey('Series',blank=True,null=True,on_delete=models.CASCADE)
+    series = models.ForeignKey('Series',blank=True,null=True,on_delete=models.CASCADE,related_name='post_in_series')
     tags = TaggableManager(blank=True)
     date = models.DateTimeField(default=datetime.datetime.now)
     last_modified = models.DateTimeField(default=datetime.datetime.now)
@@ -151,7 +151,7 @@ class Comment(MPTTModel):
 class AuthorUser(AbstractUser):
     hash_id = models.UUIDField(unique=True,default=uuid.uuid4,editable=False)
     profile_photo = models.ImageField(upload_to=author_profile,blank=True,null=True)
-    bio = models.CharField(max_length=255,blank=True,null=True)
+    bio = models.TextField(max_length=255,blank=True,null=True)
     rank = models.CharField(max_length=255,default="Contributor",choices=[('Contributor',"Contributor"),("Author","Author"),("Moderator","Moderator"),("Admin","Admin"),("Banned","Banned")])
     dob = models.DateTimeField(null=True,blank=True)
     gender = models.CharField(max_length=10,blank=True,null=True,choices=[("Male","Male"),("Female","Female")])
@@ -159,14 +159,19 @@ class AuthorUser(AbstractUser):
     facebook_profile = models.SlugField(null=True,blank=True)
     twitter_profile = models.SlugField(null=True,blank=True)
     github_profile = models.SlugField(null=True,blank=True)
+    website_url = models.URLField(null=True,blank=True)
     country = models.CharField(max_length=255,blank=True,null=True)
     city = models.CharField(max_length=255,null=True,blank=True)
     phone = models.IntegerField(null=True,blank=True)
-    series = models.ManyToManyField('Series',related_name="user_series")
+    series = models.ManyToManyField('Series',blank=True,related_name="user_series")
+    follower = models.ManyToManyField('AuthorUser',blank=True,related_name="user_following")
+    mute_list = models.ManyToManyField('AuthorUser',blank=True,related_name="muted")
     is_deleted = models.BooleanField(default=False)
     note = models.TextField(blank=True,null=True)
 
-    
+    def live_post(self):
+        return self.user_post.filter(Q(status='Published')|Q(status='Hot'))
+
     class Meta:
         ordering = ('-date_joined',)
 
@@ -229,13 +234,24 @@ class UserRequest(models.Model):
     
 class Series(models.Model):
     hash_id = models.UUIDField(unique=True,default=uuid.uuid4,editable=False)
+    slug = models.CharField(unique=True,null=True,blank=True,max_length=255)
     name = models.CharField(max_length=255)
-    created_by = models.ForeignKey(AuthorUser,on_delete=models.CASCADE,related_name="user_series")
+    created_by = models.ForeignKey(AuthorUser,on_delete=models.CASCADE,related_name="series_created")
     created_date = models.DateTimeField(default=datetime.datetime.now)
     description = models.TextField(blank=True)
     status = models.CharField(max_length=255,default="Public",choices=[("Public","Public"),('Draft','Draft')])
     note = models.TextField(blank=True,null=True)
 
+
+    def save(self,*args,**kwargs):
+            if not self.slug:
+                self.slug = unislug(self.title,True)
+            else:
+                self.slug = unislug(self.slug)
+            
+
+            return super().save(*args,**kwargs)
+    
     def __str__(self):
         return f"{self.name} by {self.created_by.username}"
 

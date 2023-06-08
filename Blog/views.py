@@ -101,10 +101,18 @@ def write_post(request):
             else:
                 pass
         try:
-            category = Category.objects.get(pk=int(request.POST.get('category',None)))
+            category = Category.objects.get(hash_id=request.POST.get('category',None))
         except Exception as error:
             response = {"status":"error","message":"Unable to find category you selected!"}
-            return HttpResponse(json.dumps(response))       
+            return HttpResponse(json.dumps(response)) 
+
+        try:
+            series = Series.objects.get(hash_id=request.POST.get('series',None))
+            if series in request.user.series.all():
+                series = series
+        except:
+            series = None
+
 
         if 5 > len(title) > 255 :
             return HttpResponse(json.dumps({"status":"error","message":"Your post title should not be blank and more than 255 character."}))
@@ -128,7 +136,7 @@ def write_post(request):
         else:
             pass
         
-        new_post = Post.objects.create(title=title,description=description,cover_photo=cover_photo,content=content,category=category,author=author,status=status)
+        new_post = Post.objects.create(title=title,description=description,series=series,cover_photo=cover_photo,content=content,category=category,author=author,status=status)
         new_post.tags.add(*tags)
         new_post.save()
         messages.success(request,"Your post has been successfully added. Now you are in edit mode.")
@@ -225,12 +233,20 @@ def edit_post(request,hash_id):
                 status = 'Pending'
                 feadback_msg = "Your post has been successfully edited & under review. You will get notified about status after review."
             else:
-                pass
+                pass 
+        
         try:
-            category = Category.objects.get(pk=int(request.POST.get('category',None)))
+            category = Category.objects.get(hash_id=request.POST.get('category',None))
         except Exception as error:
             response = {"status":"error","message":"Unable to find category you selected!"}
-            return HttpResponse(json.dumps(response))       
+            return HttpResponse(json.dumps(response)) 
+
+        try:
+            series = Series.objects.get(hash_id=request.POST.get('series',None))
+            if series in request.user.series.all():
+                series = series
+        except:
+            series = None   
 
         if 5 > len(title) > 255 :
             return HttpResponse(json.dumps({"status":"error","message":"Your post title should not be blank and less than 255 character."}))
@@ -253,6 +269,7 @@ def edit_post(request,hash_id):
             pass
 
         _post.title = title
+        _post.series = series
         _post.description = description
         _post.content = content
         _post.category = category
@@ -369,11 +386,22 @@ def notification_link(request,hash_id):
         messages.error(request,"The notification doesn't linked with anything.")
         url_to_redirect = referel_url(request)
     elif notification.type == 'Update':
-        messages.error(request,"The notification doesn't linked with anything.")
-        url_to_redirect = referel_url(request)
+        if notification.content_type.name == 'post':
+            post = notification.content_object
+            url_to_redirect = reverse('Blog:read_post',args=[post.category.slug,post.slug])
+        elif notification.content_type.name == 'author user':
+            author = notification.content_object
+            url_to_redirect = reverse('Blog:user_profile', args=[author.username])
+        else: 
+            messages.error(request,"The notification doesn't linked with anything.")
+            url_to_redirect = referel_url(request)
     elif notification.type == 'Notice':
-        messages.error(request,"The notification doesn't linked with anything.")
-        url_to_redirect = referel_url(request)
+        if notification.content_type.name == 'author user':
+            author = notification.content_object
+            url_to_redirect = reverse('Blog:user_profile', args=[author.username])
+        else:
+            messages.error(request,"The notification doesn't linked with anything.")
+            url_to_redirect = referel_url(request)
     else:
         pass
     notification.read_time = datetime.datetime.now() #Mark the notification as read
@@ -620,4 +648,40 @@ def pending_request(request):
             'page' : current_page,
         }
         return render(request,'_Blog/dashboard/pending_item/pending_request.html',context)
+
+def user_profile(request,username):
+    try:
+        author_user = AuthorUser.objects.get(username=username)
+    except:
+        raise Http404
+    if request.method == 'POST' and request.user != author_user:
+        follow = request.POST.get('follow',None)
+        mute = request.POST.get('mute',None)
+
+        if follow:
+            if request.user not in author_user.follower.all():
+                author_user.follower.add(request.user)
+                messages.success(request,"You are now following the user & will recieve notification about the user future post.")
+                return redirect(referel_url(request))
+            else:
+                author_user.follower.remove(request.user)
+                messages.success(request,"You are now unfollowing the user.")
+                return redirect(referel_url(request))
+        elif mute:
+            if author_user not in request.user.mute_list.all():
+                request.user.mute_list.add(author_user)
+                messages.success(request,"You will not longer recieve notification of any update from the user.")
+                return redirect(referel_url(request))
+            else:
+                request.user.mute_list.remove(author_user)
+                messages.success(request,"You will be again notified about new post from the user.")
+                return redirect(referel_url(request))
+
+    else:
+        page = request.GET.get('post-page',1)
+        posts = author_user.live_post()
+        posts_page = Paginator(posts,20)
+        current_page = posts_page.get_page(page)
+        list_page = current_page.paginator.get_elided_page_range(number=current_page.number,on_each_side=2,on_ends=1)
+        return render(request,"_Blog/client/profile_page.html",{'author_user':author_user,'page':current_page,'list_page':list_page})
     

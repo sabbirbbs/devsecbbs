@@ -1,5 +1,5 @@
 from django.dispatch import receiver
-from django.db.models.signals import post_save,pre_save
+from django.db.models.signals import post_save, pre_save, m2m_changed
 from django.contrib.contenttypes.models import ContentType
 from Blog.models import *
 
@@ -9,6 +9,22 @@ def create_notification(model,instance,user,content,type):
     notification.content = content
     notification.type = type
     notification.save()
+#Notification to follower
+def notification_to_follower(model,instance,user,content,type):
+    follower = user.follower.all()
+    for fan in follower:
+        notification = Notification(content_type=ContentType.objects.get_for_model(model),content_id=instance.id,user=fan)
+        notification.content = content
+        notification.type = type
+        notification.save()
+
+#get display name for the user 
+def get_display_name(user):
+    if user.first_name and user.last_name:
+        return f"{user.first_name} {user.last_name}"
+    else:
+        return user.username
+    
 
 @receiver(post_save,sender=Comment)
 def new_comment(instance,created,*args,**kwargs):
@@ -39,9 +55,13 @@ def post_status(instance,*args,**kwargs):
         if post.status in ['Draft','Rejected','Pending'] and instance.status in 'Published':
             content = f"Your post {instance.title} has been Published."
             create_notification(Post,instance,instance.author,content,'Update')
+            follower_content = f"{get_display_name(instance.author)} published a new post {instance.title}."
+            notification_to_follower(Post,instance,instance.author,follower_content,'Update')
         elif post.status != 'Hot' and instance.status == 'Hot':
             content = f"Your post {instance.title} has been choosen as hot post."
             create_notification(Post,instance,instance.author,content,'Update')
+            follower_content = f"{get_display_name(instance.author)}'s post is been marked as hot {instance.title}."
+            notification_to_follower(Post,instance,instance.author,follower_content,'Update')
         elif post.status != 'Pending' and instance.status == 'Pending':
             content = f"Your post {instance.title} is now under review."
             create_notification(Post,instance,instance.author,content,'Update')
@@ -125,6 +145,8 @@ def report_status(instance,created,*args,**kwargs):
             pass
     else:
         pass
+
+
 
 
         

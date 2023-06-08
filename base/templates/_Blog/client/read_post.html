@@ -25,9 +25,9 @@
                         {% endif %}
                         <div>
                             {% if post.author.first_name or post.author.last_name %}
-                                <a href="#" rel="author" class="text-xl font-bold text-gray-900 dark:text-white">{{post.author.first_name}} {{post.author.last_name}}</a>
+                                <a href="{% url 'Blog:user_profile' post.author.username %}" rel="author" class="text-xl font-bold text-gray-900 dark:text-white">{{post.author.first_name}} {{post.author.last_name}}</a>
                             {% else %}
-                            <a href="#" rel="author" class="text-xl font-bold text-gray-900 dark:text-white">{{post.author.username}}</a>
+                            <a href="{% url 'Blog:user_profile' post.author.username %}" rel="author" class="text-xl font-bold text-gray-900 dark:text-white">{{post.author.username}}</a>
                             {% endif %}
                             {% if post.author.rank == "Banned" %}
                             <span class="bg-red-100 text-red-800 text-xs font-semibold mr-2 px-2.5 py-0.5 rounded dark:bg-red-200 dark:text-red-900">{{post.author.rank}}</span>
@@ -163,9 +163,9 @@
                             <div class="flex items-center">
                                 {% if comment.commenter.username %}
                                     {% if comment.commenter.profile_photo %}
-                                        <p class="mr-3 inline-flex items-center text-sm text-gray-900 dark:text-white"><img class="mr-2 h-6 w-6 rounded-full" src="{{comment.commenter.profile_photo.url}}" alt="{{comment.commenter.username}}" />{{comment.commenter.username}}</p>
+                                        <p class="mr-3 inline-flex items-center text-sm text-gray-900 dark:text-white"><img class="mr-2 h-6 w-6 rounded-full" src="{{comment.commenter.profile_photo.url}}" alt="{{comment.commenter.username}}" /><a href="{% url 'Blog:user_profile' comment.commenter.username %}"> {{comment.commenter.username}} </a> </p>
                                     {% else %}
-                                        <p class="mr-3 inline-flex items-center text-sm text-gray-900 dark:text-white"><svg class="mr-2 h-6 w-6 jdenticon rounded-full" data-jdenticon-value="{{comment.commenter.username}}"></svg>{{comment.commenter.username}}</p>
+                                        <p class="mr-3 inline-flex items-center text-sm text-gray-900 dark:text-white"><svg class="mr-2 h-6 w-6 jdenticon rounded-full" data-jdenticon-value="{{comment.commenter.username}}"></svg> <a href="{% url 'Blog:user_profile' comment.commenter.username %}"> {{comment.commenter.username}} </a> </p>
                                     {% endif %}
                                 {% else %}
                                     <p class="mr-3 inline-flex items-center text-sm text-gray-900 dark:text-white"><svg class="mr-2 h-6 jdenticon w-6 rounded-full" data-jdenticon-value="anonymouse"></svg>Anonymouse</p>
@@ -255,9 +255,9 @@
                                             <div class="flex items-center">
                                                 {% if replier.commenter.username %}
                                                     {% if replier.commenter.profile_photo %}
-                                                        <p class="mr-3 inline-flex items-center text-sm text-gray-900 dark:text-white"><img class="mr-2 h-6 w-6 rounded-full" src="{{replier.commenter.profile_photo.url}}" alt="{{replier.commenter.username}}"/>{{replier.commenter.username}}</p>
+                                                        <p class="mr-3 inline-flex items-center text-sm text-gray-900 dark:text-white"><img class="mr-2 h-6 w-6 rounded-full" src="{{replier.commenter.profile_photo.url}}" alt="{{replier.commenter.username}}"/> <a href="{% url 'Blog:user_profile' replier.commenter.username %}"> {{replier.commenter.username}} </a></p>
                                                     {% else %}
-                                                        <p class="mr-3 inline-flex items-center text-sm text-gray-900 dark:text-white"><svg class="mr-2 h-6 jdenticon w-6 rounded-full" data-jdenticon-value="{{replier.commenter.username}}"></svg>{{replier.commenter.username}}</p>
+                                                        <p class="mr-3 inline-flex items-center text-sm text-gray-900 dark:text-white"><svg class="mr-2 h-6 jdenticon w-6 rounded-full" data-jdenticon-value="{{replier.commenter.username}}"></svg><a href="{% url 'Blog:user_profile' replier.commenter.username %}"> {{replier.commenter.username}} </a></p>
                                                     {% endif %}
                                                 {% else %}
                                                     <p class="mr-3 inline-flex items-center text-sm text-gray-900 dark:text-white"><svg class="mr-2 h-6 jdenticon w-6 rounded-full" data-jdenticon-value="anonymouse}"></svg>Anonymouse</p>

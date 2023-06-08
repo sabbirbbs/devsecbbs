@@ -1,0 +1,250 @@
+{% extends "_Blog/client/home_layout.html" %}
+{% load static %}
+{% load blog_tags %}
+{% block title %} Home {% endblock %}
+{% block description %} This is DecSecBBS is the only blog the on the earth about technology {% endblock %}
+
+
+{% block body %}
+
+<div class="p-16 dark:bg-gray-800 dark:text-white">
+    <!-- Django message handler -->
+    <div id="feadback" class="no-target">
+      {% for message in messages %}
+      {% if message.tags == 'success' %}
+          <div id="success-{{forloop.counter}}" class="flex p-4 mb-4 text-green-800 rounded-lg bg-green-50 dark:bg-gray-600 dark:text-green-400" role="alert">
+              <svg aria-hidden="true" class="flex-shrink-0 w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path></svg>
+              <span class="sr-only">Info</span>
+              <div class="ml-3 text-sm font-medium">
+              {{message}}
+              </div>
+              <button type="button" class="ml-auto -mx-1.5 -my-1.5 bg-green-50 text-green-500 rounded-lg focus:ring-2 focus:ring-green-400 p-1.5 hover:bg-green-200 inline-flex h-8 w-8 dark:bg-gray-800 dark:text-green-400 dark:hover:bg-gray-700" data-dismiss-target="#success-{{forloop.counter}}" aria-label="Close">
+              <span class="sr-only">Close</span>
+              <svg aria-hidden="true" class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>
+              </button>
+          </div>
+      {% elif message.tags == 'error' %}
+          <div id="info-{{forloop.counter}}" class="flex p-4 mb-4 text-red-800 rounded-lg bg-red-50 dark:bg-gray-600 dark:text-red-400" role="alert">
+              <svg aria-hidden="true" class="flex-shrink-0 w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path></svg>
+              <span class="sr-only">Info</span>
+              <div class="ml-3 text-sm font-medium">
+              {{message}}
+              </div>
+              <button type="button" class="ml-auto -mx-1.5 -my-1.5 bg-red-50 text-red-500 rounded-lg focus:ring-2 focus:ring-red-400 p-1.5 hover:bg-red-200 inline-flex h-8 w-8 dark:bg-gray-800 dark:text-red-400 dark:hover:bg-gray-700" data-dismiss-target="#info-{{forloop.counter}}" aria-label="Close">
+              <span class="sr-only">Close</span>
+              <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>
+              </button>
+          </div>
+      {% endif %}
+      {% endfor %}
+    </div>
+    <!-- End django message handler -->
+    <div class="p-8 bg-white shadow mt-24 dark:bg-gray-700">
+      <div class="grid grid-cols-1 md:grid-cols-3">
+        <div class="grid grid-cols-3 text-center order-last md:order-first mt-20 md:mt-0 dark:text-white">
+          <div>
+            <p class="font-bold text-gray-700 text-xl dark:text-white">{{author_user.follower.all|length}}</p>
+            <p class="text-gray-400">Followers</p>
+          </div>
+          <div>
+            <p class="font-bold text-gray-700 text-xl dark:text-white">{{ author_user.live_post|length }}</p>
+            <p class="text-gray-400">Posts</p>
+          </div>
+          <div>
+            <p class="font-bold text-gray-700 text-xl dark:text-white">{{ author_user.user_comment.all|length }}</p>
+            <p class="text-gray-400">Comments</p>
+          </div>
+        </div>
+        <div class="relative">
+          <div class="w-48 h-48 bg-indigo-100 mx-auto rounded-full shadow-2xl absolute inset-x-0 top-0 -mt-24 flex items-center justify-center text-indigo-500">
+            {% if author_user.profile_photo %}
+                <img class="w-48 h-48 p-2 rounded-full" src="{{author_user.profile_photo.url}}" alt="{{author_user.username}}">
+            {% else %}
+                <svg width="80" height="80" class="w-48 h-48 p-2 rounded-full jdenticon" data-jdenticon-value="{{post.author.username}}"></svg>
+            {% endif %}
+          </div>
+        </div>
+        {% if user != author_user %}
+          <div class="space-x-8 flex justify-between mt-32 md:mt-0 md:justify-center">
+            <form action="" method='POST'>
+              {% csrf_token %}
+              <input type='hidden' name="follow" value="{{author_user.username}}">
+              <button type='submit' class="text-white py-2 px-4 rounded bg-blue-400 hover:bg-blue-500 shadow hover:shadow-lg font-medium transition transform hover:-translate-y-0.5">{% if request.user in author_user.follower.all %} Unfollow {% else %} Follow {% endif %} </button>
+            </form>
+              {% if user in author_user.follower.all %}
+              <form action="" method='POST'>
+                {% csrf_token %}
+                <input type='hidden' name="mute" value="{{author_user.username}}">
+                <button type='submit' class="text-white py-2 px-4 rounded bg-gray-700 hover:bg-gray-800 shadow hover:shadow-lg dark:bg-gray-500 dark:hover:bg-gray-600 font-medium transition transform hover:-translate-y-0.5"> {% if author_user not in user.mute_list.all %} Unmute {% else %} Mute {% endif %} </button>
+              </form>
+                {% endif %}
+          </div>
+        {% endif %}
+      </div>
+      <div class="mt-20 text-center">
+        <h1 class="text-4xl font-medium text-gray-700 dark:text-white">{% if author_user.first_name %} {{ author_user.first_name }} {{ author_user.last_name }} {% else %} @{{ author_user.username }} {% endif %} 
+          <span data-tooltip-target="tooltip-default" class="inline-flex items-center p-1 mr-2 text-sm font-semibold text-gray-800 bg-gray-100 rounded-full dark:bg-gray-700 dark:text-gray-300">
+            {% if author_user.rank == 'Banned' %}
+            <svg fill="#000000" class="w-6 h-6" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <g id="Layer_2" data-name="Layer 2"> <g id="Layer_1-2" data-name="Layer 1"> <path d="M8,8A4,4,0,1,0,4,4,4,4,0,0,0,8,8ZM8,1A3,3,0,1,1,5,4,3,3,0,0,1,8,1Zm4,7a4,4,0,1,0,4,4A4,4,0,0,0,12,8Zm3,4a3,3,0,0,1-.56,1.73L10.27,9.56A3,3,0,0,1,12,9,3,3,0,0,1,15,12ZM9,12a3,3,0,0,1,.56-1.73l4.17,4.17A3,3,0,0,1,12,15,3,3,0,0,1,9,12ZM8,15.5a.5.5,0,0,1-.5.5h-6A1.5,1.5,0,0,1,0,14.5,4.51,4.51,0,0,1,4.5,10h2a.5.5,0,0,1,0,1h-2A3.5,3.5,0,0,0,1,14.5a.5.5,0,0,0,.5.5h6A.5.5,0,0,1,8,15.5Z"></path> </g> </g> </g></svg>
+            {% elif author_user.rank == 'Contributor' %}
+            <svg viewBox="0 0 24 24" class="w-6 h-6" xmlns="http://www.w3.org/2000/svg" fill="#000000"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <title></title> <g id="Complete"> <g id="user"> <g> <path d="M20,21V19a4,4,0,0,0-4-4H8a4,4,0,0,0-4,4v2" fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path> <circle cx="12" cy="7" fill="none" r="4" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></circle> </g> </g> </g> </g></svg>
+            {% elif author_user.rank == 'Author' %}
+            <svg fill="#000000" class="w-6 h-6" version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 964.07 964.07" xml:space="preserve"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <g> <path d="M850.662,877.56c-0.77,0.137-4.372,0.782-10.226,1.831c-230.868,41.379-273.337,48.484-278.103,49.037 c-11.37,1.319-19.864,0.651-25.976-2.042c-3.818-1.682-5.886-3.724-6.438-4.623c0.268-1.597,2.299-5.405,3.539-7.73 c1.207-2.263,2.574-4.826,3.772-7.558c7.945-18.13,2.386-36.521-14.51-47.999c-12.599-8.557-29.304-12.03-49.666-10.325 c-12.155,1.019-225.218,36.738-342.253,56.437l-57.445,45.175c133.968-22.612,389.193-65.433,402.622-66.735 c11.996-1.007,21.355,0.517,27.074,4.4c3.321,2.257,2.994,3.003,2.12,4.997c-0.656,1.497-1.599,3.264-2.596,5.135 c-3.835,7.189-9.087,17.034-7.348,29.229c1.907,13.374,11.753,24.901,27.014,31.626c8.58,3.78,18.427,5.654,29.846,5.654 c4.508,0,9.261-0.292,14.276-0.874c9.183-1.065,103.471-17.67,280.244-49.354c5.821-1.043,9.403-1.686,10.169-1.821 c9.516-1.688,15.861-10.772,14.172-20.289S860.183,875.87,850.662,877.56z"></path> <path d="M231.14,707.501L82.479,863.005c-16.373,17.127-27.906,38.294-33.419,61.338l211.087-166.001 c66.081,29.303,118.866,38.637,159.32,38.637c71.073,0,104.065-28.826,104.065-28.826c-66.164-34.43-75.592-98.686-75.592-98.686 c50.675,21.424,156.235,46.678,156.235,46.678c140.186-93.563,213.45-296.138,213.45-296.138 c-14.515,3.99-28.395,5.652-41.475,5.652c-65.795,0-111-42.13-111-42.13l183.144-39.885C909.186,218.71,915.01,0,915.01,0 L358.176,495.258C295.116,551.344,250.776,625.424,231.14,707.501z"></path> </g> </g></svg>
+            {% elif author_user.rank == 'Moderator' %}
+            <svg fill="#000000" class="w-6 h-6" version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 474.565 474.565" xml:space="preserve"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <g> <path d="M255.204,102.3c-0.606-11.321-12.176-9.395-23.465-9.395C240.078,95.126,247.967,98.216,255.204,102.3z"></path> <path d="M134.524,73.928c-43.825,0-63.997,55.471-28.963,83.37c11.943-31.89,35.718-54.788,66.886-63.826 C163.921,81.685,150.146,73.928,134.524,73.928z"></path> <path d="M43.987,148.617c1.786,5.731,4.1,11.229,6.849,16.438L36.44,179.459c-3.866,3.866-3.866,10.141,0,14.015l25.375,25.383 c1.848,1.848,4.38,2.888,7.019,2.888c2.61,0,5.125-1.04,7.005-2.888l14.38-14.404c2.158,1.142,4.55,1.842,6.785,2.827 c0-0.164-0.016-0.334-0.016-0.498c0-11.771,1.352-22.875,3.759-33.302c-17.362-11.174-28.947-30.57-28.947-52.715 c0-34.592,28.139-62.739,62.723-62.739c23.418,0,43.637,13.037,54.43,32.084c11.523-1.429,22.347-1.429,35.376,1.033 c-1.676-5.07-3.648-10.032-6.118-14.683l14.396-14.411c1.878-1.856,2.918-4.38,2.918-7.004c0-2.625-1.04-5.148-2.918-7.004 l-25.361-25.367c-1.94-1.941-4.472-2.904-7.003-2.904c-2.532,0-5.063,0.963-6.989,2.904l-14.442,14.411 c-5.217-2.764-10.699-5.078-16.444-6.825V9.9c0-5.466-4.411-9.9-9.893-9.9h-35.888c-5.451,0-9.909,4.434-9.909,9.9v20.359 c-5.73,1.747-11.213,4.061-16.446,6.825L75.839,22.689c-1.942-1.941-4.473-2.904-7.005-2.904c-2.531,0-5.077,0.963-7.003,2.896 L36.44,48.048c-1.848,1.864-2.888,4.379-2.888,7.012c0,2.632,1.04,5.148,2.888,7.004l14.396,14.403 c-2.75,5.218-5.063,10.708-6.817,16.438H23.675c-5.482,0-9.909,4.441-9.909,9.915v35.889c0,5.458,4.427,9.908,9.909,9.908H43.987z"></path> <path d="M354.871,340.654c15.872-8.705,26.773-25.367,26.773-44.703c0-28.217-22.967-51.168-51.184-51.168 c-9.923,0-19.118,2.966-26.975,7.873c-4.705,18.728-12.113,36.642-21.803,52.202C309.152,310.022,334.357,322.531,354.871,340.654z "></path> <path d="M460.782,276.588c0-5.909-4.799-10.693-10.685-10.693H428.14c-1.896-6.189-4.411-12.121-7.393-17.75l15.544-15.544 c2.02-2.004,3.137-4.721,3.137-7.555c0-2.835-1.118-5.553-3.137-7.563l-27.363-27.371c-2.08-2.09-4.829-3.138-7.561-3.138 c-2.734,0-5.467,1.048-7.547,3.138l-15.576,15.552c-5.623-2.982-11.539-5.481-17.751-7.369v-21.958 c0-5.901-4.768-10.685-10.669-10.685H311.11c-2.594,0-4.877,1.04-6.739,2.578c3.26,11.895,5.046,24.793,5.046,38.552 c0,8.735-0.682,17.604-1.956,26.423c7.205-2.656,14.876-4.324,22.999-4.324c36.99,0,67.086,30.089,67.086,67.07 c0,23.637-12.345,44.353-30.872,56.303c13.48,14.784,24.195,32.324,31.168,51.976c1.148,0.396,2.344,0.684,3.54,0.684 c2.733,0,5.467-1.04,7.563-3.13l27.379-27.371c2.004-2.004,3.106-4.721,3.106-7.555s-1.102-5.551-3.106-7.563l-15.576-15.552 c2.982-5.621,5.497-11.555,7.393-17.75h21.957c2.826,0,5.575-1.118,7.563-3.138c2.004-1.996,3.138-4.72,3.138-7.555 L460.782,276.588z"></path> <path d="M376.038,413.906c-16.602-48.848-60.471-82.445-111.113-87.018c-16.958,17.958-37.954,29.351-61.731,29.351 c-23.759,0-44.771-11.392-61.713-29.351c-50.672,4.573-94.543,38.17-111.145,87.026l-9.177,27.013 c-2.625,7.773-1.368,16.338,3.416,23.007c4.783,6.671,12.486,10.631,20.685,10.631h315.853c8.215,0,15.918-3.96,20.702-10.631 c4.767-6.669,6.041-15.234,3.4-23.007L376.038,413.906z"></path> <path d="M120.842,206.782c0,60.589,36.883,125.603,82.352,125.603c45.487,0,82.368-65.014,82.368-125.603 C285.563,81.188,120.842,80.939,120.842,206.782z"></path> </g> </g></svg>
+            {% elif author_user.rank == 'Admin' %}
+            <svg fill="#000000" class="w-6 h-6" viewBox="0 0 1920 1920" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <path d="M983.727 5.421 1723.04 353.62c19.765 9.374 32.414 29.252 32.414 51.162v601.525c0 489.6-424.207 719.774-733.779 887.943l-34.899 18.975c-8.47 4.517-17.731 6.889-27.105 6.889-9.262 0-18.523-2.372-26.993-6.89l-34.9-18.974C588.095 1726.08 164 1495.906 164 1006.306V404.78c0-21.91 12.65-41.788 32.414-51.162L935.727 5.42c15.134-7.228 32.866-7.228 48 0ZM757.088 383.322c-176.075 0-319.285 143.323-319.285 319.398 0 176.075 143.21 319.285 319.285 319.285 1.92 0 3.84 0 5.76-.113l58.504 58.503h83.689v116.781h116.781v83.803l91.595 91.482h313.412V1059.05l-350.57-350.682c.114-1.807.114-3.727.114-5.647 0-176.075-143.21-319.398-319.285-319.398Zm0 112.942c113.732 0 206.344 92.724 205.327 216.62l-3.953 37.271 355.426 355.652v153.713h-153.713l-25.412-25.299v-149.986h-116.78v-116.78H868.108l-63.812-63.7-47.209 5.309c-113.732 0-206.344-92.5-206.344-206.344 0-113.732 92.612-206.456 206.344-206.456Zm4.98 124.98c-46.757 0-84.705 37.948-84.705 84.706s37.948 84.706 84.706 84.706c46.757 0 84.706-37.948 84.706-84.706s-37.949-84.706-84.706-84.706Z" fill-rule="evenodd"></path> </g></svg>
+            {% endif %}
+            <span class="sr-only">Author rank</span>
+          </span>
+          <div id="tooltip-default" role="tooltip" class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip dark:bg-gray-700">
+              {{ author_user.rank }}
+              <div class="tooltip-arrow" data-popper-arrow></div>
+          </div>
+        </h1>
+        <span>Member since : {{ author_user.date_joined|date:"M Y" }} </span><br>
+        <!-- Social media link -->
+        <div class="m-2">
+          {% if author_user.facebook_profile %}
+          <a href="https://facebook.com/{{author_user.facebook_profile}}" target="_blank" class="text-white bg-[#3b5998] hover:bg-[#3b5998]/90 focus:ring-4 focus:outline-none focus:ring-[#3b5998]/50 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center dark:focus:ring-[#3b5998]/55 mr-2 mb-2">
+            <svg class="w-4 h-4 -ml-1" aria-hidden="true" focusable="false" data-prefix="fab" data-icon="facebook-f" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><path fill="currentColor" d="M279.1 288l14.22-92.66h-88.91v-60.13c0-25.35 12.42-50.06 52.24-50.06h40.42V6.26S260.4 0 225.4 0c-73.22 0-121.1 44.38-121.1 124.7v70.62H22.89V288h81.39v224h100.2V288z"></path></svg>
+          </a>
+          {% endif %}
+
+          {% if author_user.twitter_profile %}
+          <a href="https://twitter.com/{{author_user.twitter_profile}}" target="_blank" class="text-white bg-[#1da1f2] hover:bg-[#1da1f2]/90 focus:ring-4 focus:outline-none focus:ring-[#1da1f2]/50 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center dark:focus:ring-[#1da1f2]/55 mr-2 mb-2">
+            <svg class="w-4 h-4 -ml-1" aria-hidden="true" focusable="false" data-prefix="fab" data-icon="twitter" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="currentColor" d="M459.4 151.7c.325 4.548 .325 9.097 .325 13.65 0 138.7-105.6 298.6-298.6 298.6-59.45 0-114.7-17.22-161.1-47.11 8.447 .974 16.57 1.299 25.34 1.299 49.06 0 94.21-16.57 130.3-44.83-46.13-.975-84.79-31.19-98.11-72.77 6.498 .974 12.99 1.624 19.82 1.624 9.421 0 18.84-1.3 27.61-3.573-48.08-9.747-84.14-51.98-84.14-102.1v-1.299c13.97 7.797 30.21 12.67 47.43 13.32-28.26-18.84-46.78-51.01-46.78-87.39 0-19.49 5.197-37.36 14.29-52.95 51.65 63.67 129.3 105.3 216.4 109.8-1.624-7.797-2.599-15.92-2.599-24.04 0-57.83 46.78-104.9 104.9-104.9 30.21 0 57.5 12.67 76.67 33.14 23.72-4.548 46.46-13.32 66.6-25.34-7.798 24.37-24.37 44.83-46.13 57.83 21.12-2.273 41.58-8.122 60.43-16.24-14.29 20.79-32.16 39.31-52.63 54.25z"></path></svg>
+          </a>
+          {% endif %}
+          
+          {% if author_user.github_profile %}
+          <a href="https://github.com/{{author_user.github_profile}}" target="_blank" class="text-white bg-[#24292F] hover:bg-[#24292F]/90 focus:ring-4 focus:outline-none focus:ring-[#24292F]/50 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center dark:focus:ring-gray-500 dark:hover:bg-[#050708]/30 mr-2 mb-2">
+            <svg class="w-4 h-4 -ml-1" aria-hidden="true" focusable="false" data-prefix="fab" data-icon="github" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><path fill="currentColor" d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3 .3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5 .3-6.2 2.3zm44.2-1.7c-2.9 .7-4.9 2.6-4.6 4.9 .3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3 .7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3 .3 2.9 2.3 3.9 1.6 1 3.6 .7 4.3-.7 .7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3 .7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3 .7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"></path></svg>
+          </a>
+          {% endif %}
+          
+          {% if author_user.website_url %}
+          <a href="{{author_user.website_url}}" target="_blank" class="text-white bg-[#4285F4] hover:bg-[#4285F4]/90 focus:ring-4 focus:outline-none focus:ring-[#4285F4]/50 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center dark:focus:ring-[#4285F4]/55 mr-2 mb-2">
+            <svg fill="#ffffff" class="w-4 h-4 -ml-1" viewBox="0 0 512 512" id="_x30_1" version="1.1" xml:space="preserve" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"><path d="M256,0C114.615,0,0,114.615,0,256s114.615,256,256,256s256-114.615,256-256S397.385,0,256,0z M418.275,146h-46.667 c-5.365-22.513-12.324-43.213-20.587-61.514c15.786,8.776,30.449,19.797,43.572,32.921C403.463,126.277,411.367,135.854,418.275,146 z M452,256c0,17.108-2.191,33.877-6.414,50h-64.034c1.601-16.172,2.448-32.887,2.448-50s-0.847-33.828-2.448-50h64.034 C449.809,222.123,452,238.892,452,256z M256,452c-5.2,0-21.048-10.221-36.844-41.813c-6.543-13.087-12.158-27.994-16.752-44.187 h107.191c-4.594,16.192-10.208,31.1-16.752,44.187C277.048,441.779,261.2,452,256,452z M190.813,306 c-1.847-16.247-2.813-33.029-2.813-50s0.966-33.753,2.813-50h130.374c1.847,16.247,2.813,33.029,2.813,50s-0.966,33.753-2.813,50 H190.813z M60,256c0-17.108,2.191-33.877,6.414-50h64.034c-1.601,16.172-2.448,32.887-2.448,50s0.847,33.828,2.448,50H66.414 C62.191,289.877,60,273.108,60,256z M256,60c5.2,0,21.048,10.221,36.844,41.813c6.543,13.087,12.158,27.994,16.752,44.187H202.404 c4.594-16.192,10.208-31.1,16.752-44.187C234.952,70.221,250.8,60,256,60z M160.979,84.486c-8.264,18.301-15.222,39-20.587,61.514 H93.725c6.909-10.146,14.812-19.723,23.682-28.593C130.531,104.283,145.193,93.262,160.979,84.486z M93.725,366h46.667 c5.365,22.513,12.324,43.213,20.587,61.514c-15.786-8.776-30.449-19.797-43.572-32.921C108.537,385.723,100.633,376.146,93.725,366z M351.021,427.514c8.264-18.301,15.222-39,20.587-61.514h46.667c-6.909,10.146-14.812,19.723-23.682,28.593 C381.469,407.717,366.807,418.738,351.021,427.514z"></path></g></svg>
+          </a>
+          {% endif %}
+        </div>
+        <!-- End social media link -->
+        {% if author_user.bio %}
+          <blockquote class="p-4 my-4 border-l-4 max-h-68 overflow-auto border-gray-300 bg-gray-50 dark:border-gray-500 dark:bg-gray-800">
+              <p class="text-xl italic text-justify font-medium leading-relaxed text-gray-900 dark:text-white"> {{ author_user.bio|linebreaksbr  }} </p>
+          </blockquote>
+        {% endif %}
+      </div>
+      {% if author_user.series.all %}
+        <!-- Connected series -->
+        <div class="block p-4 max-h-64 pb-6 bg-white overflow-auto border border-gray-200 rounded-lg shadow-md dark:bg-gray-800 dark:border-gray-700">
+          <h5 class="mb-4 text-2xl font-bold tracking-tight text-gray-900 dark:text-white"> Connected series with the user </h5>
+          <p class="font-normal text-gray-700 dark:text-gray-400">
+            {% for series in author_user.series.all %}
+              {% if series.post_in_series.all|length >= 1 %}
+                <a href="#" class="bg-blue-400 font-bold m-2 rounded-md dark:bg-white dark:text-black p-2">{{ series.name }} ({{ series.post_in_series.all|length }})</a>
+              {% endif %}
+            {% endfor %}
+          </p>
+        </div>
+        <!-- End connected series -->
+      {% endif %}
+    </div>
+    <!-- User post -->
+    {% if author_user.live_post|length >= 1 %}
+    <p class="text-4xl font-semibold text-gray-900 dark:text-white m-4 decoration-blue-500">Published {{author_user.live_post|length}} post by {{author_user.username}}</p>
+    <div class="grid gap-8 lg:grid-cols-2">
+      
+      {% for post in page %}
+        <article class="p-6 bg-white rounded-lg border border-gray-200 shadow-md dark:bg-gray-800 dark:border-gray-700">
+            <div class="flex justify-between items-center mb-5 text-gray-500">
+                <span class="bg-blue-100 text-blue-800 text-xs font-medium inline-flex items-center px-2.5 py-0.5 rounded dark:bg-gray-800 dark:text-gray-400">
+                    <svg class="mr-1 w-4 h-4" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" fill="#000000"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <rect x="0" fill="none" width="20" height="20"></rect> <g> <path d="M5 7h13v10H2V4h7l2 2H4v9h1V7z"></path> </g> </g></svg>
+                    {% if post.category.level > 1 %} {{post.category.get_root}} ... {{post.category}} {% elif post.category.is_root_node %} {{post.category}} {% elif post.category == None %} Not categorized {% else %} {{post.category.get_root}} >> {{post.category}} {% endif %}
+                </span>
+                <span class="bg-gray-100 text-gray-800 text-xs font-medium inline-flex items-center px-2.5 py-0.5 rounded mr-2 dark:bg-gray-700 dark:text-gray-400">
+                  <svg aria-hidden="true" class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"></path></svg>
+                  {{ post.date|timesince }} ago
+                </span>
+            </div>
+            <div class="mb-2 overflow-hidden rounded h-64 cursor-pointer">
+              <a href="{% if post.category %} {% url 'Blog:read_post' post.category.slug post.slug %} {% else %} {% url 'Blog:read_post' 'uncategorized' post.slug %} {% endif %}"><img class="m-auto w-full scale-110 transition-all duration-400 hover:scale-95" src="{% if post.cover_photo %} {{ post.cover_photo.url }} {% else %} https://upload.wikimedia.org/wikipedia/commons/6/65/No-Image-Placeholder.svg {% endif %}" alt="Thumbnail" onerror="this.onerror=null;this.src='https://upload.wikimedia.org/wikipedia/commons/6/65/No-Image-Placeholder.svg';"></a>
+            </div>
+            <!-- Post title -->
+            <h2 class="mb-2 text-2xl font-bold tracking-tight whitespace-wrap overflow-hidden text-gray-900 dark:text-white"><a href="{% if post.category %} {% url 'Blog:read_post' post.category.slug post.slug %} {% else %} {% url 'Blog:read_post' 'uncategorized' post.slug %} {% endif %}">{{post.title|striptags}}</a></h2>
+            <p class="mb-5 font-light text-gray-500 dark:text-gray-400">
+              {% if post.description %}
+                {{post.description|html_trunc:255}}
+              {% else %}
+                {{post.content|html_trunc:255}}
+              {% endif %}</p>
+            <div class="flex justify-between items-center">
+                <div class="flex items-center space-x-4">
+                  {% if post.author.profile_photo %}
+                      <img class="w-7 h-7 rounded-full" src="{{post.author.profile_photo.url}}" alt=" {% if post.author.first_name %} {{post.author.first_name}} {{post.author.last_name}} {% else %} {{ post.author.username }} {% endif %} " />
+                  {% else %}
+                      <svg width="80" height="80" class="w-7 h-7 rounded-full" data-jdenticon-value="{{post.author.username}}"></svg>
+                  {% endif %}
+                      <span class="font-medium dark:text-white">
+                        {% if post.author.first_name %} {{post.author.first_name}} {{post.author.last_name}} {% else %} {{ post.author.username }} {% endif %} 
+                    </span>
+                </div>
+                  <a href="{% if post.category %} {% url 'Blog:read_post' post.category.slug post.slug %} {% else %} {% url 'Blog:read_post' 'uncategorized' post.slug %} {% endif %}" class="inline-flex items-center font-medium text-blue-600 dark:text-blue-500 hover:underline">
+                      Read in {{post.content|readtime}}ute
+                      <svg class="ml-2 w-4 h-4" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>
+                  </a>
+            </div>
+        </article>  
+      {% endfor %}              
+    </div>  
+    <!-- End user post -->
+    {% endif %}
+    
+    {% if page %}
+    <!-- Post paginator -->
+    <nav class="flex items-center mb-2 justify-between pt-4" aria-label="Table navigation">
+      <span class="text-sm font-normal ml-4 text-gray-500 dark:text-gray-400">
+          Showing <span class="font-semibold text-gray-900 dark:text-white">{{ page.start_index }}-{% if page.end_index > page.paginator.count %}{{ page.paginator.count }}{% else %}{{ page.end_index }}{% endif %}</span> of <span class="font-semibold text-gray-900 dark:text-white">{{ page.paginator.count }}</span></span>
+      
+      {% if page.has_other_pages %}
+      <ul class="inline-flex items-center mb-2 mr-2 -space-x-px">
+          {% if page.has_previous %}
+          <li>
+              <a href="?post-page={{page.previous_page_number}}" class="block px-3 py-2 ml-0 leading-tight text-gray-500 bg-white border border-gray-300 rounded-l-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">
+                  <span class="sr-only">Previous</span>
+                  <svg class="w-5 h-5" aria-hidden="true" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg>
+              </a>
+          </li>
+          {% endif %}
+          {% for page_number in list_page %}
+              {% if page_number == page.paginator.ELLIPSIS %}
+              <li>
+                  <a href="#" disabled class="px-3 py-2 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">{{page_number}}</a>
+              </li>
+              {% elif page_number == page.number %}
+                  <li>
+                      <a href="#" aria-current="page" class="z-10 px-3 py-2 leading-tight text-blue-600 border border-blue-300 bg-blue-50 hover:bg-blue-100 hover:text-blue-700 dark:border-gray-700 dark:bg-gray-700 dark:text-white">{{page_number}}</a>
+                  </li>
+              {% else %}
+                  <li>
+                      <a href="?post-page={{page_number}}" class="px-3 py-2 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">{{page_number}}</a>
+                  </li>
+              {% endif %}
+          {% endfor %}
+          {% if page.has_next %}
+          <li>
+              <a href="?post-page={{page.next_page_number}}" class="block px-3 py-2 leading-tight text-gray-500 bg-white border border-gray-300 rounded-r-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">
+                  <span class="sr-only">Next</span>
+                  <svg class="w-5 h-5" aria-hidden="true" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path></svg>
+              </a>
+          </li>
+          {% endif %}
+      </ul>
+      {% endif %}
+    </nav>
+    <!-- End post paginator -->
+    {% endif %}
+</div>
+
+{% endblock %}
