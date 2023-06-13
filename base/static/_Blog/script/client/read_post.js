@@ -18,6 +18,7 @@ function getCookie(name) {
 
 //Highlight code syntax by prismjs
 function highlight_code(){
+    $('pre').addClass('bg-white dark:bg-gray-700');
     $('code').each(function(){
         var data = $(this).html()
         data = data.replace(/<br>/g,'\n')

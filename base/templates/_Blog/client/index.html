@@ -75,12 +75,12 @@
               <div class="flex justify-between items-center">
                   <div class="flex items-center space-x-4">
                     {% if post.author.profile_photo %}
-                        <img class="w-7 h-7 rounded-full" src="{{post.author.profile_photo.url}}" alt=" {% if post.author.first_name %} {{post.author.first_name}} {{post.author.last_name}} {% else %} {{ post.author.username }} {% endif %} " />
+                        <img class="w-7 h-7 rounded-full" src="{{post.author.profile_photo.url}}" alt=" {{ post.author.display_name }} " />
                     {% else %}
                         <svg width="80" height="80" class="w-7 h-7 rounded-full" data-jdenticon-value="{{post.author.username}}"></svg>
                     {% endif %}
                         <span class="font-medium dark:text-white">
-                          {% if post.author.first_name %} {{post.author.first_name}} {{post.author.last_name}} {% else %} {{ post.author.username }} {% endif %} 
+                          {{ post.author.display_name }}
                       </span>
                   </div>
                     <a href="{% if post.category %} {% url 'Blog:read_post' post.category.slug post.slug %} {% else %} {% url 'Blog:read_post' 'uncategorized' post.slug %} {% endif %}" class="inline-flex items-center font-medium text-blue-600 dark:text-blue-500 hover:underline">

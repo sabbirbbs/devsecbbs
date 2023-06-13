@@ -13,14 +13,16 @@ def create_notification(model,instance,user,content,type):
 def notification_to_follower(model,instance,user,content,type):
     follower = user.follower.all()
     for fan in follower:
-        notification = Notification(content_type=ContentType.objects.get_for_model(model),content_id=instance.id,user=fan)
-        notification.content = content
-        notification.type = type
-        notification.save()
+        if user not in fan.mute_list.all():
+            notification = Notification(content_type=ContentType.objects.get_for_model(model),content_id=instance.id,user=fan)
+            notification.content = content
+            notification.type = type
+            notification.save()
+
 
 #get display name for the user 
 def get_display_name(user):
-    if user.first_name and user.last_name:
+    if user.first_name or user.last_name:
         return f"{user.first_name} {user.last_name}"
     else:
         return user.username

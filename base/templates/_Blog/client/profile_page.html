@@ -51,7 +51,7 @@
             <p class="text-gray-400">Posts</p>
           </div>
           <div>
-            <p class="font-bold text-gray-700 text-xl dark:text-white">{{ author_user.user_comment.all|length }}</p>
+            <p class="font-bold text-gray-700 text-xl dark:text-white">{{ author_user.total_comment|length }}</p>
             <p class="text-gray-400">Comments</p>
           </div>
         </div>
@@ -75,9 +75,9 @@
               <form action="" method='POST'>
                 {% csrf_token %}
                 <input type='hidden' name="mute" value="{{author_user.username}}">
-                <button type='submit' class="text-white py-2 px-4 rounded bg-gray-700 hover:bg-gray-800 shadow hover:shadow-lg dark:bg-gray-500 dark:hover:bg-gray-600 font-medium transition transform hover:-translate-y-0.5"> {% if author_user not in user.mute_list.all %} Unmute {% else %} Mute {% endif %} </button>
+                <button type='submit' class="text-white py-2 px-4 rounded bg-gray-700 hover:bg-gray-800 shadow hover:shadow-lg dark:bg-gray-500 dark:hover:bg-gray-600 font-medium transition transform hover:-translate-y-0.5"> {% if author_user not in user.mute_list.all %} Mute {% else %} Unmute {% endif %} </button>
               </form>
-                {% endif %}
+              {% endif %}
           </div>
         {% endif %}
       </div>

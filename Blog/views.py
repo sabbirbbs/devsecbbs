@@ -194,14 +194,47 @@ def fetch_post(request,hash_id):
 
 #show posts by category
 def category(request,slug):
+
+    page = request.GET.get('post-page',1)
+    try:
+        post_category = Category.objects.get(slug=slug)
+    except:
+        raise Http404
+    
     category = Category.objects.get(slug=slug).get_descendants(include_self=True)
     posts = Post.objects.filter(Q(status="Published")|Q(status="Hot"),category__in=category)
-    return render(request,"blog/category_post.html",{"posts":posts,"category":category})
+    posts_page = Paginator(posts,2)
+    current_page = posts_page.get_page(page)
+    list_page = current_page.paginator.get_elided_page_range(number=current_page.number,on_each_side=2,on_ends=1)
+    return render(request,"_Blog/client/category_post.html",{"page":current_page,'list_page':list_page,"post_category":post_category})
+
+#show posts by series
+def series(request,slug):
+
+    page = request.GET.get('post-page',1)
+    try:
+        series = Series.objects.get(slug=slug)
+    except:
+        raise Http404
+    posts = Post.objects.filter(Q(status="Published")|Q(status="Hot"),series=series)
+    posts_page = Paginator(posts,2)
+    current_page = posts_page.get_page(page)
+    list_page = current_page.paginator.get_elided_page_range(number=current_page.number,on_each_side=2,on_ends=1)
+    return render(request,"_Blog/client/series_post.html",{"page":current_page,'list_page':list_page,'series':series})
 
 #show posts by tags
 def tag(request,slug):
-    posts = Post.objects.filter(Q(status="Published")|Q(status="Hot"),tags__slug=slug)
-    return render(request,"blog/tag_post.html",{"posts":posts,"tag":slug})
+
+    page = request.GET.get('post-page',1)
+    try:
+        tag = Tag.objects.get(slug=slug)
+    except:
+        raise Http404
+    posts = Post.objects.filter(Q(status="Published")|Q(status="Hot"),tags=tag)
+    posts_page = Paginator(posts,2)
+    current_page = posts_page.get_page(page)
+    list_page = current_page.paginator.get_elided_page_range(number=current_page.number,on_each_side=2,on_ends=1)
+    return render(request,"_Blog/client/tag_post.html",{"page":current_page,'list_page':list_page,'tag':tag})
 
 #Post edit
 def edit_post(request,hash_id):

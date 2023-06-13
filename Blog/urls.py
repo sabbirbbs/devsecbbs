@@ -8,6 +8,7 @@ urlpatterns = [
     path("",views.index,name="blog_index"),
     path("post_data/<str:hash_id>",views.fetch_post,name="fetch_post"),
     path("category/<str:slug>",views.category,name="category"),
+    path("series/<str:slug>",views.series,name="series"),
     path("tag/<str:slug>",views.tag,name="tag"),
     path("post/<str:cat>/<str:slug>",views.view_post,name="read_post"),
     path("comment/<str:phash>/<str:chash>",views.comment,name="comment"),

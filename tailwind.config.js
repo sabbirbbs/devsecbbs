@@ -11,7 +11,7 @@ module.exports = {
         // Ignore files in node_modules
         '!node_modules',
         // Include JavaScript files that might contain Tailwind CSS classes
-        //'./base/static/Blog/script/*.js',
+        './base/static/_Blog/script/**/*.js',
         //'./base/static/Blog/**/*.js',
         // Include Python files that might contain Tailwind CSS classes
         '../../**/*.py',

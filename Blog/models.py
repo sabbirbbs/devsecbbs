@@ -171,6 +171,15 @@ class AuthorUser(AbstractUser):
 
     def live_post(self):
         return self.user_post.filter(Q(status='Published')|Q(status='Hot'))
+    
+    def display_name(self):
+        if self.first_name or self.last_name:
+            return f"{self.first_name} {self.last_name}"
+        else:
+            return self.username
+        
+    def total_comment(self):
+        return self.user_comment.filter(is_deleted=False)
 
     class Meta:
         ordering = ('-date_joined',)
@@ -245,7 +254,7 @@ class Series(models.Model):
 
     def save(self,*args,**kwargs):
             if not self.slug:
-                self.slug = unislug(self.title,True)
+                self.slug = unislug(self.name)
             else:
                 self.slug = unislug(self.slug)
             
