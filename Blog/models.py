@@ -13,6 +13,9 @@ from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 import uuid
 from django.db.models import Q
+from django.urls import reverse
+from django.core.paginator import Paginator
+
 
 #Slugify unicode bangla text
 def unislug(value,unique=False):
@@ -33,6 +36,23 @@ def unislug(value,unique=False):
 
 
 #additional function
+#Get comment in post page
+def comment_in_post(objects,object):   #Look for a page where a specific comment exist
+    page_of_comment = 0
+    paginator = Paginator(objects,10,2)
+    for page in paginator:  #Find the page number where the comment available
+        for comment in page:
+            if comment == object:
+                page_of_comment = page.number
+            elif comment.get_descendants().exists():
+                for child in comment.get_children():
+                    if child == object:
+                        page_of_comment = page.number
+                    else:
+                        pass
+            else:
+                pass
+    return page_of_comment
 
 #change file name of post cover
 def post_cover(instance, filename):
@@ -91,7 +111,7 @@ class Post(models.Model):
     title = models.CharField(max_length=255)
     slug = models.CharField(unique=True,null=True,blank=True,max_length=255)
     description = models.CharField(max_length=255,blank=True)
-    cover_photo = models.ImageField(upload_to=post_cover,default="blog/post_cover/cover.jpg")
+    cover_photo = models.ImageField(upload_to=post_cover,blank=True,default="blog/post_cover/cover.jpg")
     content = models.TextField()
     author = models.ForeignKey('AuthorUser',on_delete=models.SET_NULL,null=True,related_name="user_post")
     category = models.ForeignKey(Category,on_delete=models.SET_NULL,null=True,related_name="category_post")
@@ -105,10 +125,10 @@ class Post(models.Model):
 
     def get_active_comment(self):
         total_comment = 0
-        for comment in self.post_comment.all(): #Count all the vaild available undeleted comments
+        for comment in self.post_comment.filter(is_deleted=False,status='Published'): #Count all the vaild available undeleted published comments
             if comment.level == 0 and comment.is_deleted == False:
                 for reply in comment.get_descendants(include_self=True):
-                    if reply.is_deleted == False:
+                    if reply.is_deleted == False and reply.status == 'Published':
                         total_comment += 1
                     else:
                         pass
@@ -138,15 +158,26 @@ class Comment(MPTTModel):
     commenter = models.ForeignKey('AuthorUser',on_delete=models.SET_NULL,null=True,blank=True,related_name="user_comment")
     content = models.TextField()
     date = models.DateTimeField(default=datetime.datetime.now)
-    status = models.CharField(max_length=255,choices=[("Published","Published"),("Rejected","Rejected"),("Pending","Pending")],null=True,blank=True)
+    status = models.CharField(max_length=255,default="Published",choices=[("Published","Published"),("Rejected","Rejected"),("Pending","Pending")],null=True,blank=True)
     is_deleted = models.BooleanField(default=False)
     note = models.TextField(blank=True,null=True)
     
     class Meta:
         ordering = ('-date',)
 
+    
+    def page_of_comment(self):
+        page_of_comment = comment_in_post(self.post.post_comment.filter(is_deleted=False,level=0,status='Published').order_by('-date'),self) #get the comment page
+        post_url = reverse('Blog:read_post',args=[self.post.category.slug,self.post.slug])
+        url_to_redirect = f"{post_url}?comment_page={page_of_comment}#comment-{self.hash_id.hex}"
+        return url_to_redirect
+
+    def get_valid_descendants(self):
+        return self.get_descendants().filter(status='Published',is_deleted=False)
+
     def __str__(self):
         return str(self.content)
+    
 
 class AuthorUser(AbstractUser):
     hash_id = models.UUIDField(unique=True,default=uuid.uuid4,editable=False)

@@ -32,7 +32,7 @@ def referel_url(request):
 
 def comment_page(objects,object):   #Look for a page where a specific comment exist
     page_of_comment = 0
-    paginator = Paginator(objects,1)
+    paginator = Paginator(objects,10,2)
     for page in paginator:  #Find the page number where the comment available
         for comment in page:
             if comment == object:
@@ -74,12 +74,25 @@ def dashboard(request):
     return render(request,'_Blog/dashboard/dashboard.html')
 
 def list_post(request):
-    page_number = int(request.GET.get('page',1))
-    post = Post.objects.filter(is_deleted=False)
-    paginator = Paginator(post,10.3)
-    page = paginator.get_page(page_number)
-    list_page = page.paginator.get_elided_page_range(number=page.number,on_each_side=2,on_ends=1)
-    return render(request,"_Blog/dashboard/list_post.html",{'page':page,'list_page':list_page})
+    if request.method == "POST":
+        page_number = int(request.GET.get('page',1))
+        query = request.POST.get('query',None)
+        post = Post.objects.filter(Q(title__contains=query)|Q(description__contains=query)|Q(slug__contains=query)|Q(category__name__contains=query),is_deleted=False)
+        if post:
+            page_number = int(request.GET.get('page',1))
+            paginator = Paginator(post,len(post))
+            page = paginator.get_page(page_number)
+            list_page = page.paginator.get_elided_page_range(number=page.number,on_each_side=2,on_ends=1)
+            return render(request,"_Blog/dashboard/list_post.html",{'page':page,'list_page':list_page})
+        else:
+            return render(request,"_Blog/dashboard/list_post.html",{'page':None,'list_page':None,'query':'Not found'})
+    else:
+        page_number = int(request.GET.get('page',1))
+        post = Post.objects.filter(is_deleted=False)
+        paginator = Paginator(post,10,3)
+        page = paginator.get_page(page_number)
+        list_page = page.paginator.get_elided_page_range(number=page.number,on_each_side=2,on_ends=1)
+        return render(request,"_Blog/dashboard/list_post.html",{'page':page,'list_page':list_page})
 
 
 #validating & saving written post
@@ -170,9 +183,9 @@ def view_post(request,cat,slug):
     
     if request.method == "GET":
         page_number = int(request.GET.get('comment_page',1))
-        comments = Comment.objects.filter(post=post,is_deleted=False,level=0).order_by('-date')
+        comments = Comment.objects.filter(post=post,is_deleted=False,level=0,status="Published").order_by('-date')
         #comment_paginator = Paginator(comments,10,2)
-        comment_paginator = Paginator(comments,1)
+        comment_paginator = Paginator(comments,2)
         comment_page = comment_paginator.get_page(page_number)
         return render(request,"_Blog/client/read_post.html",{'post':post,'comment_page':comment_page,})
 
@@ -408,7 +421,7 @@ def notification_link(request,hash_id):
         return redirect(reverse('Blog:notifications'))
     if notification.type == 'Comment':
         post = notification.content_object.post
-        comments = Comment.objects.filter(post=post,is_deleted=False,level=0).order_by('-date')
+        comments = Comment.objects.filter(post=post,is_deleted=False,level=0,status='Published').order_by('-date')
         page_of_comment = comment_page(comments,notification.content_object) #get the comment page
         post_url = reverse('Blog:read_post',args=[post.category.slug,post.slug])
         url_to_redirect = f"{post_url}?comment_page={page_of_comment}#comment-{notification.content_object.hash_id.hex}"
@@ -553,7 +566,7 @@ def report_link(request,hash_id):
     else:
         if report.type == 'Comment':
             comment = report.report_to
-            comments = Comment.objects.filter(post=comment.post,is_deleted=False,level=0).order_by('-date')
+            comments = Comment.objects.filter(post=comment.post,is_deleted=False,level=0,status='Published').order_by('-date')
             page_of_comment = comment_page(comments,comment) #get the comment page
             post_url = reverse('Blog:read_post',args=[comment.post.category.slug,comment.post.slug])
             url_to_redirect = f"{post_url}?comment_page={page_of_comment}#comment-{report.report_to.hash_id.hex}"
