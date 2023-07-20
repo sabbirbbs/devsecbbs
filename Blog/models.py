@@ -186,7 +186,6 @@ class AuthorUser(AbstractUser):
     rank = models.CharField(max_length=255,default="Contributor",choices=[('Contributor',"Contributor"),("Author","Author"),("Moderator","Moderator"),("Admin","Admin"),("Banned","Banned")])
     dob = models.DateTimeField(null=True,blank=True)
     gender = models.CharField(max_length=10,blank=True,null=True,choices=[("Male","Male"),("Female","Female")])
-    website = models.SlugField(null=True,blank=True)
     facebook_profile = models.SlugField(null=True,blank=True)
     twitter_profile = models.SlugField(null=True,blank=True)
     github_profile = models.SlugField(null=True,blank=True)

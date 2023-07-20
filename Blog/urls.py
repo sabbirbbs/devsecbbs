@@ -16,6 +16,7 @@ urlpatterns = [
     path("test",views.test,name="test"),
     #Dashboard
     path("dashboard",views.dashboard,name="dashboard"),
+    path("dashboard/edit_profile",views.edit_profile,name="edit_profile"),
     path("dashboard/post/edit/<str:hash_id>",views.edit_post,name="edit_post"),
     path("dashboard/write_post",views.write_post,name="write_post"),
     path("dashboard/post/list",views.list_post,name="list_post"),

@@ -57,6 +57,7 @@
         </div>
         <div class="relative">
           <div class="w-48 h-48 bg-indigo-100 mx-auto rounded-full shadow-2xl absolute inset-x-0 top-0 -mt-24 flex items-center justify-center text-indigo-500">
+            
             {% if author_user.profile_photo %}
                 <img class="w-48 h-48 p-2 rounded-full" src="{{author_user.profile_photo.url}}" alt="{{author_user.username}}">
             {% else %}
@@ -64,22 +65,25 @@
             {% endif %}
           </div>
         </div>
-        {% if user != author_user %}
-          <div class="space-x-8 flex justify-between mt-32 md:mt-0 md:justify-center">
+        <div class="space-x-8 flex justify-between mt-32 md:mt-0 md:justify-center">
+          {% if user != author_user %}
             <form action="" method='POST'>
               {% csrf_token %}
               <input type='hidden' name="follow" value="{{author_user.username}}">
-              <button type='submit' class="text-white py-2 px-4 rounded bg-blue-400 hover:bg-blue-500 shadow hover:shadow-lg font-medium transition transform hover:-translate-y-0.5">{% if request.user in author_user.follower.all %} Unfollow {% else %} Follow {% endif %} </button>
+              <button type='submit' class="text-white py-2 px-4 rounded bg-blue-400 hover:bg-blue-500 shadow hover:shadow-lg font-medium transition transform hover:-translate-y-0.5">
+                {% if request.user in author_user.follower.all %} Unfollow {% else %} 
+                  {% if author_user in request.user.follower.all %} Follow Back {% else %} Follow {% endif %} 
+                {% endif %} </button>
             </form>
               {% if user in author_user.follower.all %}
-              <form action="" method='POST'>
-                {% csrf_token %}
-                <input type='hidden' name="mute" value="{{author_user.username}}">
-                <button type='submit' class="text-white py-2 px-4 rounded bg-gray-700 hover:bg-gray-800 shadow hover:shadow-lg dark:bg-gray-500 dark:hover:bg-gray-600 font-medium transition transform hover:-translate-y-0.5"> {% if author_user not in user.mute_list.all %} Mute {% else %} Unmute {% endif %} </button>
-              </form>
+                <form action="" method='POST'>
+                  {% csrf_token %}
+                  <input type='hidden' name="mute" value="{{author_user.username}}">
+                  <button type='submit' class="text-white py-2 px-4 rounded bg-gray-700 hover:bg-gray-800 shadow hover:shadow-lg dark:bg-gray-500 dark:hover:bg-gray-600 font-medium transition transform hover:-translate-y-0.5"> {% if author_user not in user.mute_list.all %} Mute {% else %} Unmute {% endif %} </button>
+                </form>
               {% endif %}
-          </div>
         {% endif %}
+        </div>
       </div>
       <div class="mt-20 text-center">
         <h1 class="text-4xl font-medium text-gray-700 dark:text-white">{% if author_user.first_name %} {{ author_user.first_name }} {{ author_user.last_name }} {% else %} @{{ author_user.username }} {% endif %} 
@@ -140,13 +144,13 @@
         <!-- Connected series -->
         <div class="block p-4 max-h-64 pb-6 bg-white overflow-auto border border-gray-200 rounded-lg shadow-md dark:bg-gray-800 dark:border-gray-700">
           <h5 class="mb-4 text-2xl font-bold tracking-tight text-gray-900 dark:text-white"> Connected series with the user </h5>
-          <p class="font-normal text-gray-700 dark:text-gray-400">
+          <div class="font-normal flex text-gray-700 dark:text-gray-400">
             {% for series in author_user.series.all %}
               {% if series.post_in_series.all|length >= 1 %}
-                <a href="#" class="bg-blue-400 font-bold m-2 rounded-md dark:bg-white dark:text-black p-2">{{ series.name }} ({{ series.post_in_series.all|length }})</a>
+                <a href="{% url 'Blog:series' series.slug %}" class="bg-blue-400 flex-auto font-bold m-2 rounded-md dark:bg-white dark:text-black p-2">{{ series.name }} ({{ series.post_in_series.all|length }})</a>
               {% endif %}
             {% endfor %}
-          </p>
+          </div>
         </div>
         <!-- End connected series -->
       {% endif %}

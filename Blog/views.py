@@ -731,3 +731,5 @@ def user_profile(request,username):
         list_page = current_page.paginator.get_elided_page_range(number=current_page.number,on_each_side=2,on_ends=1)
         return render(request,"_Blog/client/profile_page.html",{'author_user':author_user,'page':current_page,'list_page':list_page})
     
+def edit_profile(request):
+    return render(request,"_Blog/dashboard/view_profile.html")
