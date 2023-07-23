@@ -1,54 +1,93 @@
 {% extends "_Blog/dashboard/dashboard_layout.html" %}
 {% load static %}
-{% block title %} Profile edit {% endblock %}
+{% block title %} Profile view {% endblock %}
 {% block description %} This is DecSecBBS is the only blog the on the earth about technology {% endblock %}
 
 {% block body %}
 
-<form class="p-16"> 
-  <fieldset>
+<div class="p-16"> 
+  <!-- Start profile head -->
+  <div class="grid grid-cols-1 md:grid-cols-3 mb-24">
+    <div class="grid grid-cols-3 text-center order-last md:order-first mt-20 md:mt-0 dark:text-white">
+      <div>
+        <p class="font-bold text-gray-700 text-xl dark:text-white">{{request.user.follower.all|length}}</p>
+        <p class="text-gray-400">Followers</p>
+      </div>
+      <div>
+        <p class="font-bold text-gray-700 text-xl dark:text-white">{{ request.user.live_post|length }}</p>
+        <p class="text-gray-400">Posts</p>
+      </div>
+      <div>
+        <p class="font-bold text-gray-700 text-xl dark:text-white">{{ request.user.total_comment|length }}</p>
+        <p class="text-gray-400">Comments</p>
+      </div>
+    </div>
+    <div class="relative">
+      <div class="w-48 h-48 bg-indigo-100 mx-auto rounded-full shadow-2xl absolute inset-x-0 top-0 -mt-24 flex items-center justify-center text-indigo-500">
+        
+        {% if request.user.profile_photo %}
+            <img class="w-48 h-48 p-2 rounded-full" src="{{request.user.profile_photo.url}}" alt="{{request.user.username}}">
+        {% else %}
+            <svg width="80" height="80" class="w-48 h-48 p-2 rounded-full jdenticon" data-jdenticon-value="{{post.author.username}}"></svg>
+        {% endif %}
+      </div>
+    </div>
+    <div class="space-x-8 flex justify-between mt-32 md:mt-0 md:justify-center">
+          <a href="#" class="text-white py-3 px-4 rounded bg-blue-400 hover:bg-blue-500 shadow hover:shadow-lg font-medium transition transform hover:-translate-y-0.5">
+            Change Password
+          </a>
+          <a href='{% url "Blog:edit_profile" %}' class="text-white py-3 px-4 rounded bg-gray-700 hover:bg-gray-800 shadow hover:shadow-lg dark:bg-gray-500 dark:hover:bg-gray-600 font-medium transition transform hover:-translate-y-0.5">
+             Edit Profile
+          </a>
+
+    </div>
+  </div>
+  <!-- End profile head -->
+
   <!-- Start Personal info -->
   <div class="dark:text-white mb-2">
     <b class="text-3xl">Profile</b>
     <p>Those information will be shared & visible to public on your profile.</p>
   </div>
-  <div class="w-[50%] mb-2">
-    <label for="username" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Username</label>
-    <div class="flex">
-      <span class="inline-flex items-center px-3 text-sm text-gray-900 bg-gray-200 border border-r-0 border-gray-300 rounded-l-md dark:bg-gray-600 dark:text-gray-400 dark:border-gray-600">
-        <svg class="w-4 h-4 text-gray-500 dark:text-gray-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
-            <path d="M10 0a10 10 0 1 0 10 10A10.011 10.011 0 0 0 10 0Zm0 5a3 3 0 1 1 0 6 3 3 0 0 1 0-6Zm0 13a8.949 8.949 0 0 1-4.951-1.488A3.987 3.987 0 0 1 9 13h2a3.987 3.987 0 0 1 3.951 3.512A8.949 8.949 0 0 1 10 18Z"/>
-        </svg>
-      </span>
-      <input type="text" id="username" class="rounded-none rounded-r-lg bg-gray-50 border text-gray-900 focus:ring-blue-500 focus:border-blue-500 block flex-1 min-w-0 w-full text-sm border-gray-300 p-2.5  dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="{{request.user.username}}">
-    </div>
-  </div>
-
   <div class="grid gap-6 mb-6 md:grid-cols-2">
     <div>
+      <label for="username" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Username</label>
+      <div class="flex">
+        <span class="inline-flex items-center px-3 text-sm text-gray-900 bg-gray-200 border border-r-0 border-gray-300 rounded-l-md dark:bg-gray-600 dark:text-gray-400 dark:border-gray-600">
+          <svg class="w-4 h-4 text-gray-500 dark:text-gray-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
+              <path d="M10 0a10 10 0 1 0 10 10A10.011 10.011 0 0 0 10 0Zm0 5a3 3 0 1 1 0 6 3 3 0 0 1 0-6Zm0 13a8.949 8.949 0 0 1-4.951-1.488A3.987 3.987 0 0 1 9 13h2a3.987 3.987 0 0 1 3.951 3.512A8.949 8.949 0 0 1 10 18Z"/>
+          </svg>
+        </span>
+        <input disabled type="text" id="username" value="{{request.user.username}}" class="rounded-none rounded-r-lg bg-gray-50 border text-gray-900 focus:ring-blue-500 focus:border-blue-500 block flex-1 min-w-0 w-full text-sm border-gray-300 p-2.5  dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+      </div>
+    </div>
+    <div>
+        <label for="rank" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Rank</label>
+        <input disabled type="text" id="rank" value="{{request.user.rank}}" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+    </div>
+    <div>
         <label for="first_name" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">First name</label>
-        <input type="text" id="first_name" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="John" required>
+        <input disabled type="text" id="first_name" value="{{request.user.first_name}}" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" required>
     </div>
     <div>
         <label for="last_name" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Last name</label>
-        <input type="text" id="last_name" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Doe" required>
+        <input disabled type="text" id="last_name" value="{{request.user.last_name}}" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" required>
     </div>
     <div>
         <label for="bio" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">About you</label>
-        <textarea id="bio" rows="4" maxlength="250" class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Write a short introduction for you..."></textarea>
+        <textarea id="bio" readonly rows="4" maxlength="250"  class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">{{request.user.bio}}</textarea>
     </div>  
     <div>
         <label for="website" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Website URL</label>
-        <input type="url" id="website" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="flowbite.com" required>
+        <input type="url" disabled id="website" value="{{request.user.website_url}}" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" required>
     </div>
     
     <div class="mb-6">
-        <label for="series" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Series you have access </label>
-        <select id="series" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
-            {% for series in user.series.all %}
-                <option value="series.name">{{ series.name }}</option>
-            {% empty %}
-                <option value="nothing">You don't have access to any series yet</option>
+        <label for="series" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Series you have access {% if request.user.series.all %} ({{ request.user.series.all|length }}) {% endif %}</label>
+        <select id="series" class="bg-gray-50 border redirect-select border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+          <option value=""> {% if request.user.series.all %} Accessible Series {% else %} You don't have access to any series yet {% endif %}</option>
+          {% for series in request.user.series.all %}
+                <option value="{% url 'Blog:series' series.slug %}">{{ series.name }}</option> 
             {% endfor %}
         </select>
   </div>
@@ -61,7 +100,7 @@
         <span class="inline-flex items-center px-3 text-sm text-gray-900 bg-gray-200 border border-r-0 border-gray-300 rounded-l-md dark:bg-gray-600 dark:text-gray-400 dark:border-gray-600">
         facebook.com/
         </span>
-        <input type="text" id="fb" class="rounded-none rounded-r-lg bg-gray-50 w-full border text-gray-900 focus:ring-blue-500 focus:border-blue-500 block flex-1 min-w-0 w-full text-sm border-gray-300 p-2.5  dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="elonmusk">
+        <input type="text" disabled id="fb" value="{{request.user.facebook_profile}}" class="rounded-none rounded-r-lg bg-gray-50 w-full border text-gray-900 focus:ring-blue-500 focus:border-blue-500 block flex-1 min-w-0 w-full text-sm border-gray-300 p-2.5  dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
       </div>
     </div>
     <div>
@@ -70,7 +109,7 @@
         <span class="inline-flex items-center px-3 text-sm text-gray-900 bg-gray-200 border border-r-0 border-gray-300 rounded-l-md dark:bg-gray-600 dark:text-gray-400 dark:border-gray-600">
         twitter.com/
         </span>
-        <input type="text" id="tw" class="rounded-none rounded-r-lg bg-gray-50 w-full border text-gray-900 focus:ring-blue-500 focus:border-blue-500 block flex-1 min-w-0 w-full text-sm border-gray-300 p-2.5  dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="elonmusk">
+        <input type="text" disabled id="tw" value="{{request.user.twitter_profile}}" class="rounded-none rounded-r-lg bg-gray-50 w-full border text-gray-900 focus:ring-blue-500 focus:border-blue-500 block flex-1 min-w-0 w-full text-sm border-gray-300 p-2.5  dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
       </div>
     </div>
     <div>
@@ -79,7 +118,7 @@
         <span class="inline-flex items-center px-3 text-sm text-gray-900 bg-gray-200 border border-r-0 border-gray-300 rounded-l-md dark:bg-gray-600 dark:text-gray-400 dark:border-gray-600">
         github.com/
         </span>
-        <input type="text" id="git" class="rounded-none rounded-r-lg bg-gray-50 w-full border text-gray-900 focus:ring-blue-500 focus:border-blue-500 block flex-1 min-w-0 w-full text-sm border-gray-300 p-2.5  dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="elonmusk">
+        <input type="text" disabled id="git" value="{{request.user.github_profile}}" class="rounded-none rounded-r-lg bg-gray-50 w-full border text-gray-900 focus:ring-blue-500 focus:border-blue-500 block flex-1 min-w-0 w-full text-sm border-gray-300 p-2.5  dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
       </div>
     </div>
   </div>
@@ -92,19 +131,19 @@
   </div>
   <div class="mb-6">
       <label for="email" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Email address</label>
-      <input type="email" id="email" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="john.doe@company.com" required>
+      <input type="email" disabled id="email" value="{{request.user.email}}" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" required>
   </div> 
   <div class="mb-6">
       <label for="phone" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Phone number</label>
-      <input type="number" id="phone" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+      <input type="number" disabled id="phone" value="{{request.user.phone}}" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
   </div> 
   <div class="mb-6">
       <label for="country" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Country</label>
-      <input type="text" id="country" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+      <input type="text" disabled id="country" value="{{request.user.country}}" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
   </div> 
   <div class="mb-6">
       <label for="city" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">City</label>
-      <input type="text" id="city" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+      <input type="text" disabled id="city" value="{{request.user.city}}" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
   </div> 
   <!-- End private info -->
 
@@ -112,42 +151,56 @@
 
   <b class="text-3xl">Your follower/following </b>
   <div class="mb-6 mt-4">
-    <label for="follower" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Your follower</label>
-    <select multiple id="follower" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
-    {% for follower in user.follower.all %}
-        <option value="follower.username">{{ follower.display_name }}</option>
-        {% empty %}
-            <option value="nothing">Nobody are following you</option>
+    <label for="follower" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Your follower {% if request.user.follower.all %} ({{ request.user.follower.all|length }}) {% endif %}</label>
+    <select id="follower" class="bg-gray-50 redirect-select border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+    <option value=""> {% if request.user.follower.all %}Your follower {% else %} Nobody are following you yet{% endif %}</option>
+    {% for follower in request.user.follower.all %}
+        <option value="{% url 'Blog:user_profile' follower.username %}">{{ follower.display_name }}</option>
     {% endfor %}
     </select>
   </div>
   
   <div class="mb-6">
-    <label for="following" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">You are following </label>
-    <select multiple id="following" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
-    {% for following in user.user_following.all %}
-        <option value="following.username">{{ following.display_name }}</option>
-        {% empty %}
-            <option value="nothing">You are not following anyone</option>
+    <label for="following" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">You are following {% if request.user.user_following.all %} ({{ request.user.user_following.all|length }}) {% endif %}</label>
+    <select id="following" class="bg-gray-50 redirect-select border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+    <option value="">{% if request.user.user_following.all %}You are following {% else %} You are not following anyone {% endif %}</option>
+    {% for following in request.user.user_following.all %}
+        <option value="{% url 'Blog:user_profile' following.username %}">{{ following.display_name }}</option>
     {% endfor %}
     </select>
   </div>
 
   <div class="mb-6">
-    <label for="muted" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">User that you have muted </label>
-    <select id="muted" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
-        {% for user in user.mute_list.all %}
-            <option value="user.username">{{ user.display_name }}</option>
-        {% empty %}
-            <option value="nothing">You didn't muted any user.</option>
+    <label for="muted" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">User that you have muted {% if request.user.mute_list.all %} ({{ request.user.mute_list.all|length }}) {% endif %}</label>
+    <select id="muted" class="bg-gray-50 redirect-select border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+        <option value="">{% if request.user.mute_list.all %} Your muted list {% else %} You didn't muted any user. {% endif %}</option>
+        {% for muted in request.user.mute_list.all %}
+            <option value="{% url 'Blog:user_profile' muted.username %}">{{ muted.display_name }}</option>
         {% endfor %}
       </select>
   </div>
 
 
 <!-- End user data -->
-  <button type="submit" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Submit</button>
-</fieldset>
-</form>
+</div>
+
+{% endblock %}
+
+{% block script %}
+
+<script>
+  $(document).ready(function() {
+    // Attach a click event handler to all elements with the class 'redirect-select'
+    $('.redirect-select').on('change', function() {
+      var selectedOptionValue = $(this).val();
+      
+      // Check if the selected option has a valid value (not empty)
+      if (selectedOptionValue) {
+        // Open the selected URL in a new tab
+        window.open(selectedOptionValue, '_blank');
+      }
+    });
+  });
+</script>
 
 {% endblock %}
