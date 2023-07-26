@@ -30,6 +30,24 @@ def root_url(request):
 def referel_url(request):
     return request.META['HTTP_REFERER']
 
+def phone_is_valid(phone_number):
+    # Remove all non-digit characters from the phone number
+    cleaned_number = re.sub(r'\D', '', phone_number)
+
+    # Check if the cleaned number starts with a '+' sign followed by digits
+    if cleaned_number.startswith('+') and cleaned_number[1:].isdigit():
+        # Validate the rest of the number (excluding the leading '+')
+        #return len(cleaned_number[1:]) >= 7  # Minimum 7 digits excluding the country code
+        return cleaned_number
+    
+    elif cleaned_number.isdigit():
+        # Validate the number without the leading '+'
+        # return len(cleaned_number) >= 7  # Minimum 7 digits for local numbers
+        return cleaned_number
+    
+    else:
+        return ""  # Not a valid phone number format
+    
 def comment_page(objects,object):   #Look for a page where a specific comment exist
     page_of_comment = 0
     paginator = Paginator(objects,10,2)
@@ -299,6 +317,8 @@ def edit_post(request,hash_id):
         elif cover_photo:
             try:
                 Image.open(cover_photo)
+                old_cover_path = _post.cover_photo.path
+                os.remove(old_cover_path)
             except:
                 return HttpResponse(json.dumps({"status":"error","message":"Thanks for try to upload not an image or any payload."}))
         elif not cover_photo and not _post.cover_photo:
@@ -734,5 +754,93 @@ def user_profile(request,username):
 def view_profile(request):
     return render(request,"_Blog/dashboard/view_profile.html")
   
+
+def resize_image(image_path, output_size=(300, 300)):
+    # Open the image using Pillow
+    img = Image.open(image_path)
+
+    # Resize the image
+    img.thumbnail(output_size)
+
+    # Save the resized image back to the original path
+    img.save(image_path)
+
+
 def edit_profile(request):
-    return render(request,"_Blog/dashboard/edit_profile.html")
+    if request.method == "POST":
+        
+
+        user_profile = request.user
+        try:
+            user_profile.first_name = request.POST.get('fname', user_profile.first_name)
+            user_profile.last_name = request.POST.get('lname', user_profile.last_name)
+            user_profile.bio = request.POST.get('bio', user_profile.bio)
+            user_profile.website_url = request.POST.get('website', user_profile.website_url)
+            user_profile.facebook_profile = request.POST.get('facebook', user_profile.facebook_profile)
+            user_profile.twitter_profile = request.POST.get('twitter', user_profile.twitter_profile)
+            user_profile.github_profile = request.POST.get('github', user_profile.github_profile)
+            user_profile.phone = phone_is_valid(request.POST.get('phone', user_profile.phone))
+            user_profile.country = request.POST.get('country', user_profile.country)
+            user_profile.city = request.POST.get('city', user_profile.city)
+
+            # Filter gender input
+            gender = request.POST.get('gender', user_profile.gender)
+            if gender in ['Male', 'Female', 'Non-Binary']:
+                user_profile.gender = gender
+            else:
+                # If an invalid gender value is provided, use the existing value
+                user_profile.gender = user_profile.gender
+            
+            # Filter dob input
+            dob = request.POST.get('dob', user_profile.dob)
+            try:
+                dob_date = datetime.datetime.strptime(dob, '%Y-%m-%d').date()
+                user_profile.dob = dob_date
+            except ValueError:
+                # If an invalid date is provided, use the existing value
+                user_profile.dob = user_profile.dob
+
+            # Handle profile photo upload
+            profile_photo = request.FILES.get('profile_photo',None)
+            if profile_photo:
+                try:
+                    # Validate image size (less than 3 MB)
+                    if profile_photo.size > 500 * 1024:
+                        messages.error(request,"Profile photo size is more than expected.")
+                        return redirect(request.META['HTTP_REFERER'])
+
+                    # Delete the old profile photo if it exists
+                    if user_profile.profile_photo:
+                        # Remove the old file from the file system
+                        try:
+                            file_path = user_profile.profile_photo.path
+                            os.remove(file_path)
+                        except:
+                            pass
+
+                    # Save the new profile photo
+                    user_profile.profile_photo = profile_photo
+
+
+                except Exception as e:
+                    # Handle invalid file uploads (e.g., display an error message)
+                    messages.error(request,str(e))
+                    return redirect(request.META['HTTP_REFERER'])
+
+            user_profile.save()
+
+            # Resize and reduce the image size
+            try:
+                image_path = user_profile.profile_photo.path
+                resize_image(image_path)
+            except:
+                pass
+
+        except:
+            messages.error(request,"Something went wrong. Please fill the form carefully.")
+            return redirect(request.META['HTTP_REFERER'])
+
+        messages.success(request,"Your profile has been successfully updated!")
+        return redirect(reverse("Blog:view_profile"))
+    else:
+        return render(request,"_Blog/dashboard/edit_profile.html")

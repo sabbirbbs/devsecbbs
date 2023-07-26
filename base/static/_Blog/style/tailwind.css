@@ -1150,12 +1150,12 @@ input:checked + .toggle-bg {
   z-index: 40;
 }
 
-.order-last {
-  order: 9999;
+.z-\[\FFFDs\FFFD\FFFD\FFFDm\FFFD\FFFD\~V\1F\FFFD\7F\FFFD\] {
+  z-index: �s���m��~V��;
 }
 
-.float-right {
-  float: right;
+.order-last {
+  order: 9999;
 }
 
 .m-auto {
@@ -1385,36 +1385,8 @@ input:checked + .toggle-bg {
   margin-bottom: -1px;
 }
 
-.mb-16 {
-  margin-bottom: 4rem;
-}
-
-.mt-16 {
-  margin-top: 4rem;
-}
-
 .mb-24 {
   margin-bottom: 6rem;
-}
-
-.-mr-12 {
-  margin-right: -3rem;
-}
-
-.ml-24 {
-  margin-left: 6rem;
-}
-
-.mr-24 {
-  margin-right: 6rem;
-}
-
-.-mr-24 {
-  margin-right: -6rem;
-}
-
-.mr-8 {
-  margin-right: 2rem;
 }
 
 .block {
@@ -1659,10 +1631,6 @@ input:checked + .toggle-bg {
 
 .w-56 {
   width: 14rem;
-}
-
-.w-\[50\%\] {
-  width: 50%;
 }
 
 .w-2\.5 {
@@ -3122,6 +3090,14 @@ input:checked + .toggle-bg {
   last: start;
 }
 
+.\[u_tf\:\.\FFFDk\FFFD 2s\FFFD\0\FFFD\\W\FFFD\FFFD\FFFD\FFFD\FFFD\FFFD\FFFDs\7D1\FFFD\FFFD\1D\] {
+  u_tf: .�k�2s� �\W�������sߑ��;
+}
+
+.\[j\:\FFFD\FFFD\FFFD\~\] {
+  j: ���~;
+}
+
 .hover\:-translate-y-0\.5:hover {
   --tw-translate-y: -0.125rem;
   transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
@@ -3737,6 +3713,10 @@ input:checked + .toggle-bg {
 
   .sm\:grid-cols-2 {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .sm\:grid-cols-3 {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 
   .sm\:space-y-0 > :not([hidden]) ~ :not([hidden]) {
