@@ -16,6 +16,9 @@ from django.contrib import messages
 from django.contrib.contenttypes.models import ContentType
 from django.core.paginator import Paginator
 import uuid
+from django.contrib.auth import authenticate, login, logout
+from Blog.models import AuthorUser
+
 
 #Additional variable
 app_dir = os.path.dirname(__file__)  # get current directory
@@ -804,11 +807,25 @@ def edit_profile(request):
             profile_photo = request.FILES.get('profile_photo',None)
             if profile_photo:
                 try:
-                    # Validate image size (less than 3 MB)
-                    if profile_photo.size > 500 * 1024:
+                    # Validate image size (less than 20 MB)
+                    if profile_photo.size > 20 * 1024 * 1024:
                         messages.error(request,"Profile photo size is more than expected.")
                         return redirect(request.META['HTTP_REFERER'])
-
+                    
+                    #Check if actually this is an image
+                    try:
+                        Image.open(profile_photo)
+                    except:
+                        messages.error(request,"Thanks for try to upload not an image or any payload.")
+                        return redirect(request.META['HTTP_REFERER'])
+                    
+                    #check allow file type if not return error
+                    filename, extension = os.path.splitext(profile_photo.name)
+                    allowed_extensions = ['.jpg', '.jpeg', '.png', '.gif']
+                    if extension.lower() not in allowed_extensions:
+                        messages.error(request,"Please upload allowed image type.")
+                        return redirect(request.META['HTTP_REFERER'])
+                        
                     # Delete the old profile photo if it exists
                     if user_profile.profile_photo:
                         # Remove the old file from the file system
@@ -824,7 +841,7 @@ def edit_profile(request):
 
                 except Exception as e:
                     # Handle invalid file uploads (e.g., display an error message)
-                    messages.error(request,str(e))
+                    messages.error(request,"Something went wrong with the profile photo!")
                     return redirect(request.META['HTTP_REFERER'])
 
             user_profile.save()
@@ -844,3 +861,31 @@ def edit_profile(request):
         return redirect(reverse("Blog:view_profile"))
     else:
         return render(request,"_Blog/dashboard/edit_profile.html")
+    
+
+def signin(request):
+    if request.method == "POST":
+        username = request.POST.get('username',None)
+        password = request.POST.get('password',None)
+
+        user = AuthorUser.objects.filter(Q(username=username)|Q(email=username)).first()
+        if user and user.check_password(password):
+            login(request,user)
+            return redirect(reverse('Blog:signin'))
+        else:
+            messages.error(request, "Wrong credentials, please try again with correct data.")
+            return render(request,"_Blog/client/signin.html")
+
+    else:
+        if request.user.is_authenticated:
+            return redirect(reverse('Blog:dashboard'))
+        else:
+            return render(request,"_Blog/client/signin.html")
+        
+
+def signout(request):
+    if request.user.is_authenticated:
+        logout(request)
+        return redirect(reverse("Blog:signin"))
+    else:
+        return redirect(reverse("Blog:signin"))
