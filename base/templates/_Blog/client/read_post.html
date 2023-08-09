@@ -6,6 +6,7 @@
 {% block style %}
     <!-- suneditor -->
     <link href="{% static '_Blog/style/sun_editor/suneditor.min.css' %}" rel="stylesheet">
+    
 {% endblock %}
 
 <!-- will use this font for better reading https://fonts.google.com/specimen/Lexend -->
@@ -137,7 +138,7 @@
                 <!-- Post section -->
                 {% csrf_token %}
                 <h1 align="center" class="text-5xl font-extrabold dark:text-[#A1A1A1] my-4">{{post.title}}</h1>
-                    <article id="post" style="font-size:20px;" class="sun-editor-editable rounded-md opacity-60 dark:bg-gray-900 dark:text-[#A1A1A1]" data-post="{% url 'Blog:fetch_post' post.hash_id.hex %}">
+                    <article id="post" style="font-family: 'Lexend', 'Galada', sans-serif;font-size:20px;" class="sun-editor-editable rounded-md opacity-60 dark:bg-gray-900 dark:text-[#A1A1A1]" data-post="{% url 'Blog:fetch_post' post.hash_id.hex %}">
                         <!--Post content came here-->
                         {{post.content|html_trunc:0}}
                     </article>

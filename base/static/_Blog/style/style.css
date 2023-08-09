@@ -8,4 +8,8 @@ html{
     padding:5px;
     border-radius: 5px;
 }
-  
+
+@font-face {
+    font-family: 'Galada';
+    src: url('_Blog/fonts/Galada.ttf') format('truetype');
+  }
