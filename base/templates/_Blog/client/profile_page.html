@@ -173,7 +173,13 @@
                 </span>
             </div>
             <div class="mb-2 overflow-hidden rounded h-64 cursor-pointer">
-              <a href="{% if post.category %} {% url 'Blog:read_post' post.category.slug post.slug %} {% else %} {% url 'Blog:read_post' 'uncategorized' post.slug %} {% endif %}"><img class="m-auto w-full scale-110 transition-all duration-400 hover:scale-95" src="{% if post.cover_photo %} {{ post.cover_photo.url }} {% else %} https://upload.wikimedia.org/wikipedia/commons/6/65/No-Image-Placeholder.svg {% endif %}" alt="Thumbnail" onerror="this.onerror=null;this.src='https://upload.wikimedia.org/wikipedia/commons/6/65/No-Image-Placeholder.svg';"></a>
+              <a href="{% if post.category %} {% url 'Blog:read_post' post.category.slug post.slug %} {% else %} {% url 'Blog:read_post' 'uncategorized' post.slug %} {% endif %}">
+                {% if post.cover_photo %}
+                  <img class="m-auto w-full scale-110 transition-all duration-400 hover:scale-95" src="{% if post.cover_photo.url %} {{ post.cover_photo.url }} {% else %} {% static "_Blog/image/cover_photo.svg" %} {% endif %}" alt="{{post.title}}" onerror="this.onerror=null;this.src='{% static "_Blog/image/cover_photo.svg" %}';">
+                {% else %}
+                  <img class="m-auto w-full scale-110 transition-all duration-400 hover:scale-95" src="" data-post-cover="{{post.hash_id.time}}" alt="{{post.title}}">
+                {% endif %}
+              </a>
             </div>
             <!-- Post title -->
             <h2 class="mb-2 text-2xl font-bold tracking-tight whitespace-wrap overflow-hidden text-gray-900 dark:text-white"><a href="{% if post.category %} {% url 'Blog:read_post' post.category.slug post.slug %} {% else %} {% url 'Blog:read_post' 'uncategorized' post.slug %} {% endif %}">{{post.title|striptags}}</a></h2>

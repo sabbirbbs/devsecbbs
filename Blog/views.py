@@ -98,7 +98,12 @@ def list_post(request):
     if request.method == "POST":
         page_number = int(request.GET.get('page',1))
         query = request.POST.get('query',None)
-        post = Post.objects.filter(Q(title__contains=query)|Q(description__contains=query)|Q(slug__contains=query)|Q(category__name__contains=query),is_deleted=False)
+
+        if request.user.is_superuser or request.user.rank == "Admin":
+            post = Post.objects.filter(Q(title__contains=query)|Q(description__contains=query)|Q(slug__contains=query)|Q(category__name__contains=query))
+        else:
+            post = Post.objects.filter(Q(title__contains=query)|Q(description__contains=query)|Q(slug__contains=query)|Q(category__name__contains=query),is_deleted=False,author=request.user)
+
         if post:
             page_number = int(request.GET.get('page',1))
             paginator = Paginator(post,len(post))
@@ -109,7 +114,10 @@ def list_post(request):
             return render(request,"_Blog/dashboard/list_post.html",{'page':None,'list_page':None,'query':'Not found'})
     else:
         page_number = int(request.GET.get('page',1))
-        post = Post.objects.filter(is_deleted=False)
+        if request.user.is_superuser or request.user.rank == "Admin":
+            post = Post.objects.filter()
+        else:
+            post = Post.objects.filter(is_deleted=False,author=request.user)
         paginator = Paginator(post,10,3)
         page = paginator.get_page(page_number)
         list_page = page.paginator.get_elided_page_range(number=page.number,on_each_side=2,on_ends=1)
@@ -190,7 +198,10 @@ def view_post(request,cat,slug):
         category = None
     user = request.user if request.user.is_authenticated else None
     try:
-        post = Post.objects.get(category=category,slug=slug,is_deleted=False)
+        if request.user == "Admin" or request.user.is_superuser:
+            post = Post.objects.get(category=category,slug=slug)
+        else:
+            post = Post.objects.get(category=category,slug=slug,is_deleted=False)
     except:
         raise Http404('No post found.')
     
@@ -205,8 +216,7 @@ def view_post(request,cat,slug):
     if request.method == "GET":
         page_number = int(request.GET.get('comment_page',1))
         comments = Comment.objects.filter(post=post,is_deleted=False,level=0,status="Published").order_by('-date')
-        #comment_paginator = Paginator(comments,10,2)
-        comment_paginator = Paginator(comments,2)
+        comment_paginator = Paginator(comments,10,2)
         comment_page = comment_paginator.get_page(page_number)
         return render(request,"_Blog/client/read_post.html",{'post':post,'comment_page':comment_page,})
 
@@ -274,12 +284,22 @@ def tag(request,slug):
 def edit_post(request,hash_id):
 
     try:
-        _post = Post.objects.get(hash_id=hash_id,is_deleted=False)
+        if request.user.is_superuser or request.user.rank == "Admin":
+            _post = Post.objects.get(hash_id=hash_id)
+        else:
+            _post = Post.objects.get(hash_id=hash_id,is_deleted=False,author=request.user)
     except:
         raise Http404
 
 
     if request.method == "POST":
+        
+        is_delete = request.POST.get('delete',False)
+        if is_delete == 'true':
+            _post.is_deleted = True
+            _post.save()
+            messages.success(request,f"Your post titled '{_post.title}' has been deleted.")
+            return redirect(reverse('Blog:list_post'))
         
         if _post.status == 'Pending':
             return HttpResponse(json.dumps({"status":"error","message":"While your post are pending under review. You can't make any change for now. Not even by manupulate the request."}))
@@ -356,13 +376,15 @@ def edit_post(request,hash_id):
         response = {"status":"success","message":feadback_msg}
         return HttpResponse(json.dumps(response))
     else:
-        is_delete = request.GET.get('delete',False)
-        if is_delete == 'true':
-            _post.is_deleted = True
-            _post.save()
-            messages.success(request,f"Your post titled '{_post.title}' has been deleted.")
-            return redirect(reverse('Blog:list_post'))
-        elif _post.status == 'Pending':
+        if request.user.rank == "Admin" or request.user.is_superuser:
+            is_restore = request.GET.get('restore',False)
+            if is_restore == 'true':
+                _post.is_deleted = False
+                _post.save()
+                messages.success(request,f"Your post titled '{_post.title}' has been restored.")
+                return redirect(reverse('Blog:list_post'))
+        
+        if _post.status == 'Pending':
             messages.error(request,"While your post are pending under review. You can't make any change for now.")
             return render(request,'_Blog/dashboard/edit_post.html',{'post':_post})
         elif _post.status == 'Rejected':
@@ -372,7 +394,7 @@ def edit_post(request,hash_id):
             post = Post.objects.get(hash_id=hash_id)
             category = Category.objects.filter(level=0)
             tags = Tag.objects.all()
-            if post.author == request.user or request.user.is_superuser:
+            if post.author == request.user or (request.user.is_superuser or request.user.rank == "Admin"):
                 return render(request,'_Blog/dashboard/edit_post.html',{'category':category,'tags':tags,'post':post})
             else:
                 return render(request,'_Blog/dashboard/edit_post.html',{'status':"Alert",'message':'You are not permitted to edit the post'})
@@ -868,8 +890,8 @@ def signin(request):
         username = request.POST.get('username',None)
         password = request.POST.get('password',None)
 
-        user = AuthorUser.objects.filter(Q(username=username)|Q(email=username)).first()
-        if user and user.check_password(password):
+        user = authenticate(username=username,password=password)
+        if user:
             login(request,user)
             return redirect(reverse('Blog:signin'))
         else:

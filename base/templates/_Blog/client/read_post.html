@@ -9,7 +9,6 @@
     
 {% endblock %}
 
-<!-- will use this font for better reading https://fonts.google.com/specimen/Lexend -->
 
 {% block body %}
 {% csrf_token %}
@@ -17,13 +16,15 @@
 <main class="pt-4 pb-16 lg:pt-4 lg:pb-12 bg-white dark:bg-gray-900">
     <div class="flex justify-between px-4 mx-auto max-w-screen-xl ">
         <article class="mx-auto w-full max-w-screen-xl format format-sm sm:format-base lg:format-lg format-blue dark:format-invert">
-            {% if post.cover_photo %}
             <!-- Start blog cover -->
             <div class="relative h-64 mb-4">
-                <img src="{{ post.cover_photo.url }}" alt="{{ post.title }}" class="absolute inset-0 rounded-lg w-full h-full object-cover overflow-hidden">
+                {% if post.cover_photo %}
+                    <img src="{{ post.cover_photo.url }}" alt="{{ post.title }}" class="absolute inset-0 rounded-lg w-full h-full object-cover overflow-hidden" onerror="this.onerror=null;this.src='{% static "_Blog/image/cover_photo.svg" %}';">
+                {% else %}
+                    <img src="{% static '_Blog/image/cover_photo.svg' %}" data-post-cover="{{post.hash_id.time}}" alt="{{ post.title }}" class="absolute inset-0 rounded-lg w-full h-full object-cover overflow-hidden">
+                {% endif %}
             </div>
             <!-- End blog cover -->
-            {% endif %}
             <header class="mb-4 lg:mb-6 not-format">
                 <!-- Author info -->
                 <address class="flex items-center mb-6 not-italic">
@@ -70,7 +71,7 @@
                 <nav class="flex p-2" aria-label="Breadcrumb">
                     <ol class="inline-flex items-center space-x-1 md:space-x-3">
                     <li class="inline-flex items-center">
-                        <a href="#" class="inline-flex items-center text-sm font-medium text-gray-700 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white">
+                        <a href="{% url 'Blog:blog_index' %}" class="inline-flex items-center text-sm font-medium text-gray-700 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white">
                             <svg aria-hidden="true" class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"></path></svg>
                             Home
                         </a>

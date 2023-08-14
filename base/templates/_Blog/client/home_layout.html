@@ -36,12 +36,12 @@
     <meta property="og:description" content="{% block og-description %} The ultimate blog site ever. {% endblock %}" />
     <meta property="og:url" content="{{ request.scheme }}://{{ request.get_host }}{{ request.get_full_path }}" />
     <meta property="og:site_name" content="DecSecBBS" />
-    <meta property="og:image" content="{% static "_Blog/image/sample.jpg" %}" />
+    <meta property="og:image" content="{% static "_Blog/image/cover_photo.svg" %}" />
     <!-- Twitter meta links -->
     <meta name="twitter:card" content="summary" />
     <meta name="twitter:description" content="{% block tw-description %} The ultimate blog site ever. {% endblock %}" />
     <meta name="twitter:title" content="{% block tw-title %} DevSecBBS {% endblock %}" />
-    <meta name="twitter:image" content="{% static "_Blog/image/sample.jpg" %}" />
+    <meta name="twitter:image" content="{% static "_Blog/image/cover_photo.svg" %}" />
     
     <!-- Your CSS link -->
     <link href="{% static "_Blog/style/tailwind.css" %}" rel="stylesheet" /> 
@@ -229,9 +229,36 @@
     <script src="{% static "_Blog/script/theme_change.js" %}"></script>
     <script src="{% static "_Blog/script/client/domPurify/purify.min.js" %}"></script>
     <script src="{% static "_Blog/script/client/prism/prism.js" %}"></script>
+    <script src="{% static "_Blog/script/trianglify.bundle.js" %}"></script>
 
     <!-- Additional Script -->
     {% block script %} {% endblock %}
+        
+    <script>
+        $(document).ready(function() {
+        // Find all images with the data-post-cover attribute
+        $('img[data-post-cover]').each(function() {
+            const seed = $(this).data('post-cover'); // Get the seed value
+            const pattern = trianglify({
+            width: 1200,
+            height: 600,
+            cellSize: 80,
+            variance: 0.5,
+            seed: seed, // Use the seed value from the data attribute
+            xColors: 'random',
+            yColors: 'match',
+            fill: true,
+            colorSpace: 'lab',
+            strokeWidth: 5,
+            });
+        
+            // Convert the pattern to a base64 PNG and set it as the img's src
+            const base64Png = pattern.toCanvas().toDataURL('image/png');
+            $(this).attr('src', base64Png);
+        });
+        });
+    </script>
+
 </body>
 
 </HTML>

@@ -77,6 +77,11 @@ TEMPLATES = [
     },
 ]
 
+AUTHENTICATION_BACKENDS = [
+    'base.customAuthentication.CustomModelBackend',
+    'django.contrib.auth.backends.ModelBackend',
+]
+
 WSGI_APPLICATION = 'base.wsgi.application'
 
 

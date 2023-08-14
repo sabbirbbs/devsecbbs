@@ -50,7 +50,11 @@
             {% for post in page %}
             <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
                 <th scope="row" class="flex items-center px-6 py-4">
-                    <img class="w-10 h-10" src="{% if post.cover_photo %} {{ post.cover_photo.url }} {% else %} https://upload.wikimedia.org/wikipedia/commons/6/65/No-Image-Placeholder.svg {% endif %}" alt="Jese image">
+                    {% if post.cover_photo %}
+                    <img class="w-10 h-10" src="{{ post.cover_photo.url }}" alt="{{post.title}}">
+                    {% else %}
+                    <img class="w-10 h-10" src="" data-post-cover="{{post.hash_id.time}}" alt="{{post.title}}">
+                    {% endif %}
                     <div class="pl-3">
                         <div class="text-base font-semibold"><a href="{% url 'Blog:read_post' post.category.slug post.slug %}">{{post.title|slice:':250'}}</a></div>
                     </div>  
@@ -68,7 +72,7 @@
                         </div>
                     {% else %}
                         <div class="flex items-center">
-                            <div class="h-2.5 w-2.5 rounded-full bg-green-500 mr-2"></div> {{post.status}}
+                            <div class="h-2.5 w-2.5 rounded-full bg-green-500 mr-2"></div> {{post.status}} {% if post.is_deleted %} - Deleted {% endif %}
                         </div>
                     {% endif %}
                 </td>
