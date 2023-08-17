@@ -50,7 +50,7 @@ def post_status(instance,*args,**kwargs):
     if instance.pk:
         post = Post.objects.get(pk=instance.pk)
         if post.note != instance.note:
-            reason = f"Reason: {instance.note}"
+            reason = f"Note: {instance.note}"
         else:
             reason = ''
 
@@ -81,7 +81,7 @@ def user_status(sender,instance,*args,**kwargs):
         user = sender.objects.get(pk=instance.pk)
         
         if user.note != instance.note:
-            reason = f"Reason: {instance.note}"
+            reason = f"Note: {instance.note}"
         else:
             reason = ''
             
@@ -107,7 +107,7 @@ def report_status_reviewed(sender,instance,*args,**kwargs):
         report = sender.objects.get(pk=instance.pk)
         
         if report.note != instance.note:
-            reason = f"Reason: {instance.note}"
+            reason = f"Note: {instance.note}"
         else:
             reason = ''
             

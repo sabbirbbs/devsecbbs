@@ -80,11 +80,11 @@ $(document).ready(function(){
                 }
             },
             error: function(response){
-                createAlert("error","Something went wrong!")
+                createAlert("error","Something went wrong! Please contact administrator.")
                 $("#submit_post").text("Submit")
 
                 $('html, body').animate({ //Scroll to the feadback area
-                    scrollTop: $("#new_post_notice").offset().top-200
+                    scrollTop: $("#post_notice").offset().top-200
                 });
             }
         })

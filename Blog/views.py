@@ -18,70 +18,15 @@ from django.core.paginator import Paginator
 import uuid
 from django.contrib.auth import authenticate, login, logout
 from Blog.models import AuthorUser
+from Blog.extrafunc import *
 
 
 #Additional variable
 app_dir = os.path.dirname(__file__)  # get current directory
 
-
-
-
-#Additional Function
-def root_url(request):
-    return request.scheme+"://"+request.get_host()
-
-def referel_url(request):
-    return request.META['HTTP_REFERER']
-
-def phone_is_valid(phone_number):
-    # Remove all non-digit characters from the phone number
-    cleaned_number = re.sub(r'\D', '', phone_number)
-
-    # Check if the cleaned number starts with a '+' sign followed by digits
-    if cleaned_number.startswith('+') and cleaned_number[1:].isdigit():
-        # Validate the rest of the number (excluding the leading '+')
-        #return len(cleaned_number[1:]) >= 7  # Minimum 7 digits excluding the country code
-        return cleaned_number
-    
-    elif cleaned_number.isdigit():
-        # Validate the number without the leading '+'
-        # return len(cleaned_number) >= 7  # Minimum 7 digits for local numbers
-        return cleaned_number
-    
-    else:
-        return ""  # Not a valid phone number format
-    
-def comment_page(objects,object):   #Look for a page where a specific comment exist
-    page_of_comment = 0
-    paginator = Paginator(objects,10,2)
-    for page in paginator:  #Find the page number where the comment available
-        for comment in page:
-            if comment == object:
-                page_of_comment = page.number
-            elif comment.get_descendants().exists():
-                for child in comment.get_children():
-                    if child == object:
-                        page_of_comment = page.number
-                    else:
-                        pass
-            else:
-                pass
-    return page_of_comment
-
-def is_valid_uuid(uuid_str):
-    try:
-        uuid_obj = uuid.UUID(uuid_str)
-        return uuid_obj.hex == uuid_str
-    except ValueError:
-        return False
-
 #writing views
+
 #home page of blog to show posts
-
-def test(request):
-    post = Post.objects.all()
-    return render(request,'_Blog/test.html',{'post':post})
-
 def index(request):
     if request.GET.get('query',None):
         query = request.GET.get('query',None)
@@ -340,8 +285,6 @@ def edit_post(request,hash_id):
         elif cover_photo:
             try:
                 Image.open(cover_photo)
-                old_cover_path = _post.cover_photo.path
-                os.remove(old_cover_path)
             except:
                 return HttpResponse(json.dumps({"status":"error","message":"Thanks for try to upload not an image or any payload."}))
         elif not cover_photo and not _post.cover_photo:
@@ -367,6 +310,12 @@ def edit_post(request,hash_id):
         _post.last_modified = datetime.datetime.now()
         if cover_photo:
             _post.cover_photo = cover_photo
+            #remove old cover photo if exits
+            try:
+                old_cover_path = _post.cover_photo.path
+                os.remove(old_cover_path)
+            except:
+                pass
         else:
             pass
         _post.tags.add(*tags)
@@ -911,3 +860,9 @@ def signout(request):
         return redirect(reverse("Blog:signin"))
     else:
         return redirect(reverse("Blog:signin"))
+
+def signup(request):
+    if request.method == "POST":
+        pass
+    else:
+        return render(request,"_Blog/client/signup.html")

@@ -7,25 +7,42 @@ from . import models
 #Models Admin
 class CommentAdmin(admin.ModelAdmin):
     list_display = ['id','content','is_deleted']
-    search_fields = ['content']
-    # def get_queryset(self, request):
-    #     # Use the default manager to show all instances, including those where is_deleted is True,
-    #     # in the Django admin panel
-    #     return super().get_queryset(request)
+    search_fields = [field.name for field in models.Comment._meta.fields]
 
 class PostAdmin(admin.ModelAdmin):
     list_display = ['title','status','date','note']
-    search_fields = ['hash_id','status']
+    search_fields = [field.name for field in models.Post._meta.fields]
+
+class ReportContentAdmin(admin.ModelAdmin):
+    list_display = ['report_type','report_by','status','report_content']
+    search_fields = [field.name for field in models.ReportContent._meta.fields]
+
+class CategoryAdmin(admin.ModelAdmin):
+    list_display = ['name']
+    search_fields = [field.name for field in models.ReportContent._meta.fields]
+
+class NotificationAdmin(admin.ModelAdmin):
+    list_display = ['content','note']
+    search_fields = [field.name for field in models.ReportContent._meta.fields]
+
+
+class UserRequestAdmin(admin.ModelAdmin):
+    list_display = ['title','content']
+    search_fields = [field.name for field in models.ReportContent._meta.fields]
+
+class SeriesAdmin(admin.ModelAdmin):
+    list_display = ['name','created_by']
+    search_fields = [field.name for field in models.ReportContent._meta.fields]
 
 #configuring django admin
 
 admin.site.register(models.Post,PostAdmin)
-admin.site.register(models.Category)
+admin.site.register(models.Category,CategoryAdmin)
 admin.site.register(models.Comment,CommentAdmin)
-admin.site.register(models.Notification)
-admin.site.register(models.ReportContent)
-admin.site.register(models.UserRequest)
-admin.site.register(models.Series)
+admin.site.register(models.Notification,NotificationAdmin)
+admin.site.register(models.ReportContent,ReportContentAdmin)
+admin.site.register(models.UserRequest,UserRequestAdmin)
+admin.site.register(models.Series,SeriesAdmin)
 
 
 #Set up custom user table

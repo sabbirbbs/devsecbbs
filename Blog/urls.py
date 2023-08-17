@@ -14,8 +14,8 @@ urlpatterns = [
     path("comment/<str:phash>/<str:chash>",views.comment,name="comment"),
     path("user/<str:username>",views.user_profile,name='user_profile'),
     path("signin",views.signin,name="signin"),
+    path("signup",views.signup,name="signup"),
     path("signout",views.signout,name="signout"),
-    path("test",views.test,name="test"),
     #Dashboard
     path("dashboard",views.dashboard,name="dashboard"),
     path("dashboard/view_profile",views.view_profile,name="view_profile"),
