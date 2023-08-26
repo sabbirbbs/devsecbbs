@@ -50,3 +50,40 @@ def is_valid_uuid(uuid_str):
         return uuid_obj.hex == uuid_str
     except ValueError:
         return False
+    
+def is_valid_email(email):
+    email_pattern = r'^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,7}$'
+    return re.match(email_pattern, email) is not None
+
+def extract_unique_email(input_email):
+    match = re.match(r'^([A-Za-z0-9._%+-]+)\+.*@([A-Za-z0-9.-]+\.[A-Z|a-z]{2,7})$', input_email)
+    if match:
+        username = match.group(1)
+        domain = match.group(2)
+        unique_email = f"{username}@{domain}"
+        return unique_email
+    
+    return input_email  # Return input as is if it doesn't match the pattern
+
+def is_valid_strong_password(password):
+    # Check if password meets length requirement
+    if len(password) < 8:
+        return False
+    
+    # Check if password contains at least one lowercase letter
+    if not re.search(r'[a-z]', password):
+        return False
+    
+    # Check if password contains at least one uppercase letter
+    if not re.search(r'[A-Z]', password):
+        return False
+    
+    # Check if password contains at least one digit
+    if not re.search(r'[0-9]', password):
+        return False
+    
+    # Check if password contains at least one special character
+    if not re.search(r'[!@#$%^&*()\-_=+{}\[\]:;"\'<>,.?/\\|]', password):
+        return False
+    
+    return True

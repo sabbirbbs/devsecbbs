@@ -17,6 +17,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.core.paginator import Paginator
 import uuid
 from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.hashers import make_password
 from Blog.models import AuthorUser
 from Blog.extrafunc import *
 
@@ -836,13 +837,16 @@ def edit_profile(request):
 
 def signin(request):
     if request.method == "POST":
-        username = request.POST.get('username',None)
+        username = extract_unique_email(request.POST.get('username',''))
         password = request.POST.get('password',None)
 
         user = authenticate(username=username,password=password)
-        if user:
+        if user and user.is_active:
             login(request,user)
             return redirect(reverse('Blog:signin'))
+        elif user and not user.is_active:
+            messages.error(request, "The account is not activated yet.")
+            return render(request,"_Blog/client/signin.html")
         else:
             messages.error(request, "Wrong credentials, please try again with correct data.")
             return render(request,"_Blog/client/signin.html")
@@ -863,6 +867,38 @@ def signout(request):
 
 def signup(request):
     if request.method == "POST":
-        pass
+        username = request.POST.get('username','')
+        email = request.POST.get('email','')
+        password1 = request.POST.get('password','')
+        password2 = request.POST.get('confirm-password','')
+        problem = 0
+        forbidden_usernames = ["admin", "moderator", "webmaster", "support", "staff", "root", "superuser", "owner", "anonymous", "blogadmin", "sysadmin", "blogmod", "team", "official", "bot", "developer", "spammer", "testuser", "guest", "banneduser", "badactor", "hacker", "fakeuser", "suspicious", "admin123", "poweruser", "system", "noob", "johndoe", "user123", "yourname", "username", "password", "nousername", "allusers", "newbie", "coolguy", "coolgirl", "bestuser", "topuser"]
+
+
+        if AuthorUser.objects.filter(username=username).first():
+            messages.error(request,"User already exit with the username.")
+            problem += 1
+        elif username in forbidden_usernames:
+            messages.error(request,"The username you choosen is forbidden.")
+            problem += 1
+        elif AuthorUser.objects.filter(email=extract_unique_email(email)).first():
+            messages.error(request,"The email already associated with a account.")
+            problem += 1
+            
+        if password1 != password2:
+            messages.error(request,"Both of the password have to be same.")
+            problem += 1
+        elif not is_valid_strong_password(password1):
+            messages.error(request,"Please choose a bit more strong password.")
+            problem += 1
+
+        if not problem:
+            user = AuthorUser(username=username,email=email,password=password1,is_active=False)
+            verify_token = make_password('safer')
+            user.token = verify_token
+            messages.success(request,"Account created with token "+ verify_token)
+            return render(request,"_Blog/client/signup.html")
+        else:
+            return render(request,"_Blog/client/signup.html")
     else:
         return render(request,"_Blog/client/signup.html")

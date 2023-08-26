@@ -197,6 +197,7 @@ class AuthorUser(AbstractUser):
     follower = models.ManyToManyField('AuthorUser',blank=True,related_name="user_following")
     mute_list = models.ManyToManyField('AuthorUser',blank=True,related_name="muted")
     is_deleted = models.BooleanField(default=False)
+    token = models.CharField(null=True,max_length=255)
     note = models.TextField(blank=True,null=True)
 
     def live_post(self):
