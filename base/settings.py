@@ -152,5 +152,14 @@ AUTH_USER_MODEL = 'Blog.AuthorUser'
 #data handling limit in memeory
 DATA_UPLOAD_MAX_MEMORY_SIZE = 5242880
 
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True 
+DEFAULT_FROM_EMAIL = "sabbir174bbs@gmail.com" 
+EMAIL_HOST_USER =  "sabbir174bbs@gmail.com"
+EMAIL_HOST_PASSWORD = "rrtsrueiivxgefox"
+
+
 
 

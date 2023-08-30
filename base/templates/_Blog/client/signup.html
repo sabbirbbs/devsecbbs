@@ -79,9 +79,9 @@
                         <label for="confirm-password" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Confirm password</label>
                         <div class="flex">
                             <input type="password" name="confirm-password" id="confirm-password" placeholder="••••••••••••••••" class="rounded-l-md bg-gray-50 border text-gray-900 focus:ring-blue-500 focus:border-blue-500 block flex-1 min-w-0 w-full text-sm border-gray-300 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" required="">
-                            <button id="password-view" class="inline-flex hover:bg-gray-400 items-center px-3 text-sm text-gray-900 rounded-none rounded-r-lg bg-gray-200 border border-r-0 border-gray-300 dark:bg-gray-600 dark:text-gray-400 dark:border-gray-600">
+                            <span id="password-view" class="cursor-pointer inline-flex hover:bg-gray-400 items-center px-3 text-sm text-gray-900 rounded-none rounded-r-lg bg-gray-200 border border-r-0 border-gray-300 dark:bg-gray-600 dark:text-gray-400 dark:border-gray-600">
                                 <svg viewBox="0 0 24 24" class="w-4 h-4 text-gray-500 dark:text-gray-400" fill="none" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <circle cx="12" cy="12" r="3.5" stroke="currentColor"></circle> <path d="M20.188 10.9343C20.5762 11.4056 20.7703 11.6412 20.7703 12C20.7703 12.3588 20.5762 12.5944 20.188 13.0657C18.7679 14.7899 15.6357 18 12 18C8.36427 18 5.23206 14.7899 3.81197 13.0657C3.42381 12.5944 3.22973 12.3588 3.22973 12C3.22973 11.6412 3.42381 11.4056 3.81197 10.9343C5.23206 9.21014 8.36427 6 12 6C15.6357 6 18.7679 9.21014 20.188 10.9343Z" stroke="currentColor"></path> </g></svg>
-                            </button>
+                            </span>
                         </div>
                     </div>
                     <div class="flex items-start">
@@ -102,9 +102,7 @@
     </div>
 </section>
 
+{% endblock %}
 {% block script %}
     <script src="{% static "_Blog/script/client/registration.js" %}"></script>
-{% endblock %}
-
-
 {% endblock %}

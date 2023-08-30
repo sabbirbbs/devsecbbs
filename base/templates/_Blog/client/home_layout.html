@@ -48,13 +48,13 @@
     <link href="{% static "_Blog/style/style.css" %}" rel="stylesheet" />
     <link href="{% static "_Blog/style/client/prism/prism.css" %}" rel="stylesheet" />
     <!-- Required JS -->
-    <script src="{% static "_Blog/script/jquery-3.6.1.min.js" %}"></script>
+    <script src="{% static "_Blog/script/jquery-3.7.1.min.js" %}"></script>
     <!-- Additional Style -->
     {% block style %} {% endblock %}
     
 </head>
 
-<body class="dark:bg-gray-900 bg-white" style="font-family: 'Lexend', 'Galada', sans-serif;">
+<body class="dark:bg-gray-900 bg-white px-4" style="font-family: 'Lexend', 'Galada', sans-serif;">
     <div class="container md:container sm:container 2xl:container xl:container lg:container mx-auto">
         <!-- Navbar start -->
         <nav class="sticky top-0 z-50 bg-white border-gray-200 px-2 sm:px-4 py-2.5 rounded dark:bg-gray-800">
@@ -230,36 +230,33 @@
     <script src="{% static "_Blog/script/client/domPurify/purify.min.js" %}"></script>
     <script src="{% static "_Blog/script/client/prism/prism.js" %}"></script>
     <script src="{% static "_Blog/script/trianglify.bundle.js" %}"></script>
-
-    <!-- Additional Script -->
-    {% block script %} {% endblock %}
-        
-    <script>
-        $(document).ready(function() {
-        // Find all images with the data-post-cover attribute
-        $('img[data-post-cover]').each(function() {
-            const seed = $(this).data('post-cover'); // Get the seed value
-            const pattern = trianglify({
-            width: 1200,
-            height: 600,
-            cellSize: 80,
-            variance: 0.5,
-            seed: seed, // Use the seed value from the data attribute
-            xColors: 'random',
-            yColors: 'match',
-            fill: true,
-            colorSpace: 'lab',
-            strokeWidth: 5,
-            });
-        
-            // Convert the pattern to a base64 PNG and set it as the img's src
-            const base64Png = pattern.toCanvas().toDataURL('image/png');
-            $(this).attr('src', base64Png);
-        });
-        });
-    </script>
-
 </body>
+<!-- Additional Script -->
+{% block script %} {% endblock %}
+<script>
+    $(document).ready(function() {
+    // Find all images with the data-post-cover attribute
+    $('img[data-post-cover]').each(function() {
+        const seed = $(this).data('post-cover'); // Get the seed value
+        const pattern = trianglify({
+        width: 1200,
+        height: 600,
+        cellSize: 80,
+        variance: 0.5,
+        seed: seed, // Use the seed value from the data attribute
+        xColors: 'random',
+        yColors: 'match',
+        fill: true,
+        colorSpace: 'lab',
+        strokeWidth: 5,
+        });
+    
+        // Convert the pattern to a base64 PNG and set it as the img's src
+        const base64Png = pattern.toCanvas().toDataURL('image/png');
+        $(this).attr('src', base64Png);
+    });
+    });
+</script>
 
 </HTML>
 

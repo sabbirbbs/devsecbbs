@@ -30,7 +30,7 @@ def unislug(value,unique=False):
         if re.search(pattern,value):
             return value.rsplit('_',1)[0] + "_" + salt
         else:
-            return value + "_" + salt
+            return value + "-" + salt
     else:
         return value
 

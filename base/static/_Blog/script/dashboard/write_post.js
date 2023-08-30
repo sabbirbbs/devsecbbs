@@ -88,6 +88,5 @@ $(document).ready(function(){
                 });
             }
         })
-        console.log("submitting data by ajax")
     })
 })
