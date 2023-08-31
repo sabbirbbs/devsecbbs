@@ -2466,11 +2466,6 @@ input:checked + .toggle-bg {
   padding-bottom: 2rem;
 }
 
-.px-12 {
-  padding-left: 3rem;
-  padding-right: 3rem;
-}
-
 .pb-0 {
   padding-bottom: 0px;
 }

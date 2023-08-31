@@ -16,6 +16,7 @@ urlpatterns = [
     path("signin",views.signin,name="signin"),
     path("signup",views.signup,name="signup"),
     path("signout",views.signout,name="signout"),
+    path("verify/<str:token>",views.email_verify,name="email-verify"),
     #Dashboard
     path("dashboard",views.dashboard,name="dashboard"),
     path("dashboard/view_profile",views.view_profile,name="view_profile"),

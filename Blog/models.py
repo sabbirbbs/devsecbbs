@@ -197,7 +197,6 @@ class AuthorUser(AbstractUser):
     follower = models.ManyToManyField('AuthorUser',blank=True,related_name="user_following")
     mute_list = models.ManyToManyField('AuthorUser',blank=True,related_name="muted")
     is_deleted = models.BooleanField(default=False)
-    token = models.CharField(null=True,max_length=255)
     note = models.TextField(blank=True,null=True)
 
     def live_post(self):
@@ -297,6 +296,28 @@ class Series(models.Model):
 
     class Meta:
         verbose_name_plural = "Series"
+
+class BlogSetting(models.Model):
+    hash_id = models.UUIDField(unique=True,default=uuid.uuid4,editable=False)
+    settings = ['forbidden-username','comment-per-page','post-per-page','notice','script']
+    setting = models.CharField(blank=True,max_length=255,default='',choices=[(item,item) for item in settings])
+    value = models.TextField()
+    note = models.TextField(blank=True,null=True)
+
+    def __str__(self):
+        return str(self.setting)
+
+class UserLoginLog(models.Model):
+    hash_id = models.UUIDField(unique=True,default=uuid.uuid4,editable=False)
+    user = models.ForeignKey(AuthorUser, on_delete=models.CASCADE)
+    timestamp = models.DateTimeField(default=datetime.datetime.now)
+    ip_address = models.CharField(blank=True,max_length=255)
+    user_agent = models.CharField(max_length=255)
+    was_logged = models.BooleanField(default=False)
+    note = models.TextField(blank=True,null=True)
+
+    def __str__(self):
+        return f"{self.user.username} from {self.user_agent}"
     
      
     

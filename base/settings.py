@@ -79,7 +79,7 @@ TEMPLATES = [
 
 AUTHENTICATION_BACKENDS = [
     'base.customAuthentication.CustomModelBackend',
-    'django.contrib.auth.backends.ModelBackend',
+    #'django.contrib.auth.backends.ModelBackend',
 ]
 
 WSGI_APPLICATION = 'base.wsgi.application'
@@ -159,6 +159,9 @@ EMAIL_USE_TLS = True
 DEFAULT_FROM_EMAIL = "sabbir174bbs@gmail.com" 
 EMAIL_HOST_USER =  "sabbir174bbs@gmail.com"
 EMAIL_HOST_PASSWORD = "rrtsrueiivxgefox"
+
+# Set the password reset token expiration time to 2 minutes (120 seconds)
+PASSWORD_RESET_TIMEOUT = 600
 
 
 

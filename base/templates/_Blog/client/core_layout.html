@@ -1,0 +1,66 @@
+{% load static %}
+<!DOCTYPE html>
+<HTML>
+<head>
+    <!-- Title to your website title -->
+    <title>{% block title %} Home {% endblock %} - DevSecBBS</title>
+    
+    <!-- Leave these as they are -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    
+    <!-- These are useful for search engines when crawling the internet for your website -->
+    <meta name="description" content="{% block description %} The ultimate blog site ever. {% endblock %}" />
+    <meta name="keywords" content="{% block keywords %} "Blog,tech,post" {% endblock %}" />
+    <meta name="author" content="{% block author %} DevSecBBS {% endblock %}">
+    <link rel="canonical" href="{{ request.scheme }}://{{ request.get_host }}{{ request.get_full_path }}"/>
+    
+    <!-- This tells the search engines whether to follow all of the links on your site. If you only want them to track your homepage, replace content="all,follow" with content="index,follow" -->
+    <meta name="robots" content="all, follow"/>
+
+    
+    <!-- These are the little icons that show up next to the title of the URL in the browser tab. For these to work, you must include a favicon.png file in the root of your website directory. This can also be favicon.jpg if you prefer, you just need to change the link in the href to favicon.jpg for it to work --> 
+    <link rel="shortcut icon" href="{% static "_Blog/image/favicon.ico" %}">
+    <link rel="icon" href="{% static "_Blog/image/favicon.ico" %}" type="image/x-icon" />
+    
+    <!-- Google fonts for reading blog post -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Lexend&amp;display=swap" rel="stylesheet">
+    
+    <!-- Social Media stuff. This all makes your links look much nicer and more shareable on Facebook and Twitter -->
+    <!-- Facebook meta links - OG stands for OpenGraph by the way! -->
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="{% block og-title %} DevSecBBS {% endblock %}" />
+    <meta property="og:description" content="{% block og-description %} The ultimate blog site ever. {% endblock %}" />
+    <meta property="og:url" content="{{ request.scheme }}://{{ request.get_host }}{{ request.get_full_path }}" />
+    <meta property="og:site_name" content="DecSecBBS" />
+    <meta property="og:image" content="{% static "_Blog/image/cover_photo.svg" %}" />
+    <!-- Twitter meta links -->
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:description" content="{% block tw-description %} The ultimate blog site ever. {% endblock %}" />
+    <meta name="twitter:title" content="{% block tw-title %} DevSecBBS {% endblock %}" />
+    <meta name="twitter:image" content="{% static "_Blog/image/cover_photo.svg" %}" />
+    
+    <!-- Your CSS link -->
+    <link href="{% static "_Blog/style/tailwind.css" %}" rel="stylesheet" /> 
+    <link href="{% static "_Blog/style/style.css" %}" rel="stylesheet" />
+    <!-- Required JS -->
+    <script src="{% static "_Blog/script/jquery-3.7.1.min.js" %}"></script>
+    <!-- Additional Style -->
+    {% block style %} {% endblock %}
+    
+</head>
+
+<body class="dark:bg-gray-900 bg-white px-4" style="font-family: 'Lexend', 'Galada', sans-serif;">
+    
+    {% block body %}    {% endblock %}
+    
+</body>
+<script src="{% static "_Blog/script/flowbite.min.js" %}"></script>
+<!-- Additional Script -->
+{% block script %} {% endblock %}
+
+</HTML>
+

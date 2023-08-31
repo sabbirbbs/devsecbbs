@@ -48,7 +48,7 @@ $(document).ready(function(){
     $('#post_form').on('submit',function(e){
         e.preventDefault();
         //adding sun-editor context as textarea value
-        $('#post_editor').val(editor.getContents())
+        $('#post_editor').val(DOMPurify.sanitize(editor.getContents()))
 
         $.ajax({
             url: $("#post_form").attr("action"),

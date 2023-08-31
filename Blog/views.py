@@ -1,5 +1,6 @@
 #import modules
-from django.shortcuts import render, redirect , get_object_or_404
+from django.shortcuts import render, redirect
+from django.template.loader import render_to_string
 from django.http import HttpResponse,Http404
 from django.urls import reverse
 from .models import *
@@ -15,11 +16,16 @@ from better_profanity import profanity
 from django.contrib import messages
 from django.contrib.contenttypes.models import ContentType
 from django.core.paginator import Paginator
+from django.contrib.auth.hashers import make_password
 import uuid
 from django.contrib.auth import authenticate, login, logout
-from django.contrib.auth.hashers import make_password
+from django.core.mail import send_mail
+from django.conf import settings
 from Blog.models import AuthorUser
 from Blog.extrafunc import *
+from Blog.token import *
+import base64
+
 
 
 #Additional variable
@@ -843,9 +849,15 @@ def signin(request):
         user = authenticate(username=username,password=password)
         if user and user.is_active:
             login(request,user)
+            store_login_log(request,user,True,note=password)    #Storing login log
             return redirect(reverse('Blog:signin'))
         elif user and not user.is_active:
+            store_login_log(request,user,True,note=f"{password} :but, account was not active.")    #Storing login log
             messages.error(request, "The account is not activated yet.")
+            return render(request,"_Blog/client/signin.html")
+        elif user_by_name_mail(username) and not user_by_name_mail(username).check_password(password): #checking if the username is okey but password wrong
+            store_login_log(request,user,False,note=password)    #Storing login log
+            messages.error(request, "Wrong credentials, please try again with correct data.")
             return render(request,"_Blog/client/signin.html")
         else:
             messages.error(request, "Wrong credentials, please try again with correct data.")
@@ -872,33 +884,64 @@ def signup(request):
         password1 = request.POST.get('password','')
         password2 = request.POST.get('confirm-password','')
         problem = 0
-        forbidden_usernames = ["admin", "moderator", "webmaster", "support", "staff", "root", "superuser", "owner", "anonymous", "blogadmin", "sysadmin", "blogmod", "team", "official", "bot", "developer", "spammer", "testuser", "guest", "banneduser", "badactor", "hacker", "fakeuser", "suspicious", "admin123", "poweruser", "system", "noob", "johndoe", "user123", "yourname", "username", "password", "nousername", "allusers", "newbie", "coolguy", "coolgirl", "bestuser", "topuser"]
 
-
-        if AuthorUser.objects.filter(username=username).first():
-            messages.error(request,"User already exit with the username.")
-            problem += 1
-        elif username in forbidden_usernames:
-            messages.error(request,"The username you choosen is forbidden.")
-            problem += 1
-        elif AuthorUser.objects.filter(email=extract_unique_email(email)).first():
-            messages.error(request,"The email already associated with a account.")
-            problem += 1
-            
-        if password1 != password2:
-            messages.error(request,"Both of the password have to be same.")
-            problem += 1
-        elif not is_valid_strong_password(password1):
-            messages.error(request,"Please choose a bit more strong password.")
+        try:
+            if AuthorUser.objects.filter(username=username).first():
+                messages.error(request,"User already exit with the username.")
+                problem += 1
+            elif not is_valid_username(username):
+                messages.error(request,"The username is not valid!")
+                problem += 1
+            elif BlogSetting.objects.filter(setting='forbidden-username').first():
+                if username in BlogSetting.objects.filter(setting='forbidden-username').first().value:
+                    messages.error(request,"The username you choosen is forbidden.")
+                    problem += 1
+            elif AuthorUser.objects.filter(email=extract_unique_email(email)).first():
+                messages.error(request,"The email already associated with a account.")
+                problem += 1
+                
+            if password1 != password2:
+                messages.error(request,"Both of the password have to be same.")
+                problem += 1
+            elif not is_valid_strong_password(password1):
+                messages.error(request,"Please choose a bit more strong password.")
+                problem += 1
+        except:
+            messages.error(request,"Something went wrong internally. Please contact admin.")
             problem += 1
 
         if not problem:
-            user = AuthorUser(username=username,email=email,password=password1,is_active=False)
-            verify_token = make_password('safer')
-            user.token = verify_token
-            messages.success(request,"Account created with token "+ verify_token)
+            user = AuthorUser(username=username,email=email,password=make_password(password1),is_active=False)
+            try:
+                user.save()
+                subject = "Account Verification Required: DevSecBBS"
+                recipient_list = [user.email]
+                token = create_token(user)
+                message = render_to_string("_Blog/dashboard/email_verify.html",{'user':user,'domain':root_url(request),'token':token})
+                #send_mail(subject, message,settings.DEFAULT_FROM_EMAIL, recipient_list, html_message=message,fail_silently=False,)
+            except Exception as error:
+                message.error(request,str(error))
+
+            verify_link = reverse('Blog:email-verify', args=[token]) #Just for testing purpose
+            messages.success(request,f"Please check your email & verify the account to be finished.<a href='{verify_link}'>verify</a>")
             return render(request,"_Blog/client/signup.html")
         else:
             return render(request,"_Blog/client/signup.html")
     else:
         return render(request,"_Blog/client/signup.html")
+
+def email_verify(request,token):
+    if verify_token(token):
+        try:
+            decoded_token = base64.urlsafe_b64decode(token[::-1]).decode()
+            user_hash = decoded_token.split('_')[0]
+            user = AuthorUser.objects.get(hash_id=user_hash[::-1])
+        except:
+            messages.error(request,"Something went wrong!")
+            return redirect(reverse('Blog:signup'))
+        login(request,user,backend='base.customAuthentication.CustomModelBackend')
+        messages.success(request,"Your account is successfully verified.")
+        return redirect(reverse('Blog:edit_profile'))
+    else:
+        messages.error(request,"The verificatin token is not valid or expired.")
+        return redirect(reverse('Blog:signup'))

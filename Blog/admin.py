@@ -34,6 +34,14 @@ class SeriesAdmin(admin.ModelAdmin):
     list_display = ['name','created_by']
     search_fields = [field.name for field in models.ReportContent._meta.fields]
 
+class BlogSettingAdmin(admin.ModelAdmin):
+    list_display = ['setting']
+    search_fields = [field.name for field in models.ReportContent._meta.fields]
+
+class UserLoginLogAdmin(admin.ModelAdmin):
+    list_display = ['user','ip_address','user_agent','was_logged']
+    search_fields = [field.name for field in models.ReportContent._meta.fields]
+
 #configuring django admin
 
 admin.site.register(models.Post,PostAdmin)
@@ -43,6 +51,8 @@ admin.site.register(models.Notification,NotificationAdmin)
 admin.site.register(models.ReportContent,ReportContentAdmin)
 admin.site.register(models.UserRequest,UserRequestAdmin)
 admin.site.register(models.Series,SeriesAdmin)
+admin.site.register(models.BlogSetting,BlogSettingAdmin)
+admin.site.register(models.UserLoginLog,UserLoginLogAdmin)
 
 
 #Set up custom user table

@@ -1,6 +1,9 @@
 import re
 from django.core.paginator import Paginator
 import uuid
+from Blog.models import UserLoginLog
+from ipware import get_client_ip
+from Blog.models import AuthorUser
 
 #Additional Function
 def root_url(request):
@@ -87,3 +90,32 @@ def is_valid_strong_password(password):
         return False
     
     return True
+
+def is_valid_username(username):
+    # Username can only contain letters, numbers, underscores, and hyphens
+    pattern = r'^[a-zA-Z0-9_-]+$'
+    if re.match(pattern, username):
+        return True
+    else:
+        return False
+
+#Add login log to database
+def store_login_log(request,user,was_logged,note=None):
+    try:
+        ip_data = get_client_ip(request)
+        user_log = UserLoginLog.objects.create(user=user,ip_address=ip_data,user_agent=request.META.get('HTTP_USER_AGENT'),was_logged=was_logged)
+        if note:
+            note = f"Tried password : {note}"
+            user_log.note = note
+        user_log.save()
+    except:
+        pass
+
+def user_by_name_mail(username):
+    user = AuthorUser.objects.filter(username=username).first()
+    if user:
+        return user
+    elif AuthorUser.objects.filter(email=username).first():
+        return AuthorUser.objects.filter(email=username).first()
+    else:
+        return

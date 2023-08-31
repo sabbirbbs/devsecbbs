@@ -33,9 +33,9 @@
         .button {
             display: inline-block;
             padding: 10px 20px;
-            background-color: #007bff;
+            background-color: seagreen;
             color: #ffffff;
-            text-decoration: none;
+            text-decoration: bold;
             border-radius: 3px;
             margin-top: 15px;
         }
@@ -47,10 +47,10 @@
             <h1>Welcome to DevSecBBS</h1>
         </div>
         <div class="content">
-            <p>Hello {{user.username}},</p>
+            <p>Hello {{user.username}}, </p>
             <p>We're excited to have you join our writing community at DevSecBBS.</p>
             <p>To begin sharing your thoughts and stories with our readers, please verify your email address by clicking the button below:</p>
-            <a class="button" href="[Verification Link]">Verify Email Address</a>
+            <a class="button" href="{{domain}}{% url 'Blog:email-verify' token %}">Verify Email Address</a>
             <p>By verifying your email, you're ensuring the security and authenticity of your writer account.</p>
             <p>If you didn't sign up for DevSecBBS, kindly ignore this email.</p>
             <p>If you need any assistance or have questions, our support team is here to help. Feel free to reach us at [Support Email].</p>
