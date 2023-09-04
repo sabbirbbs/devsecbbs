@@ -52,9 +52,9 @@ def list_post(request):
         query = request.POST.get('query',None)
 
         if request.user.is_superuser or request.user.rank == "Admin":
-            post = Post.objects.filter(Q(title__contains=query)|Q(description__contains=query)|Q(slug__contains=query)|Q(category__name__contains=query))
+            post = Post.objects.filter(Q(title__contains=query)|Q(description__contains=query)|Q(status__contains=query)|Q(slug__contains=query)|Q(category__name__contains=query))
         else:
-            post = Post.objects.filter(Q(title__contains=query)|Q(description__contains=query)|Q(slug__contains=query)|Q(category__name__contains=query),is_deleted=False,author=request.user)
+            post = Post.objects.filter(Q(title__contains=query)|Q(description__contains=query)|Q(status__contains=query)|Q(slug__contains=query)|Q(category__name__contains=query),is_deleted=False,author=request.user)
 
         if post:
             page_number = int(request.GET.get('page',1))
@@ -430,8 +430,8 @@ def notification_link(request,hash_id):
         post = notification.content_object
         url_to_redirect = reverse('Blog:read_post',args=[post.category.slug,post.slug])
     elif notification.type == 'Follow':
-        messages.error(request,"The notification doesn't linked with anything.")
-        url_to_redirect = referel_url(request)
+        follower = notification.content_object
+        url_to_redirect = reverse('Blog:user_profile',args=[follower.username])
     elif notification.type == 'Update':
         if notification.content_type.name == 'post':
             post = notification.content_object
@@ -843,22 +843,23 @@ def edit_profile(request):
 
 def signin(request):
     if request.method == "POST":
+        next = request.GET.get('next',None) if request.GET.get('next',None) else reverse('Blog:signin')
+        print(next)
+        print(request.GET.get('next',None))
         username = extract_unique_email(request.POST.get('username',''))
         password = request.POST.get('password',None)
 
-        user = authenticate(username=username,password=password)
+        user = authenticate(request=request,username=username,password=password)
         if user and user.is_active:
             login(request,user)
-            store_login_log(request,user,True,note=password)    #Storing login log
-            return redirect(reverse('Blog:signin'))
+            return redirect(next)
         elif user and not user.is_active:
-            store_login_log(request,user,True,note=f"{password} :but, account was not active.")    #Storing login log
-            messages.error(request, "The account is not activated yet.")
-            return render(request,"_Blog/client/signin.html")
-        elif user_by_name_mail(username) and not user_by_name_mail(username).check_password(password): #checking if the username is okey but password wrong
-            store_login_log(request,user,False,note=password)    #Storing login log
-            messages.error(request, "Wrong credentials, please try again with correct data.")
-            return render(request,"_Blog/client/signin.html")
+            if send_email_verify(request,user):
+                messages.error(request, "The account is not activated yet. A new email has been sent with verification link.")
+                return render(request,"_Blog/client/signin.html")
+            else:
+                messages.error(request, "Something went wrong. Please contact admin.")
+                return render(request,"_Blog/client/signin.html")
         else:
             messages.error(request, "Wrong credentials, please try again with correct data.")
             return render(request,"_Blog/client/signin.html")
@@ -878,13 +879,16 @@ def signout(request):
         return redirect(reverse("Blog:signin"))
 
 def signup(request):
+    if request.user.is_authenticated:
+        return redirect(reverse('Blog:dashboard'))
+
     if request.method == "POST":
         username = request.POST.get('username','')
         email = request.POST.get('email','')
         password1 = request.POST.get('password','')
         password2 = request.POST.get('confirm-password','')
         problem = 0
-
+        print(email)
         try:
             if AuthorUser.objects.filter(username=username).first():
                 messages.error(request,"User already exit with the username.")
@@ -892,14 +896,14 @@ def signup(request):
             elif not is_valid_username(username):
                 messages.error(request,"The username is not valid!")
                 problem += 1
-            elif BlogSetting.objects.filter(setting='forbidden-username').first():
-                if username in BlogSetting.objects.filter(setting='forbidden-username').first().value:
-                    messages.error(request,"The username you choosen is forbidden.")
-                    problem += 1
             elif AuthorUser.objects.filter(email=extract_unique_email(email)).first():
                 messages.error(request,"The email already associated with a account.")
                 problem += 1
-                
+            elif BlogSetting.objects.filter(setting='forbidden-username').first():
+                if username in BlogSetting.objects.filter(setting='forbidden-username').first().value.split(','):
+                    messages.error(request,"The username you choosen is forbidden.")
+                    problem += 1
+
             if password1 != password2:
                 messages.error(request,"Both of the password have to be same.")
                 problem += 1
@@ -907,24 +911,23 @@ def signup(request):
                 messages.error(request,"Please choose a bit more strong password.")
                 problem += 1
         except:
+            print('inside the exception scope')
             messages.error(request,"Something went wrong internally. Please contact admin.")
             problem += 1
 
         if not problem:
             user = AuthorUser(username=username,email=email,password=make_password(password1),is_active=False)
-            try:
-                user.save()
-                subject = "Account Verification Required: DevSecBBS"
-                recipient_list = [user.email]
-                token = create_token(user)
-                message = render_to_string("_Blog/dashboard/email_verify.html",{'user':user,'domain':root_url(request),'token':token})
-                #send_mail(subject, message,settings.DEFAULT_FROM_EMAIL, recipient_list, html_message=message,fail_silently=False,)
-            except Exception as error:
-                message.error(request,str(error))
+            
+            user.save()
+            print("*"*20)
+            print(user.email)
+            if send_email_verify(request,user):
+                messages.success(request,f"Please check your email & verify the account to be finished. If you didn't received the email. Please login to the account to resend verification email.")
+                return render(request,"_Blog/client/signup.html")
+            else:
+                message.error(request,"Something went wrong. Please contact admin.")
+                return render(request,"_Blog/client/signup.html")
 
-            verify_link = reverse('Blog:email-verify', args=[token]) #Just for testing purpose
-            messages.success(request,f"Please check your email & verify the account to be finished.<a href='{verify_link}'>verify</a>")
-            return render(request,"_Blog/client/signup.html")
         else:
             return render(request,"_Blog/client/signup.html")
     else:
@@ -937,8 +940,10 @@ def email_verify(request,token):
             user_hash = decoded_token.split('_')[0]
             user = AuthorUser.objects.get(hash_id=user_hash[::-1])
         except:
-            messages.error(request,"Something went wrong!")
+            messages.error(request,"Something went wrong! Please contact admin.")
             return redirect(reverse('Blog:signup'))
+        user.is_active = True
+        user.save()
         login(request,user,backend='base.customAuthentication.CustomModelBackend')
         messages.success(request,"Your account is successfully verified.")
         return redirect(reverse('Blog:edit_profile'))

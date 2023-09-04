@@ -13,8 +13,12 @@ class CustomModelBackend(ModelBackend):
         # Try to authenticate using the username
         user = User.objects.filter(username=username).first()
         if user and user.check_password(password):
-            store_login_log(request,user,True)
-            return user
+            if not user.is_active:
+                store_login_log(request,user,True,note=f"Account was not active.")
+                return user
+            else:
+                store_login_log(request,user,True)
+                return user
         elif user and not user.check_password(password):
             store_login_log(request,user,False,note=password)
         

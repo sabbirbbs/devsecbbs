@@ -28,6 +28,7 @@ def get_display_name(user):
         return user.username
     
 
+#Notification for comment & reply
 @receiver(post_save,sender=Comment)
 def new_comment(instance,created,*args,**kwargs):
     if instance.commenter:
@@ -45,6 +46,7 @@ def new_comment(instance,created,*args,**kwargs):
     else:
         pass
 
+#Notification after review a post
 @receiver(pre_save,sender=Post)
 def post_status(instance,*args,**kwargs):
     if instance.pk:
@@ -74,6 +76,7 @@ def post_status(instance,*args,**kwargs):
     else:
         pass
 
+#Notification if any user role changed or author applicaion approved
 @receiver(pre_save,sender=AuthorUser)
 def user_status(sender,instance,*args,**kwargs):
     role = ["Banned","Contributor","Author","Moderator","Admin"]
@@ -99,7 +102,7 @@ def user_status(sender,instance,*args,**kwargs):
     else:
         pass
 
-
+#Notification when a user report reviewed
 @receiver(pre_save,sender=ReportContent)
 def report_status_reviewed(sender,instance,*args,**kwargs):
     if instance.pk:
@@ -131,6 +134,7 @@ def report_status_reviewed(sender,instance,*args,**kwargs):
         except:
             pass
 
+#Notification for who submitted a report agaist any post or comment.
 @receiver(post_save,sender=ReportContent)
 def report_status(instance,created,*args,**kwargs):
     if created:
@@ -148,6 +152,22 @@ def report_status(instance,created,*args,**kwargs):
     else:
         pass
 
+#Notification when someone follow someone.
+@receiver(m2m_changed, sender=AuthorUser.follower.through)
+def notify_user_followed(sender, instance, action, reverse, model, pk_set, **kwargs):
+    if action == 'post_add' and not reverse:
+        # Get the newly added followers
+        new_followers = model.objects.filter(pk__in=pk_set)
+
+        for follower in new_followers:
+            try:
+                if not instance in follower.mute_list.all():
+                    content = f"{follower.display_name()} started following you."
+                    create_notification(AuthorUser,follower,instance,content,'Follow')
+            except:
+                pass
+
+        # Send notification to the user being followed
 
 
 

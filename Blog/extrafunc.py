@@ -4,6 +4,10 @@ import uuid
 from Blog.models import UserLoginLog
 from ipware import get_client_ip
 from Blog.models import AuthorUser
+from Blog.token import create_token
+from django.core.mail import send_mail
+from django.template.loader import render_to_string
+from django.conf import settings
 
 #Additional Function
 def root_url(request):
@@ -102,10 +106,14 @@ def is_valid_username(username):
 #Add login log to database
 def store_login_log(request,user,was_logged,note=None):
     try:
-        ip_data = get_client_ip(request)
-        user_log = UserLoginLog.objects.create(user=user,ip_address=ip_data,user_agent=request.META.get('HTTP_USER_AGENT'),was_logged=was_logged)
+        if request:
+            ip_data = get_client_ip(request)
+            user_agent = request.META.get('HTTP_USER_AGENT')
+        else:
+            ip_data = '0.0.0.0'
+            user_agent = ''
+        user_log = UserLoginLog.objects.create(user=user,ip_address=ip_data,user_agent=user_agent,was_logged=was_logged)
         if note:
-            note = f"Tried password : {note}"
             user_log.note = note
         user_log.save()
     except:
@@ -119,3 +127,14 @@ def user_by_name_mail(username):
         return AuthorUser.objects.filter(email=username).first()
     else:
         return
+
+def send_email_verify(request,user):
+    try:
+        subject = "Account Verification Required: DevSecBBS"
+        recipient_list = [user.email]
+        token = create_token(user)
+        message = render_to_string("_Blog/dashboard/email_verify.html",{'user':user,'domain':root_url(request),'token':token})
+        send_mail(subject, message,settings.DEFAULT_FROM_EMAIL, recipient_list, html_message=message,fail_silently=False,)
+        return token
+    except:
+        return False        
