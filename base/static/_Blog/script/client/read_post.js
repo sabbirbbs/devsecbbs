@@ -64,7 +64,7 @@ function editcomment(comment_id,commenter_name){
           Hey, ${commenter_name}, you are gonna edit your <a href="#${comment_id}" class="font-semibold underline hover:no-underline">comment</a>.
         </div>
         <button type="button" onclick="dismissEditor()" class="text-blue-800 ml-auto bg-transparent border border-blue-800 hover:bg-blue-900 hover:text-white focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-xs px-3 py-1.5 text-center dark:hover:bg-blue-600 dark:border-blue-600 dark:text-blue-400 dark:hover:text-white dark:focus:ring-blue-800" aria-label="Close">
-          Cancel reply
+          Cancel edit
         </button>
     </div>`
 }
@@ -76,7 +76,7 @@ function addHiddenInputToForm(formId, inputName, inputValue) {
   }
 
 function removeHiddenInputFromForm(formId, inputName) {
-  $('#' + formId + ' input[name="' + inputName + '"]').remove();
+    $('#' + formId + ' input[name="' + inputName + '"]').remove();
 }
   
 //Dismiss comment replier
@@ -92,6 +92,7 @@ function dismissReplier(){
 function dismissEditor(){
     reply_to = $("#reply-to")
     comment_form = $("#comment-form")
+    $('#comment').val('')
     comment_form.attr('action',comment_form.data('default-action'))
     removeBorderBottom()
     removeHiddenInputFromForm('comment-form','comment_edit')
@@ -178,7 +179,11 @@ $(document).ready(function(){
         reply_to = $("#reply-to")
         comment_form = $("#comment-form")
         comment_form.attr('action',comment_url)
-        comment_content = $(this).closest('#comment-content').text()
+        comment_content = $(this.closest('article')).find('#comment-content').text()
+        
+        // Remove substrings starting with "@" and ending with "..." at the beginning of the string
+        comment_content = comment_content.replace(/^@[^.]*\.{3}/, '');
+
         
         $("#comment").val(comment_content)
         addHiddenInputToForm('comment-form','comment_edit','true')
@@ -191,7 +196,6 @@ $(document).ready(function(){
         $('html, body').animate({ //Scroll to the comment box
             scrollTop: $("#reply-to").offset().top-200
         });
-
     })
 
 

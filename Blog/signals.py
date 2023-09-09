@@ -1,7 +1,9 @@
 from django.dispatch import receiver
-from django.db.models.signals import post_save, pre_save, m2m_changed
+from django.db.models.signals import post_save, pre_save, m2m_changed, pre_delete
 from django.contrib.contenttypes.models import ContentType
 from Blog.models import *
+import os
+
 
 #Additional function
 def create_notification(model,instance,user,content,type):
@@ -167,9 +169,25 @@ def notify_user_followed(sender, instance, action, reverse, model, pk_set, **kwa
             except:
                 pass
 
-        # Send notification to the user being followed
+#Delete uploaded image when model instance deleted
+@receiver(pre_delete, sender=UploadedImages)
+def delete_uploadedimage(sender, instance, **kwargs):
+    # Get the path to the image file
+    image_path = instance.image.path
 
+    # Check if the file exists and delete it
+    if os.path.isfile(image_path):
+        os.remove(image_path)
 
+#Delete user profile photo when model instance deleted
+@receiver(pre_delete, sender=AuthorUser)
+def delete_uploadedimage(sender, instance, **kwargs):
+    # Get the path to the image file
+    image_path = instance.profile_photo.path
+
+    # Check if the file exists and delete it
+    if os.path.isfile(image_path):
+        os.remove(image_path)
 
         
 

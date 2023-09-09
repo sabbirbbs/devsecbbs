@@ -14,7 +14,7 @@ class PostAdmin(admin.ModelAdmin):
     search_fields = [field.name for field in models.Post._meta.fields]
 
 class ReportContentAdmin(admin.ModelAdmin):
-    list_display = ['report_type','report_by','status','report_content']
+    list_display = ['type','report_by','status','report_content']
     search_fields = [field.name for field in models.ReportContent._meta.fields]
 
 class CategoryAdmin(admin.ModelAdmin):
@@ -42,6 +42,10 @@ class UserLoginLogAdmin(admin.ModelAdmin):
     list_display = ['user','ip_address','user_agent','was_logged']
     search_fields = [field.name for field in models.ReportContent._meta.fields]
 
+class UploadedImagesAdmin(admin.ModelAdmin):
+    list_display = ['user','image_url']
+    search_fields = [field.name for field in models.ReportContent._meta.fields]
+
 #configuring django admin
 
 admin.site.register(models.Post,PostAdmin)
@@ -53,6 +57,7 @@ admin.site.register(models.UserRequest,UserRequestAdmin)
 admin.site.register(models.Series,SeriesAdmin)
 admin.site.register(models.BlogSetting,BlogSettingAdmin)
 admin.site.register(models.UserLoginLog,UserLoginLogAdmin)
+admin.site.register(models.UploadedImages,UploadedImagesAdmin)
 
 
 #Set up custom user table

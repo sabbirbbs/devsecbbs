@@ -114,6 +114,7 @@ var plugin_codehighlight = {
     }
 };
 
+
 if (post_editor){
     var editor = SUNEDITOR.create('post_editor', {
         plugins: [plugin_codehighlight],
@@ -123,6 +124,11 @@ if (post_editor){
         popupDisplay: 'full',
         charCounter: true,
         charCounterLabel: 'Characters :',
+        imageUploadHeader: {
+            'X-CSRFToken': document.querySelector('input[name="csrfmiddlewaretoken"]').value,
+            // Add any other custom headers if needed
+        },
+        imageUploadUrl: '/dashboard/upload-image',
         imageGalleryUrl: 'https://etyswjpn79.execute-api.ap-northeast-1.amazonaws.com/suneditor-demo',
         buttonList: [
             // default
@@ -255,7 +261,22 @@ if (post_editor){
         codeMirror: CodeMirror,
         katex: katex
     });
+
+    //After initializing suneditor load saved content if found
+    const url = window.location.href; // Get the current URL
+    const savedValue = localStorage.getItem(url);
+    if (savedValue !== null) {
+        editor.setContents(savedValue)
+    }
 }
 else{
     console.log('Post editor may not required.')
 }
+
+editor.save = () => { //Save editor content on local storage
+    const url = window.location.href; // Get the current URL
+    const editor_value = editor.getContents()
+    localStorage.setItem(url, editor_value);
+    console.log('Saved to local storage')
+}
+  

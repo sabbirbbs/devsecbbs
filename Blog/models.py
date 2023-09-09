@@ -5,7 +5,6 @@ import os
 import time
 import random
 from django.contrib.auth.models import AbstractUser
-from django.conf import settings
 from mptt.models import MPTTModel, TreeForeignKey
 from taggit.managers import TaggableManager
 import re
@@ -64,9 +63,9 @@ def post_cover(instance, filename):
         ".gif",
     ]
     if file_extension.lower() in valid_image_ext:
-        return 'blog/post_cover/{basename}_{randomstring}{ext}'.format(basename= basefilename, randomstring= time.time(), ext= file_extension.lower())
+        return 'blog/post_cover/{basename}-{randomstring}{ext}'.format(basename= basefilename, randomstring= time.time(), ext= file_extension.lower())
     else:
-        return 'blog/post_cover/{basename}_{randomstring}{ext}'.format(basename= basefilename, randomstring= time.time(), ext= ".ext")
+        return 'blog/post_cover/{basename}-{randomstring}{ext}'.format(basename= basefilename, randomstring= time.time(), ext= ".ext")
 
 #change file name of author profile
 def author_profile(instance, filename):
@@ -78,9 +77,23 @@ def author_profile(instance, filename):
         ".gif",
     ]
     if file_extension.lower() in valid_image_ext:
-        return 'blog/author/{basename}_{randomstring}{ext}'.format(basename= instance.username, randomstring= random.randint(1,int(time.time())), ext= file_extension.lower())
+        return 'blog/author/{basename}-{randomstring}{ext}'.format(basename= instance.username, randomstring= random.randint(1,int(time.time())), ext= file_extension.lower())
     else:
-        return 'blog/author/{basename}_{randomstring}{ext}'.format(basename= instance.username, randomstring= random.randint(1,int(time.time())), ext= ".ext")
+        return 'blog/author/{basename}-{randomstring}{ext}'.format(basename= instance.username, randomstring= random.randint(1,int(time.time())), ext= ".ext")
+
+#change file name of post photo
+def post_photo(instance, filename):
+    basefilename, file_extension = os.path.splitext(filename)
+    valid_image_ext = [
+        ".jpg",
+        ".jpeg",
+        ".png",
+        ".gif",
+    ]
+    if file_extension.lower() in valid_image_ext:
+        return 'blog/post/{basename}-{randomstring}{ext}'.format(basename= basefilename, randomstring= time.time(), ext= file_extension.lower())
+    else:
+        return 'blog/post/{basename}-{randomstring}{ext}'.format(basename= basefilename, randomstring= time.time(), ext= ".ext")
 
 
 
@@ -103,6 +116,9 @@ class Category(MPTTModel):
 
         return super().save(*args,**kwargs)
 
+    def get_absolute_url(self):
+        return reverse("Blog:category", args=[self.slug])
+    
     def __str__(self):
         return self.name
 
@@ -111,7 +127,7 @@ class Post(models.Model):
     title = models.CharField(max_length=255)
     slug = models.CharField(unique=True,null=True,blank=True,max_length=255)
     description = models.CharField(max_length=255,blank=True)
-    cover_photo = models.ImageField(upload_to=post_cover,blank=True,default="blog/post_cover/cover.jpg")
+    cover_photo = models.ImageField(upload_to=post_cover,blank=True)
     content = models.TextField()
     author = models.ForeignKey('AuthorUser',on_delete=models.SET_NULL,null=True,related_name="user_post")
     category = models.ForeignKey(Category,on_delete=models.SET_NULL,null=True,related_name="category_post")
@@ -147,6 +163,10 @@ class Post(models.Model):
         
 
         return super().save(*args,**kwargs)
+    
+    def get_absolute_url(self):
+        return reverse("Blog:read_post", kwargs={"cat": self.category.slug,'slug':self.slug})
+    
 
     def __str__(self):
         return f"{self.title}"
@@ -174,6 +194,10 @@ class Comment(MPTTModel):
 
     def get_valid_descendants(self):
         return self.get_descendants().filter(status='Published',is_deleted=False)
+
+    def get_absolute_url(self):
+        return reverse("Blog:comment", args=[self.post.hash_id.hex,self.hash_id.hex])
+    
 
     def __str__(self):
         return str(self.content)
@@ -214,6 +238,10 @@ class AuthorUser(AbstractUser):
     class Meta:
         ordering = ('-date_joined',)
 
+    
+    def get_absolute_url(self):
+        return reverse("Blog:user_profile", args=[self.username])
+
     def __str__(self):
             return f"{self.username}"
 
@@ -233,6 +261,10 @@ class Notification(models.Model):
     
     class Meta:
         ordering = ('-date',)
+
+    def get_absolute_url(self):
+        return reverse("Blog:notification_link", args=[self.hash_id.hex])
+    
 
     def __str__(self):
         return self.content
@@ -254,6 +286,9 @@ class ReportContent(models.Model):
     class Meta:
         ordering = ('-date',)
 
+    def get_absolute_url(self):
+        return reverse("Blog:report_link", args=[self.hash_id.hex])
+    
     def __str__(self):
         return f"{self.report_content}"
     
@@ -291,6 +326,10 @@ class Series(models.Model):
 
             return super().save(*args,**kwargs)
     
+    def get_absolute_url(self):
+        return reverse("Blog:series", args=[self.slug])
+    
+
     def __str__(self):
         return f"{self.name} by {self.created_by.username}"
 
@@ -299,7 +338,10 @@ class Series(models.Model):
 
 class BlogSetting(models.Model):
     hash_id = models.UUIDField(unique=True,default=uuid.uuid4,editable=False)
-    settings = ['forbidden-username','comment-per-page','post-per-page','notice','script']
+    settings = [
+                'forbidden-username','comment-per-page','post-per-page','notice','script',
+                'imgbb-apikey'
+                ]
     setting = models.CharField(blank=True,max_length=255,default='',choices=[(item,item) for item in settings])
     value = models.TextField()
     note = models.TextField(blank=True,null=True)
@@ -318,6 +360,30 @@ class UserLoginLog(models.Model):
 
     def __str__(self):
         return f"{self.user.username} from {self.user_agent}"
+    
+class UploadedImages(models.Model):
+    hash_id = models.UUIDField(unique=True,default=uuid.uuid4,editable=False)
+    user = models.ForeignKey(AuthorUser,on_delete=models.SET_NULL,null=True,blank=True)
+    upload_date = models.DateTimeField(default=datetime.datetime.now)
+    image = models.ImageField(upload_to=post_photo,blank=True,default="blog/post_cover/cover.jpg")
+    image_url = models.URLField(blank=True)
+    note = models.TextField(blank=True,null=True)
+
+    def save(self,*args,**kwargs):
+        if not self.image_url and self.image:
+            self.image_url = self.image.url
+        else:
+            pass
+        
+        return super().save(*args,**kwargs)
+
+    class Meta:
+            verbose_name_plural = "Uploaded Images"
+
+    def __str__(self):
+        photo_uploader = self.user if self.user else 'Anonymouse'
+        return f"{photo_uploader}"
+
     
      
     

@@ -8,6 +8,7 @@ from Blog.token import create_token
 from django.core.mail import send_mail
 from django.template.loader import render_to_string
 from django.conf import settings
+from PIL import Image
 
 #Additional Function
 def root_url(request):
@@ -138,3 +139,14 @@ def send_email_verify(request,user):
         return token
     except:
         return False        
+
+#Resize image in dashboard user profile edit 
+def resize_image(image_path, output_size=(300, 300)):
+    # Open the image using Pillow
+    img = Image.open(image_path)
+
+    # Resize the image
+    img.thumbnail(output_size)
+
+    # Save the resized image back to the original path
+    img.save(image_path)

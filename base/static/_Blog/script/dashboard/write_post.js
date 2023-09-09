@@ -58,6 +58,11 @@ $(document).ready(function(){
             cache: false,
             processData:false,
             beforeSend : function(){
+                //Save editor content on local storage
+                const url = window.location.href; // Get the current URL
+                const editor_value = editor.getContents()
+                localStorage.setItem(url, editor_value);
+                console.log('Saved to local storage')
                 $("#submit_post").text("Submitting...")
 
             },
