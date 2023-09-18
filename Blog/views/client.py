@@ -15,6 +15,7 @@ from Blog.models import AuthorUser
 from Blog.extrafunc import *
 from Blog.token import *
 import base64
+import json
 
 #home page of blog to show posts
 def index(request):
@@ -108,8 +109,34 @@ def view_post(request,cat,slug):
     else:
         raise Http404('No post found.')
     
-    
-    if request.method == "GET":
+    if request.method == "POST" and request.user.is_authenticated:
+        referer_url = request.META['HTTP_REFERER']
+        liked = request.POST.get('liked',False)
+        disliked = request.POST.get('disliked',False)
+        report_content = request.POST.get('report_content',None)
+        if post.author != request.user:
+            if liked:
+                post.like.add(request.user)
+                return HttpResponse(json.dumps({'success':True,'status':'liked'}))
+            elif disliked:
+                post.like.remove(request.user)
+                return HttpResponse(json.dumps({'success':True,'status':'disliked'}))
+        else:
+            return HttpResponse(json.dumps({'success':'failed','status':"You can't like own post"}))
+        
+        if report_content and len(report_content) >= 6:
+            if request.user != post.author:
+                ReportContent.objects.create(type='Post',content_type=ContentType.objects.get_for_model(Post),content_id=post.pk,report_by=request.user,report_content=report_content)
+                messages.success(request,"Your report has been sent to admin. and you will get notified when the issue will be solved.")
+                return redirect(f"{referer_url}#feadback")
+            else:
+                messages.success(request,"Why you should report your own post?")
+                return redirect(f"{referer_url}#feadback")
+        
+        messages.success(request,"Seems invalid post request.")
+        return redirect(f"{referer_url}#feadback")
+
+    else:
         page_number = int(request.GET.get('comment_page',1))
         comments = Comment.objects.filter(post=post,is_deleted=False,level=0,status="Published").order_by('-date')
         comment_paginator = Paginator(comments,10,2)

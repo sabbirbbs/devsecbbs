@@ -339,6 +339,9 @@ def notification_link(request,hash_id):
         elif notification.content_type.name == 'author user':
             author = notification.content_object
             url_to_redirect = reverse('Blog:user_profile', args=[author.username])
+        elif notification.content_type.name == 'report content':
+            report = notification.content_object
+            url_to_redirect = reverse('Blog:report_link', args=[report.hash_id.hex])
         else: 
             messages.error(request,"The notification doesn't linked with anything.")
             url_to_redirect = referel_url(request)
@@ -346,6 +349,9 @@ def notification_link(request,hash_id):
         if notification.content_type.name == 'author user':
             author = notification.content_object
             url_to_redirect = reverse('Blog:user_profile', args=[author.username])
+        elif notification.content_type.name == 'report content':
+            report = notification.content_object
+            url_to_redirect = reverse('Blog:report_link', args=[report.hash_id.hex])
         else:
             messages.error(request,"The notification doesn't linked with anything.")
             url_to_redirect = referel_url(request)

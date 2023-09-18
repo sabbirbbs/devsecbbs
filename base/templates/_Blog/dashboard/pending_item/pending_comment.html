@@ -60,17 +60,17 @@
                 <th scope="row" class="flex items-center px-6 py-4">
                     <img class="w-10 h-10" src="{% if comment.post.cover_photo %} {{ comment.post.cover_photo.url }} {% else %} https://upload.wikimedia.org/wikipedia/commons/6/65/No-Image-Placeholder.svg {% endif %}" alt="Jese image">
                     <div class="pl-3">
-                        <div class="text-base font-semibold"><a href="{{ comment.page_of_comment }}">{{comment.post.title|slice:':250'}}</a></div>
+                        <div class="text-base font-semibold"><a href="{{ comment.parent.page_of_comment }}">{{comment.post.title|slice:':250'}}</a></div>
                     </div>  
                 </th>
                 <td class="px-6 py-4">
-                    {{ comment.parent.content }}
+                    {{ comment.parent.content|html_trunc:100 }}
                 </td>
                 <td class="px-6 py-4">
-                    {{ comment.content }}
+                    {{ comment.content }} <br>- {{comment.pk}}
                 </td>
                 <td class="px-6 py-4">
-                    {{ comment.commenter.username }}
+                    <a href="{% url 'Blog:user_profile' comment.commenter.username %}">{{comment.commenter.username}}</a>
                 </td>
                 <td class="px-6 py-4">
                     <button data-modal-target="comment-modal" data-comment-hashid="{{comment.hash_id.hex}}" data-modal-toggle="comment-modal" class="response_comment text-white response_report bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">

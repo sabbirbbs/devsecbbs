@@ -133,6 +133,7 @@ class Post(models.Model):
     category = models.ForeignKey(Category,on_delete=models.SET_NULL,null=True,related_name="category_post")
     series = models.ForeignKey('Series',blank=True,null=True,on_delete=models.CASCADE,related_name='post_in_series')
     tags = TaggableManager(blank=True)
+    like = models.ManyToManyField('AuthorUser',blank=True,related_name="user_like")
     date = models.DateTimeField(default=datetime.datetime.now)
     last_modified = models.DateTimeField(default=datetime.datetime.now)
     status = models.CharField(max_length=255,choices=[("Draft","Draft"),("Published","Published"),("Hot","Hot"),("Rejected","Rejected"),("Pending","Pending")])

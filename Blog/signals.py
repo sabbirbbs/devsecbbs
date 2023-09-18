@@ -169,6 +169,21 @@ def notify_user_followed(sender, instance, action, reverse, model, pk_set, **kwa
             except:
                 pass
 
+#Notification when someone liked a post.
+@receiver(m2m_changed, sender=Post.like.through)
+def notify_user_followed(sender, instance, action, reverse, model, pk_set, **kwargs):
+    if action == 'post_add' and not reverse:
+        # Get the newly added followers
+        new_like = model.objects.filter(pk__in=pk_set)
+
+        for liker in new_like:
+            try:
+                if not liker in instance.author.mute_list.all():
+                    content = f"{liker.display_name()} liked your post titled {instance.title}."
+                    create_notification(Post,liker,instance.author,content,'Like')
+            except:
+                pass
+
 #Delete uploaded image when model instance deleted
 @receiver(pre_delete, sender=UploadedImages)
 def delete_uploadedimage(sender, instance, **kwargs):
@@ -181,7 +196,7 @@ def delete_uploadedimage(sender, instance, **kwargs):
 
 #Delete user profile photo when model instance deleted
 @receiver(pre_delete, sender=AuthorUser)
-def delete_uploadedimage(sender, instance, **kwargs):
+def delete_userprofile(sender, instance, **kwargs):
     # Get the path to the image file
     image_path = instance.profile_photo.path
 

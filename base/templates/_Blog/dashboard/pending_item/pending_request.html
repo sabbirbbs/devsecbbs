@@ -69,7 +69,7 @@
                     {{ request.content }}
                 </td>
                 <td class="px-6 py-4">
-                    {{ request.date }}
+                    {{ request.date }} - {{request.pk}}
                 </td>
                 <td class="px-6 py-4">
                     <button data-modal-target="request-modal" data-request-hashid="{{request.hash_id.hex}}" data-modal-toggle="request-modal" class="response_request text-white response_report bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">

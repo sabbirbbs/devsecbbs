@@ -15,7 +15,11 @@ def root_url(request):
     return request.scheme+"://"+request.get_host()
 
 def referel_url(request):
-    return request.META['HTTP_REFERER']
+    if 'HTTP_REFERER' in request.META:
+        return request.META['HTTP_REFERER']
+    else:
+        return request.build_absolute_uri('/')
+
 
 def phone_is_valid(phone_number):
     # Remove all non-digit characters from the phone number

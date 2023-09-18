@@ -75,7 +75,7 @@
                             <div class="block py-2 px-4 text-base font-medium text-center text-gray-700 bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
                                 Notifications
                             </div>
-                            <div>
+                            <div class='px-2'>
                                 {% for notification in new_notifications|slice:'6' %}
                                     {% if notification.type == 'Like' %}
                                         <!-- Like -->
@@ -215,17 +215,17 @@
                         </div>
                         <button type="button" class="flex mx-3 text-sm bg-sky-200 rounded-full md:mr-0 focus:ring-4 focus:ring-gray-300 dark:focus:ring-gray-600" id="user-menu-button" aria-expanded="false" data-dropdown-toggle="dropdown">
                             <span class="sr-only">Open user menu</span>
-                            {% if user.profile_photo %}
-                                <img class="w-10 h-10 p-1 rounded-full ring-2 ring-gray-300 dark:ring-gray-500" src="{{user.profile_photo.url}}" alt="{{user.username}}">
+                            {% if request.user.profile_photo %}
+                                <img class="w-10 h-10 p-1 rounded-full ring-2 ring-gray-300 dark:ring-gray-500" src="{{request.user.profile_photo.url}}" alt="{{request.user.username}}">
                             {% else %}
-                                <svg class="w-10 h-10 p-1 rounded-full ring-2 ring-gray-300 dark:ring-gray-500" width="200" height="200" data-jdenticon-value="{{user.username}}">
+                                <svg class="w-10 h-10 p-1 rounded-full ring-2 ring-gray-300 dark:ring-gray-500" width="200" height="200" data-jdenticon-value="{{request.user.username}}">
                             {% endif %}
                         </button>
                         <!-- Dropdown menu -->
                         <div class="hidden z-50 my-4 w-56 text-base list-none bg-white rounded divide-y divide-gray-100 shadow dark:bg-gray-700 dark:divide-gray-600" id="dropdown">
                             <div class="py-3 px-4">
-                                <span class="block text-sm font-semibold text-gray-900 dark:text-white">{{user.first_name}} {{user.last_name}}</span>
-                                <span class="block text-sm font-light text-gray-500 truncate dark:text-gray-400">@{{user.username}}</span>
+                                <span class="block text-sm font-semibold text-gray-900 dark:text-white">{{request.user.first_name}} {{request.user.last_name}}</span>
+                                <span class="block text-sm font-light text-gray-500 truncate dark:text-gray-400">@{{request.user.username}}</span>
                             </div>
                             <ul class="py-1 font-light text-gray-500 dark:text-gray-400" aria-labelledby="dropdown">
                                 <li>

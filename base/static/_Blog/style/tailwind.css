@@ -1184,10 +1184,6 @@ input:checked + .toggle-bg {
   z-index: 50;
 }
 
-.z-\[\FFFDs\FFFD\FFFD\FFFDm\FFFD\FFFD\~V\1F\FFFD\7F\FFFD\] {
-  z-index: �s���m��~V��;
-}
-
 .order-last {
   order: 9999;
 }
@@ -1425,6 +1421,14 @@ input:checked + .toggle-bg {
 
 .mt-4 {
   margin-top: 1rem;
+}
+
+.mb-0 {
+  margin-bottom: 0px;
+}
+
+.mr-12 {
+  margin-right: 3rem;
 }
 
 .block {
@@ -2325,6 +2329,16 @@ input:checked + .toggle-bg {
   background-color: rgb(255 255 255 / 0.5);
 }
 
+.bg-green-200 {
+  --tw-bg-opacity: 1;
+  background-color: rgb(188 240 218 / var(--tw-bg-opacity));
+}
+
+.bg-green-700 {
+  --tw-bg-opacity: 1;
+  background-color: rgb(4 108 78 / var(--tw-bg-opacity));
+}
+
 .bg-opacity-50 {
   --tw-bg-opacity: 0.5;
 }
@@ -3166,14 +3180,6 @@ input:checked + .toggle-bg {
 
 .\[user\:passwd\@\] {
   user: passwd@;
-}
-
-.\[j\:\FFFD\FFFD\FFFD\~\] {
-  j: ���~;
-}
-
-.\[u_tf\:\.\FFFDk\FFFD 2s\FFFD\0\FFFD\\W\FFFD\FFFD\FFFD\FFFD\FFFD\FFFD\FFFDs\7D1\FFFD\FFFD\1D\] {
-  u_tf: .�k�2s� �\W�������sߑ��;
 }
 
 @media (min-width: 640px) {
