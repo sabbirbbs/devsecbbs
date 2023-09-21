@@ -134,6 +134,7 @@ class Post(models.Model):
     series = models.ForeignKey('Series',blank=True,null=True,on_delete=models.CASCADE,related_name='post_in_series')
     tags = TaggableManager(blank=True)
     like = models.ManyToManyField('AuthorUser',blank=True,related_name="user_like")
+    dislike = models.ManyToManyField('AuthorUser',blank=True,related_name="user_dislike")
     date = models.DateTimeField(default=datetime.datetime.now)
     last_modified = models.DateTimeField(default=datetime.datetime.now)
     status = models.CharField(max_length=255,choices=[("Draft","Draft"),("Published","Published"),("Hot","Hot"),("Rejected","Rejected"),("Pending","Pending")])

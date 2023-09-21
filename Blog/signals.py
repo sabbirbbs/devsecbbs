@@ -11,6 +11,7 @@ def create_notification(model,instance,user,content,type):
     notification.content = content
     notification.type = type
     notification.save()
+
 #Notification to follower
 def notification_to_follower(model,instance,user,content,type):
     follower = user.follower.all()
@@ -178,9 +179,9 @@ def notify_user_followed(sender, instance, action, reverse, model, pk_set, **kwa
 
         for liker in new_like:
             try:
-                if not liker in instance.author.mute_list.all():
+                if not liker in instance.author.mute_list.all() and not liker in instance.dislike.all():
                     content = f"{liker.display_name()} liked your post titled {instance.title}."
-                    create_notification(Post,liker,instance.author,content,'Like')
+                    create_notification(Post,instance,instance.author,content,'Like')
             except:
                 pass
 

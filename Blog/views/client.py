@@ -120,6 +120,7 @@ def view_post(request,cat,slug):
                 return HttpResponse(json.dumps({'success':True,'status':'liked'}))
             elif disliked:
                 post.like.remove(request.user)
+                post.dislike.add(request.user)
                 return HttpResponse(json.dumps({'success':True,'status':'disliked'}))
         else:
             return HttpResponse(json.dumps({'success':'failed','status':"You can't like own post"}))
