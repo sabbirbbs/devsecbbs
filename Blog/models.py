@@ -305,6 +305,7 @@ class UserRequest(models.Model):
     type = models.CharField(max_length=255,default="Other",choices=[("Author","Author"),('Other','Other'),('Request','Request')])
     note = models.TextField(blank=True,null=True)
 
+
     def __str__(self):
         return f"{self.title} by {self.user.username}"
     

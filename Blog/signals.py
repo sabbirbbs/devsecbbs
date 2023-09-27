@@ -38,9 +38,12 @@ def new_comment(instance,created,*args,**kwargs):
         commenter = instance.commenter.username
     else:
         commenter = "Anonymous"
-    if created and instance.commenter != instance.post.author:
+
+
+
+    if (created and instance.commenter != instance.post.author) and ( not instance.status == 'Pending'):
         if instance.level == 0:
-            content = f"{commenter} commented on your post '{instance.post.title}' >> \n{instance.content[:20]}"
+            content = f"{commenter} commented on your post '{instance.post.title}' >> \n{instance.content[:25]}..."
             create_notification(Comment,instance,instance.post.author,content,'Comment')
         elif instance.level != 0 and instance.commenter != instance.parent.commenter:
             replied_comment = instance.parent
@@ -48,6 +51,28 @@ def new_comment(instance,created,*args,**kwargs):
             create_notification(Comment,instance,replied_comment.commenter,content,'Comment')
     else:
         pass
+
+
+#Notification after review a comment
+@receiver(pre_save,sender=Comment)
+def post_status(instance,*args,**kwargs):
+    if instance.pk:
+        comment = Comment.objects.get(pk=instance.pk)
+
+        if instance.commenter:
+            commenter = instance.commenter.username
+        else:
+            commenter = "Anonymous"
+
+        if instance.status == 'Published' and comment.status == 'Pending':
+            if instance.level == 0:
+                content = f"{commenter} commented on your post '{instance.post.title}' >> \n{instance.content[:25]}..."
+                create_notification(Comment,instance,instance.post.author,content,'Comment')
+            elif instance.level != 0 and instance.commenter != instance.parent.commenter:
+                replied_comment = instance.parent
+                content = f"{commenter} replied to your comment on the post '{instance.post.title}' >> \n {instance.content[:20]}"
+                create_notification(Comment,instance,replied_comment.commenter,content,'Comment')
+
 
 #Notification after review a post
 @receiver(pre_save,sender=Post)
@@ -180,8 +205,9 @@ def notify_user_followed(sender, instance, action, reverse, model, pk_set, **kwa
         for liker in new_like:
             try:
                 if not liker in instance.author.mute_list.all() and not liker in instance.dislike.all():
-                    content = f"{liker.display_name()} liked your post titled {instance.title}."
-                    create_notification(Post,instance,instance.author,content,'Like')
+                    if not liker == instance.author:
+                        content = f"{liker.display_name()} liked your post titled {instance.title}."
+                        create_notification(Post,instance,instance.author,content,'Like')
             except:
                 pass
 

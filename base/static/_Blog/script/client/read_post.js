@@ -198,5 +198,42 @@ $(document).ready(function(){
         });
     })
 
+    //Funcion to handle like button
+    $('#like-form').submit(function(e) {
+        console.log('like form tiggered')
+        e.preventDefault();  // Prevent default form submission
+        var likeCount = $('#like-count').text(); // Get the current like count
+        likeCount = likeCount.trim() !== "" ? parseInt(likeCount, 10) : 0; // If it's nothing, set it to 0
+
+        $.ajax({
+            url: $(this).attr('action'),  // Action URL
+            method: $(this).attr('method'),  // Form method
+            data: $(this).serialize(),  // Form data
+            success: function(response) {
+                feadback = JSON.parse(response)
+                if (feadback['success']) {
+                    if (feadback['status'] === 'liked') {
+                        $('#like-status').attr('name','disliked')
+                        $('.like-btn').css('background-color', 'green');
+                        likeCount++;
+                        $('#like-count').text(likeCount); // Update the like count in the div
+                    } else if (feadback['status'] === 'disliked') {
+                        $('#like-status').attr('name','liked')
+                        $('.like-btn').css('background-color', 'white');
+                        likeCount--;
+                        $('#like-count').text(likeCount); // Update the like count in the div
+                    }
+                }
+                else if(feadback['success'] == false){
+                    console.log(response.msg)
+                }
+            },
+            error: function(error) {
+                console.log(error);
+            }
+        });
+    });
+    
+    
 
 })

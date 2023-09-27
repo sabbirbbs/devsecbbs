@@ -11,5 +11,15 @@ html{
 
 @font-face {
     font-family: 'Galada';
-    src: url('_Blog/fonts/Galada.ttf') format('truetype');
+    src: url('../fonts/Galada.ttf') format('truetype');
+  }
+
+  @font-face {
+    font-family: 'Lexend';
+    src: url('../fonts/Lexend-Regular.ttf') format('truetype');
+  }
+  
+  @font-face {
+    font-family: 'BenSen';
+    src: url('../fonts/BenSenHandwriting.ttf') format('truetype');
   }

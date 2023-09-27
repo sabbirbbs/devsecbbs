@@ -109,21 +109,21 @@ def view_post(request,cat,slug):
     else:
         raise Http404('No post found.')
     
-    if request.method == "POST" and request.user.is_authenticated:
+    if request.method == "POST":
+        if not request.user.is_authenticated:
+            return HttpResponse(json.dumps({'success':False,'msg':'You are not logged in.'}))
+        
         referer_url = request.META['HTTP_REFERER']
         liked = request.POST.get('liked',False)
         disliked = request.POST.get('disliked',False)
         report_content = request.POST.get('report_content',None)
-        if post.author != request.user:
-            if liked:
-                post.like.add(request.user)
-                return HttpResponse(json.dumps({'success':True,'status':'liked'}))
-            elif disliked:
-                post.like.remove(request.user)
-                post.dislike.add(request.user)
-                return HttpResponse(json.dumps({'success':True,'status':'disliked'}))
-        else:
-            return HttpResponse(json.dumps({'success':'failed','status':"You can't like own post"}))
+        if liked:
+            post.like.add(request.user)
+            return HttpResponse(json.dumps({'success':True,'status':'liked'}))
+        elif disliked:
+            post.like.remove(request.user)
+            post.dislike.add(request.user)
+            return HttpResponse(json.dumps({'success':True,'status':'disliked'}))
         
         if report_content and len(report_content) >= 6:
             if request.user != post.author:
@@ -199,14 +199,24 @@ def comment(request,phash,chash):
                     messages.success(request,"Your comment have been edited successfully.")
                     return redirect(f"{referer_url}#comment-{comment.hash_id.hex}")
                 else:
-                    new_comment = Comment.objects.create(post=post,parent=comment,commenter=user,content=comment_content,status="Published")
-                    messages.success(request,"Your reply have been added successfully.")
-                    return redirect(f"{referer_url}#comment-{new_comment.hash_id.hex}")
+                    if user:
+                        new_comment = Comment.objects.create(post=post,parent=comment,commenter=user,content=comment_content,status="Published")
+                        messages.success(request,"Your reply have been added successfully.")
+                        return redirect(f"{referer_url}#comment-{new_comment.hash_id.hex}")
+                    else:
+                        messages.success(request,"You can't reply without sign in to your account.")
+                        return redirect(f"{referer_url}#feadback")
+
             else:
-                new_comment = Comment.objects.create(post=post,commenter=user,content=comment_content,status="Published")
-                messages.success(request,"Your comment have been added successfully.")
-                post_url = reverse('Blog:read_post',args=[post.category.slug,post.slug])
-                return redirect(f"{post_url}#comment-{new_comment.hash_id.hex}")
+                if user:
+                    new_comment = Comment.objects.create(post=post,commenter=user,content=comment_content,status="Published")
+                    messages.success(request,"Your comment have been added successfully.")
+                    post_url = reverse('Blog:read_post',args=[post.category.slug,post.slug])
+                    return redirect(f"{post_url}#comment-{new_comment.hash_id.hex}")
+                else:
+                    new_comment = Comment.objects.create(post=post,commenter=user,content=comment_content,status="Pending")
+                    messages.success(request,"You are logged in to any account. Therefore, your comment under review.")
+                    return redirect(f"{referer_url}#feadback")
         elif comment_delete:
             if comment.commenter == request.user:
                 comment.is_deleted = True
