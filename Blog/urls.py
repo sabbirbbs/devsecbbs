@@ -16,7 +16,8 @@ urlpatterns = [
     path("signin",client.signin,name="signin"),
     path("signup",client.signup,name="signup"),
     path("signout",client.signout,name="signout"),
-    path("verify/<str:token>",client.email_verify,name="email-verify"),
+    path("verify/<str:token>",client.email_verify,name="email_verify"),
+    path("reset/<str:token>",client.password_reset,name="password_reset"),
     
     #Dashboard
     path("dashboard",dashboard.dashboard,name="dashboard"),

@@ -19,13 +19,24 @@ import json
 
 #home page of blog to show posts
 def index(request):
+    query = None
     if request.GET.get('query',None):
         query = request.GET.get('query',None)
-        posts = Post.objects.filter(Q(status="Published")|Q(status="Hot"),is_deleted=False,title__contains=query)
-        return render(request,'_Blog/client/index.html',{'posts':posts})
+        posts = Post.objects.filter(Q(status="Published")|Q(status="Hot"),Q(title__icontains=query)|Q(description__icontains=query)|Q(author__username__contains=query)|Q(category__name__contains=query)|Q(series__name__contains=query),is_deleted=False)
     else:
         posts = Post.objects.filter(Q(status="Published")|Q(status="Hot"),is_deleted=False)
-        return render(request,'_Blog/client/index.html',{'posts':posts})
+   
+    try:
+        post_per_page = int(BlogSetting.objects.filter(setting='post-per-page').first().value)
+    except:
+        post_per_page = 10
+
+    page = request.GET.get('post-page',1)
+    posts_page = Paginator(posts,post_per_page,2)
+    current_page = posts_page.get_page(page)
+    list_page = current_page.paginator.get_elided_page_range(number=current_page.number,on_each_side=2,on_ends=1)
+    return render(request,"_Blog/client/index.html",{"page":current_page,'list_page':list_page,'query':query})
+   
 
 #fetch post to be displayed in blog by jquery
 def fetch_post(request,hash_id):
@@ -140,9 +151,14 @@ def view_post(request,cat,slug):
     else:
         page_number = int(request.GET.get('comment_page',1))
         comments = Comment.objects.filter(post=post,is_deleted=False,level=0,status="Published").order_by('-date')
-        comment_paginator = Paginator(comments,10,2)
+        try:
+            comment_per_page = (BlogSetting.objects.filter(setting='comment-per-page').first().value)
+        except:
+            comment_per_page = 10
+        comment_paginator = Paginator(comments,comment_per_page,2)
         comment_page = comment_paginator.get_page(page_number)
-        return render(request,"_Blog/client/read_post.html",{'post':post,'comment_page':comment_page,})
+        related_post = Post.objects.filter(Q(status="Published")|Q(status="Hot"),Q(title__icontains=post.title)|Q(description__icontains=post.description)|Q(category__name__contains=post.category.name)|Q(series__name__contains=post.series.name),is_deleted=False).exclude(pk=post.pk)[:4]
+        return render(request,"_Blog/client/read_post.html",{'post':post,'related_post':related_post,'comment_page':comment_page,})
    
 #Comment handler
 def comment(request,phash,chash):
@@ -269,10 +285,23 @@ def user_profile(request,username):
 
 #Login a user with username or email
 def signin(request):
+    if request.method == "POST" and 'reset-email' in request.POST:
+        reset_email = request.POST.get('reset-email',None)
+        if AuthorUser.objects.filter(email=reset_email):
+            user = AuthorUser.objects.get(email=reset_email)
+            if send_password_reset(request,user):
+                messages.success(request,"A password recovery mail has been sent to your e-mail.")
+                return render(request,"_Blog/client/signin.html")
+            else:
+                messages.error(request,f"Something went wrong! Unable to send email to {reset_email}")
+                return render(request,"_Blog/client/signin.html")
+        else:
+            messages.error(request,f"No account found with the email {reset_email}.")
+            return render(request,"_Blog/client/signin.html")
+
+
     if request.method == "POST":
         next = request.GET.get('next',None) if request.GET.get('next',None) else reverse('Blog:signin')
-        print(next)
-        print(request.GET.get('next',None))
         username = extract_unique_email(request.POST.get('username',''))
         password = request.POST.get('password',None)
 
@@ -379,3 +408,21 @@ def email_verify(request,token):
     else:
         messages.error(request,"The verificatin token is not valid or expired.")
         return redirect(reverse('Blog:signup'))
+
+#Verify email for password reset
+def password_reset(request,token):
+    if verify_token(token):
+        try:
+            decoded_token = base64.urlsafe_b64decode(token[::-1]).decode()
+            user_hash = decoded_token.split('_')[0]
+            user = AuthorUser.objects.get(hash_id=user_hash[::-1])
+        except:
+            messages.error(request,"Something went wrong! Please contact admin.")
+            return redirect(reverse('Blog:sigin'))
+        
+        send_new_password(request,user)
+        messages.success(request,"Your password is successfully reset & new password has been sent to your email.")
+        return redirect(reverse('Blog:signin'))
+    else:
+        messages.error(request,"The verificatin token is not valid or expired.")
+        return redirect(reverse('Blog:signin'))

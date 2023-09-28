@@ -133,6 +133,7 @@ def user_by_name_mail(username):
     else:
         return
 
+#Email verify for new user
 def send_email_verify(request,user):
     try:
         subject = "Account Verification Required: DevSecBBS"
@@ -142,7 +143,33 @@ def send_email_verify(request,user):
         send_mail(subject, message,settings.DEFAULT_FROM_EMAIL, recipient_list, html_message=message,fail_silently=False,)
         return token
     except:
-        return False        
+        return False     
+
+#Send password reset token
+def send_password_reset(request,user):
+    try:
+        subject = "Password reset request: DevSecBBS"
+        recipient_list = [user.email]
+        token = create_token(user)
+        message = render_to_string("_Blog/dashboard/password_reset.html",{'user':user,'domain':root_url(request),'token':token})
+        send_mail(subject, message,settings.DEFAULT_FROM_EMAIL, recipient_list, html_message=message,fail_silently=False,)
+        return token
+    except Exception as error:
+        return False   
+
+#Send password reset token
+def send_new_password(request,user):
+    try:
+        subject = "Password reset successfully: DevSecBBS"
+        recipient_list = [user.email]
+        password = create_token(user)[5:13]
+        user.set_password(password)
+        user.save()
+        message = render_to_string("_Blog/dashboard/password_reset_response.html",{'user':user,'domain':root_url(request),'password':password})
+        send_mail(subject, message,settings.DEFAULT_FROM_EMAIL, recipient_list, html_message=message,fail_silently=False,)
+        return password
+    except:
+        return False  
 
 #Resize image in dashboard user profile edit 
 def resize_image(image_path, output_size=(300, 300)):
