@@ -26,7 +26,7 @@ SECRET_KEY = 'django-insecure--q%_sap=r5^9xmjcjw3l4nzu=xd6puy%mu!zr&*ifnevo2fszf
 DEBUG = True
 
 ALLOWED_HOSTS = ['*',]
-CSRF_TRUSTED_ORIGINS = ['https://8000-cs-cb635842-7ac8-4c79-a4fc-a8810138082e.cs-asia-southeast1-yelo.cloudshell.dev']
+CSRF_TRUSTED_ORIGINS = ['https://8000-cs-95907142887-default.cs-asia-southeast1-yelo.cloudshell.dev']
 
 # Application definition
 
@@ -162,6 +162,9 @@ EMAIL_HOST_PASSWORD = "rrtsrueiivxgefox"
 
 # Set the password reset token expiration time to 2 minutes (120 seconds)
 PASSWORD_RESET_TIMEOUT = 600
+
+#Login required redirect
+LOGIN_URL = '/signin'
 
 
 

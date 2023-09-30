@@ -23,6 +23,7 @@ urlpatterns = [
     path("dashboard",dashboard.dashboard,name="dashboard"),
     path("dashboard/view_profile",dashboard.view_profile,name="view_profile"),
     path("dashboard/edit_profile",dashboard.edit_profile,name="edit_profile"),
+    path("dashboard/change_password",dashboard.change_password,name="change_password"),
     path("dashboard/post/edit/<str:hash_id>",dashboard.edit_post,name="edit_post"),
     path("dashboard/write_post",dashboard.write_post,name="write_post"),
     path("dashboard/post/list",dashboard.list_post,name="list_post"),
@@ -34,8 +35,7 @@ urlpatterns = [
     path("dashboard/pending_comment",dashboard.pending_comment,name='pending_comment'),
     path("dashboard/pending_request",dashboard.pending_request,name='pending_request'),
     path("dashboard/upload-image",dashboard.upload_image,name="image-upload"),
-    
-    
+    path("dashboard/suneditor_gallery",dashboard.suneditor_gallery,name="suneditor_gallery"),
 
 ]
 

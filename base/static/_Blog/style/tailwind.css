@@ -1188,6 +1188,10 @@ input:checked + .toggle-bg {
   z-index: 50;
 }
 
+.z-\[\FFFDs\FFFD\FFFD\FFFDm\FFFD\FFFD\~V\1F\FFFD\7F\FFFD\] {
+  z-index: �s���m��~V��;
+}
+
 .order-last {
   order: 9999;
 }
@@ -3103,6 +3107,14 @@ input:checked + .toggle-bg {
   user: passwd@;
 }
 
+.\[j\:\FFFD\FFFD\FFFD\~\] {
+  j: ���~;
+}
+
+.\[u_tf\:\.\FFFDk\FFFD 2s\FFFD\0\FFFD\\W\FFFD\FFFD\FFFD\FFFD\FFFD\FFFD\FFFDs\7D1\FFFD\FFFD\1D\] {
+  u_tf: .�k�2s� �\W�������sߑ��;
+}
+
 @media (min-width: 640px) {
   .sm\:container {
     width: 100%;
@@ -3679,6 +3691,11 @@ input:checked + .toggle-bg {
   background-color: rgb(255 255 255 / var(--tw-bg-opacity));
 }
 
+:is(.dark .dark\:bg-black) {
+  --tw-bg-opacity: 1;
+  background-color: rgb(0 0 0 / var(--tw-bg-opacity));
+}
+
 :is(.dark .dark\:bg-opacity-80) {
   --tw-bg-opacity: 0.8;
 }
@@ -3867,10 +3884,6 @@ input:checked + .toggle-bg {
 :is(.dark .dark\:focus\:ring-red-900:focus) {
   --tw-ring-opacity: 1;
   --tw-ring-color: rgb(119 29 29 / var(--tw-ring-opacity));
-}
-
-:is(.dark .dark\:focus\:ring-offset-gray-800:focus) {
-  --tw-ring-offset-color: #1F2937;
 }
 
 :is(.dark .group:hover .dark\:group-hover\:text-gray-300) {

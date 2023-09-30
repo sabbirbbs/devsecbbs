@@ -92,7 +92,7 @@
                         <svg width="80" height="80" class="w-7 h-7 rounded-full" data-jdenticon-value="{{post.author.username}}"></svg>
                     {% endif %}
                         <span class="font-medium dark:text-white">
-                          {{ post.author.display_name }}
+                         {% if post.author %} {{ post.author.display_name }} {% else %} Account (RIP) {% endif %}
                       </span>
                   </div>
                     <a href="{% if post.category %} {% url 'Blog:read_post' post.category.slug post.slug %} {% else %} {% url 'Blog:read_post' 'uncategorized' post.slug %} {% endif %}" class="inline-flex items-center font-medium text-blue-600 dark:text-blue-500 hover:underline">

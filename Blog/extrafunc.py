@@ -1,5 +1,8 @@
 import re
 from django.core.paginator import Paginator
+from django.shortcuts import redirect
+from django.urls import reverse
+from django.contrib import messages
 import uuid
 from Blog.models import UserLoginLog
 from ipware import get_client_ip
@@ -181,3 +184,24 @@ def resize_image(image_path, output_size=(300, 300)):
 
     # Save the resized image back to the original path
     img.save(image_path)
+
+
+#Decorator for admin/moderator only page
+def admin_mod_only(func):
+    def wrapper(request,*args,**kwargs):
+        if request.user.rank in ['Admin','Moderator']:
+            return func(request,*args,**kwargs)
+        else:
+            messages.error(request,"You don't have access to the page.")
+            return redirect(reverse("Blog:dashboard"))
+    return wrapper
+
+#Decorator for banned user
+def for_banned_user(func):
+    def wrapper(request,*args,**kwargs):
+        if request.user.rank == 'Banned':
+            messages.error(request,"You are banned, & can't perform that action.")
+            return redirect(referel_url(request))
+        else:
+            return func(request,*args,**kwargs)
+    return wrapper

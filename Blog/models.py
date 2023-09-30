@@ -251,7 +251,7 @@ class Notification(models.Model):
     hash_id = models.UUIDField(unique=True,default=uuid.uuid4,editable=False)
     notification_type = ('Like','Comment','Follow','Update','Notice',)
     type = models.CharField(max_length=255,default=None,choices=list(zip(notification_type,notification_type)))
-    user = models.ForeignKey(AuthorUser,on_delete=models.CASCADE,related_name="user_notification")
+    user = models.ForeignKey(AuthorUser,null=True,on_delete=models.CASCADE,related_name="user_notification")
     content_type = models.ForeignKey(ContentType,on_delete=models.CASCADE)
     content_id = models.PositiveIntegerField()
     content_object = GenericForeignKey('content_type','content_id')
@@ -369,16 +369,9 @@ class UploadedImages(models.Model):
     user = models.ForeignKey(AuthorUser,on_delete=models.SET_NULL,null=True,blank=True)
     upload_date = models.DateTimeField(default=datetime.datetime.now)
     image = models.ImageField(upload_to=post_photo,blank=True,default="blog/post_cover/cover.jpg")
-    image_url = models.URLField(blank=True)
+    image_url = models.CharField(blank=True,max_length=2000)
     note = models.TextField(blank=True,null=True)
 
-    def save(self,*args,**kwargs):
-        if not self.image_url and self.image:
-            self.image_url = self.image.url
-        else:
-            pass
-        
-        return super().save(*args,**kwargs)
 
     class Meta:
             verbose_name_plural = "Uploaded Images"

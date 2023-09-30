@@ -62,7 +62,7 @@
                                 </div>
                                 <!-- End user badge -->
                             {% else %}
-                                <div class="text-xl font-bold text-gray-900 dark:text-white">Author deleted</div>
+                                <div class="text-xl font-bold text-gray-900 dark:text-white">Account (RIP)</div>
                             {% endif %}
                             {# <p class="text-base font-light text-gray-500 dark:text-gray-400">{% if post.author.bio %} {{ post.author.bio|linebreaksbr }} {% endif %}</p> #}
                             <p class="text-base font-light text-gray-500 dark:text-gray-400"><time>{% if post.date == post.last_modified %} Published: {{post.date|date:'d M Y'}} {% else %} Published: {{post.date|date:'d M Y'}} <br> Last Modified: {{post.last_modified|date:'d M Y'}} {% endif %}</time></p>
@@ -156,8 +156,6 @@
                         <span
                         class="m-1 flex flex-wrap justify-between items-center text-xs sm:text-sm bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 rounded px-4 py-2 font-bold leading-loose cursor-pointer dark:text-gray-300">
                         {{tag}}</span></a>
-                    {% empty %}
-                    <span>&nbsp;&nbsp;No tag.</span> 
                     {% endfor %}
                 </div>
                 <!-- End post tags-->

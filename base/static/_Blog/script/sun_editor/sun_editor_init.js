@@ -129,7 +129,7 @@ if (post_editor){
             // Add any other custom headers if needed
         },
         imageUploadUrl: '/dashboard/upload-image',
-        imageGalleryUrl: 'https://etyswjpn79.execute-api.ap-northeast-1.amazonaws.com/suneditor-demo',
+        imageGalleryUrl: '/dashboard/suneditor_gallery',
         buttonList: [
             // default
             ['undo', 'redo'],

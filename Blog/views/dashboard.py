@@ -1,6 +1,8 @@
 #import modules
 from django.shortcuts import render, redirect
-from django.http import HttpResponse,Http404
+from django.http import HttpResponse,Http404, JsonResponse
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth import logout
 from django.urls import reverse
 from Blog.models import *
 from PIL import Image
@@ -18,10 +20,12 @@ import base64
 
 
 #User dashboard
+@login_required
 def dashboard(request):
     return render(request,'_Blog/dashboard/dashboard.html')
 
 #Listing the post owned by user in dashboard
+@login_required
 def list_post(request):
     if request.method == "POST":
         page_number = int(request.GET.get('page',1))
@@ -52,6 +56,8 @@ def list_post(request):
         return render(request,"_Blog/dashboard/list_post.html",{'page':page,'list_page':list_page})
 
 #validating & saving written post
+@login_required
+@for_banned_user
 def write_post(request):
     if request.method == "POST":
 
@@ -124,6 +130,8 @@ def write_post(request):
         return render(request,'_Blog/dashboard/write_post.html',{'category':category,'tags':tags})
 
 #Post edit
+@login_required
+@for_banned_user
 def edit_post(request,hash_id):
 
     try:
@@ -167,7 +175,7 @@ def edit_post(request,hash_id):
         
         try:
             category = Category.objects.get(hash_id=request.POST.get('category',None))
-        except Exception as error:
+        except:
             response = {"status":"error","message":"Unable to find category you selected!"}
             return HttpResponse(json.dumps(response)) 
 
@@ -269,6 +277,7 @@ def get_notification_page(user,page,type=None):
     return current_page
 
 #Notification page & mark as read
+@login_required
 def notifications(request):
     page = request.GET.get('page',1)
     read = request.GET.get('read',None)
@@ -314,6 +323,7 @@ def notifications(request):
     return render(request,"_Blog/dashboard/notifications.html",context)
 
 #Create link for notification
+@login_required
 def notification_link(request,hash_id):
     try:
         notification = Notification.objects.get(user=request.user,hash_id=hash_id)
@@ -376,6 +386,7 @@ def get_report_page(page,type=None):
     return current_page
 
 #Generate link of report content
+@login_required
 def report_link(request,hash_id):
     try:
         report = ReportContent.objects.get(hash_id=hash_id)
@@ -414,6 +425,8 @@ def report_link(request,hash_id):
         return redirect(url_to_redirect)
 
 #Saving report for further review
+@login_required
+@admin_mod_only
 def reports(request):
     if request.method == 'POST':
         pass
@@ -438,6 +451,8 @@ def reports(request):
         return render(request,'_Blog/dashboard/reports.html',context)
 
 #Pending post
+@login_required
+@admin_mod_only
 def pending_post(request):
     if request.method == "POST":
         post_hash_id = request.POST.get('post_hash_id',"")
@@ -467,22 +482,24 @@ def pending_post(request):
         return render(request,'_Blog/dashboard/pending_item/pending_post.html',context)
 
 #Pending comment  
+@login_required
+@admin_mod_only
 def pending_comment(request):
     if request.method == "POST":
         comment_hash_id = request.POST.get('comment_hash_id',"")
         if is_valid_uuid(comment_hash_id) and Comment.objects.filter(hash_id=comment_hash_id).exists():
-            post = Comment.objects.get(hash_id=comment_hash_id)
+            comment = Comment.objects.get(hash_id=comment_hash_id)
             status = request.POST.get('status',None)
             reason = request.POST.get('reason',None)
             if status in ['Published','Hot','Rejected']:
-                post.status = status
+                comment.status = status
                 if reason:
-                    post.note = reason
-            post.save() #Saving the post after updating status
-            messages.success(request,f'The post is successfully marked as {status}.')
+                    comment.note = reason
+            comment.save() #Saving the comment after updating status
+            messages.success(request,f'The comment is successfully marked as {status}.')
             return redirect(referel_url(request))
         else:
-            messages.error(request,'The post that your are trying to review not found.')
+            messages.error(request,'The comment that your are trying to review not found.')
             return redirect(referel_url(request))
     else:
         page = request.GET.get('page',1)
@@ -496,6 +513,8 @@ def pending_comment(request):
         return render(request,'_Blog/dashboard/pending_item/pending_comment.html',context)
 
 #Pending request
+@login_required
+@admin_mod_only
 def pending_request(request):
     if request.method == "POST":
         request_hash_id = request.POST.get('request_hash_id',"")
@@ -508,7 +527,7 @@ def pending_request(request):
                 if reason:
                     user_request.note = reason
             user_request.review_date = datetime.datetime.now()
-            user_request.save() #Saving the post after updating status
+            user_request.save() #Saving the request after updating status
             messages.success(request,f'The request is successfully marked as {status}.')
             return redirect(referel_url(request))
         else:
@@ -526,10 +545,12 @@ def pending_request(request):
         return render(request,'_Blog/dashboard/pending_item/pending_request.html',context)
 
 #View the user profile info in dashboard
+@login_required
 def view_profile(request):
     return render(request,"_Blog/dashboard/view_profile.html")
   
 #Edit user profile info
+@login_required
 def edit_profile(request):
     if request.method == "POST":
         user_profile = request.user
@@ -620,10 +641,17 @@ def edit_profile(request):
         return redirect(reverse("Blog:view_profile"))
     else:
         return render(request,"_Blog/dashboard/edit_profile.html")
-    
+
+#Upload image for use in wysiwyg
+@login_required    
 def upload_image(request):
     image = request.FILES.get('file-0',None)
     user = request.user if request.user.is_authenticated else None
+    try:
+        Image.open(image)
+    except:
+        image = None
+        
     if image:
         try:
             imagebase64 = base64.b64encode(image.read()).decode()
@@ -649,3 +677,63 @@ def upload_image(request):
             response = {'errorMessage':"Unable to upload the images"}
 
     return HttpResponse(json.dumps(response))
+
+@login_required
+def change_password(request):
+    if request.method == 'POST':
+        old_pass = request.POST.get('old-password',None)
+        new_password = request.POST.get('password',None)
+        confirm_password = request.POST.get('confirm-password',None)
+        if request.user.check_password(old_pass):
+            if new_password == confirm_password:
+                if is_valid_strong_password(new_password):
+                    request.user.set_password(new_password)
+                    request.user.save()
+                    messages.success(request,"Your password has been changed successfully.")
+                    return redirect(reverse('Blog:signin'))
+                else:
+                    messages.error(request,"The password is not hard enongh. Please choose a secure password.")
+            else:
+                messages.error(request,"New password & confirm new password have to be same.")
+        else:
+            messages.error(request,"Sorry, your old password is not correct. Please check again.")   
+    
+        return render(request,"_Blog/dashboard/change_password.html")
+    else:
+        return render(request,"_Blog/dashboard/change_password.html")
+
+def suneditor_gallery(request):
+    if request.user.is_authenticated:
+        user = request.user
+        author_images = UploadedImages.objects.filter(user=user)
+        public_images = UploadedImages.objects.filter(user=None)
+        total_image = author_images.union(public_images)
+        response = {
+            "statusCode":200,
+            "result" : []
+        }
+
+        for image in total_image:
+            if not image.user:
+                tag = "Public images"
+            else:
+                tag = 'Your images'
+
+            tag = "Public images" if not image.user else 'Your images'
+            url = root_url(request)+image.image.url if not image.image_url else image.image_url
+            result = {
+                'src' : url,
+                'name' : '',
+                'alt' : '',
+                'tag' : tag
+            }
+            response['result'].append(result)
+
+
+        return JsonResponse(response)
+
+    else:
+        response = {
+                    "statusCode": 404,
+                }
+        return JsonResponse(response)
