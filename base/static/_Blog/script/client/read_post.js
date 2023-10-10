@@ -19,6 +19,10 @@ function getCookie(name) {
 //Highlight code syntax by prismjs
 function highlight_code(){
     $('pre').addClass('bg-white dark:bg-gray-800');
+    $('pre').css({
+        'overflow': 'auto',
+        'max-height': '700px' // Adjust the height as needed
+    })
     $('code').each(function(){
         var data = $(this).html()
         data = data.replace(/<br>/g,'\n')

@@ -225,6 +225,7 @@ def edit_post(request,hash_id):
                 _post.cover_photo = cover_photo
         else:
             pass
+        _post.tags.clear()
         _post.tags.add(*tags)
         _post.save()
         # Resize and reduce the image size
@@ -491,12 +492,12 @@ def pending_comment(request):
             comment = Comment.objects.get(hash_id=comment_hash_id)
             status = request.POST.get('status',None)
             reason = request.POST.get('reason',None)
-            if status in ['Published','Hot','Rejected']:
+            if status in ['Published','Rejected']:
                 comment.status = status
                 if reason:
                     comment.note = reason
             comment.save() #Saving the comment after updating status
-            messages.success(request,f'The comment is successfully marked as {status}.')
+            messages.success(request,f'The comment is successfully marked as {comment.status}.')
             return redirect(referel_url(request))
         else:
             messages.error(request,'The comment that your are trying to review not found.')
@@ -528,7 +529,7 @@ def pending_request(request):
                     user_request.note = reason
             user_request.review_date = datetime.datetime.now()
             user_request.save() #Saving the request after updating status
-            messages.success(request,f'The request is successfully marked as {status}.')
+            messages.success(request,f'The request is successfully marked as {user_request.status}.')
             return redirect(referel_url(request))
         else:
             messages.error(request,'The request that your are trying to review not found.')
@@ -562,7 +563,7 @@ def edit_profile(request):
             user_profile.facebook_profile = request.POST.get('facebook', user_profile.facebook_profile)
             user_profile.twitter_profile = request.POST.get('twitter', user_profile.twitter_profile)
             user_profile.github_profile = request.POST.get('github', user_profile.github_profile)
-            user_profile.phone = phone_is_valid(request.POST.get('phone', user_profile.phone))
+            user_profile.phone_number = phone_is_valid(request.POST.get('phone', user_profile.phone_number))
             user_profile.country = request.POST.get('country', user_profile.country)
             user_profile.city = request.POST.get('city', user_profile.city)
 
@@ -737,3 +738,33 @@ def suneditor_gallery(request):
                     "statusCode": 404,
                 }
         return JsonResponse(response)
+
+#save user request for review
+@login_required
+def save_request(request):
+    if request.method == "POST":
+        subject = request.POST.get('subject',None)
+        msg = request.POST.get('message',None)
+        if subject in ['author','series','other'] and len(msg) >= 5:
+            if subject == 'author':
+                user_post = Post.objects.filter(Q(status='Published')|Q(status='Hot'),author=request.user)
+                if len(user_post) >= 3:
+                    if UserRequest.objects.filter(user=request.user,type='Author',status='Pending'):
+                        request.error(request,'You already requested to be an author & the request is pending.')
+                    else:
+                        UserRequest(title='wanna be an author',user=request.user,content=msg,type='Author').save()
+                        request.success(request,"Your application to be an author has been sent to admin. You will notified after review.")
+                else:
+                    messages.error(request,"You are not eligible to apply to be an author. You don't have atleast 3 post published.")
+            elif subject == 'series' and len(msg) >= 5:
+                UserRequest(title='want to write on series',user=request.user,content=msg,type='Request').save()
+                messages.success(request,'Your reqeust has been sent to admin for review.')
+            else:
+                UserRequest(title='',type='Other',user=request.user,content=msg).save()
+                messages.success(request,'Your message has been sent to admin & you will get notified after review.')
+        else:
+            messages.error(request,"Your request isn't valid. either you choosen invalid subject or message is too short.")
+
+        return render(request,'_Blog/dashboard/send_request.html')
+    else:
+        return render(request,'_Blog/dashboard/send_request.html')

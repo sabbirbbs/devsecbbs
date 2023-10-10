@@ -36,6 +36,7 @@ urlpatterns = [
     path("dashboard/pending_request",dashboard.pending_request,name='pending_request'),
     path("dashboard/upload-image",dashboard.upload_image,name="image-upload"),
     path("dashboard/suneditor_gallery",dashboard.suneditor_gallery,name="suneditor_gallery"),
+    path("dashboard/send_request",dashboard.save_request,name="send_request"),
 
 ]
 

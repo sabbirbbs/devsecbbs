@@ -35,7 +35,10 @@ def get_display_name(user):
 @receiver(post_save,sender=Comment)
 def new_comment(instance,created,*args,**kwargs):
     if instance.commenter:
-        commenter = instance.commenter.username
+        if instance.post.author == instance.commenter:
+            commenter = 'You'
+        else:
+            commenter = instance.commenter.username
     else:
         commenter = "Anonymous"
 
@@ -60,7 +63,10 @@ def post_status(instance,*args,**kwargs):
         comment = Comment.objects.get(pk=instance.pk)
 
         if instance.commenter:
-            commenter = instance.commenter.username
+            if instance.post.author == instance.commenter:
+                commenter = 'You'
+            else:
+                commenter = instance.commenter.username
         else:
             commenter = "Anonymous"
 
@@ -71,6 +77,15 @@ def post_status(instance,*args,**kwargs):
             elif instance.level != 0 and instance.commenter != instance.parent.commenter:
                 replied_comment = instance.parent
                 content = f"{commenter} replied to your comment on the post '{instance.post.title}' >> \n {instance.content[:20]}"
+                create_notification(Comment,instance,replied_comment.commenter,content,'Comment')
+        elif instance.status == 'Rejected' and comment.status == 'Pending':
+            
+            if instance.level == 0:
+                content = f"Your comment rejected on the post '{instance.post.title}' >> \n{instance.content[:25]}..."
+                create_notification(Comment,instance,instance.post.author,content,'Comment')
+            elif instance.level != 0 and instance.commenter != instance.parent.commenter:
+                replied_comment = instance.parent
+                content = f"Your reply rejected on the post '{instance.post.title}' >> \n {instance.content[:20]}"
                 create_notification(Comment,instance,replied_comment.commenter,content,'Comment')
 
 
@@ -88,12 +103,12 @@ def post_status(instance,*args,**kwargs):
             content = f"Your post {instance.title} has been Published."
             create_notification(Post,instance,instance.author,content,'Update')
             follower_content = f"{get_display_name(instance.author)} published a new post {instance.title}."
-            notification_to_follower(Post,instance,instance.author,follower_content,'Update')
+            notification_to_follower(Post,instance,instance.author,follower_content,'Follow')
         elif post.status != 'Hot' and instance.status == 'Hot':
             content = f"Your post {instance.title} has been choosen as hot post."
             create_notification(Post,instance,instance.author,content,'Update')
             follower_content = f"{get_display_name(instance.author)}'s post is been marked as hot {instance.title}."
-            notification_to_follower(Post,instance,instance.author,follower_content,'Update')
+            notification_to_follower(Post,instance,instance.author,follower_content,'Follow')
         elif post.status != 'Pending' and instance.status == 'Pending':
             content = f"Your post {instance.title} is now under review."
             create_notification(Post,instance,instance.author,content,'Update')
@@ -103,6 +118,30 @@ def post_status(instance,*args,**kwargs):
 
     else:
         pass
+
+#Notification after review a request
+@receiver(pre_save,sender=UserRequest)
+def reqeust_status(instance,*args,**kwargs):
+    if instance.pk:
+        request = UserRequest.objects.get(pk=instance.pk)
+        if request.note != instance.note:
+            reason = f" Note: {instance.note}"
+        else:
+            reason = ''
+
+        if request.status in ['Rejected','Pending'] and instance.status in 'Accepted':
+            content = f"Your request {instance.title} has been Accepted.{reason}"
+            create_notification(request,instance,instance.user,content,'Update')
+        elif request.status != 'Accepted' and instance.status == 'Accepted':
+            content = f"Your request {instance.title} has been Accepted.{reason}"
+            create_notification(request,instance,instance.user,content,'Update')
+        elif request.status != 'Rejected' and instance.status == 'Rejected':
+            content = f"Your request {instance.title} has been Rejected.{reason}"
+            create_notification(request,instance,instance.user,content,'Update')
+
+    else:
+        pass
+
 
 #Notification if any user role changed or author applicaion approved
 @receiver(pre_save,sender=AuthorUser)
@@ -197,7 +236,7 @@ def notify_user_followed(sender, instance, action, reverse, model, pk_set, **kwa
 
 #Notification when someone liked a post.
 @receiver(m2m_changed, sender=Post.like.through)
-def notify_user_followed(sender, instance, action, reverse, model, pk_set, **kwargs):
+def notify_post_liked(sender, instance, action, reverse, model, pk_set, **kwargs):
     if action == 'post_add' and not reverse:
         # Get the newly added followers
         new_like = model.objects.filter(pk__in=pk_set)

@@ -29,10 +29,10 @@ def phone_is_valid(phone_number):
     cleaned_number = re.sub(r'\D', '', phone_number)
 
     # Check if the cleaned number starts with a '+' sign followed by digits
-    if cleaned_number.startswith('+') and cleaned_number[1:].isdigit():
+    if phone_number.startswith('+') and cleaned_number.isdigit():
         # Validate the rest of the number (excluding the leading '+')
         #return len(cleaned_number[1:]) >= 7  # Minimum 7 digits excluding the country code
-        return cleaned_number
+        return '+'+cleaned_number
     
     elif cleaned_number.isdigit():
         # Validate the number without the leading '+'

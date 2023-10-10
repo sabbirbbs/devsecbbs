@@ -26,7 +26,7 @@ SECRET_KEY = 'django-insecure--q%_sap=r5^9xmjcjw3l4nzu=xd6puy%mu!zr&*ifnevo2fszf
 DEBUG = True
 
 ALLOWED_HOSTS = ['*',]
-CSRF_TRUSTED_ORIGINS = ['https://8000-cs-95907142887-default.cs-asia-southeast1-yelo.cloudshell.dev']
+CSRF_TRUSTED_ORIGINS = ['https://8000-cs-95907142887-default.cs-asia-southeast1-ajrg.cloudshell.dev']
 
 # Application definition
 

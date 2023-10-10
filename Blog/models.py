@@ -218,7 +218,7 @@ class AuthorUser(AbstractUser):
     website_url = models.URLField(blank=True,default="")
     country = models.CharField(max_length=255,blank=True,default="")
     city = models.CharField(max_length=255,blank=True,default="")
-    phone = models.CharField(max_length=25,blank=True,default="")
+    phone_number = models.CharField(max_length=25,blank=True,default="")
     series = models.ManyToManyField('Series',blank=True,related_name="user_series")
     follower = models.ManyToManyField('AuthorUser',blank=True,related_name="user_following")
     mute_list = models.ManyToManyField('AuthorUser',blank=True,related_name="muted")
@@ -251,7 +251,7 @@ class Notification(models.Model):
     hash_id = models.UUIDField(unique=True,default=uuid.uuid4,editable=False)
     notification_type = ('Like','Comment','Follow','Update','Notice',)
     type = models.CharField(max_length=255,default=None,choices=list(zip(notification_type,notification_type)))
-    user = models.ForeignKey(AuthorUser,null=True,on_delete=models.CASCADE,related_name="user_notification")
+    user = models.ForeignKey(AuthorUser,null=True,blank=True,on_delete=models.CASCADE,related_name="user_notification")
     content_type = models.ForeignKey(ContentType,on_delete=models.CASCADE)
     content_id = models.PositiveIntegerField()
     content_object = GenericForeignKey('content_type','content_id')
@@ -297,7 +297,7 @@ class ReportContent(models.Model):
 class UserRequest(models.Model):
     hash_id = models.UUIDField(unique=True,default=uuid.uuid4,editable=False)
     title = models.CharField(max_length=255)
-    user = models.ForeignKey(AuthorUser,on_delete=models.CASCADE,related_name="user_request")
+    user = models.ForeignKey(AuthorUser,on_delete=models.CASCADE,related_name="user_request",blank=True,null=True)
     content = models.TextField()
     date = models.DateTimeField(default=datetime.datetime.now)
     review_date = models.DateTimeField(blank=True,null=True)
@@ -307,7 +307,8 @@ class UserRequest(models.Model):
 
 
     def __str__(self):
-        return f"{self.title} by {self.user.username}"
+        by_user = self.user.username if self.user else 'Anonymouse'
+        return f"{self.title} by {by_user}"
     
 class Series(models.Model):
     hash_id = models.UUIDField(unique=True,default=uuid.uuid4,editable=False)

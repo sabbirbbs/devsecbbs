@@ -1188,10 +1188,6 @@ input:checked + .toggle-bg {
   z-index: 50;
 }
 
-.z-\[\FFFDs\FFFD\FFFD\FFFDm\FFFD\FFFD\~V\1F\FFFD\7F\FFFD\] {
-  z-index: �s���m��~V��;
-}
-
 .order-last {
   order: 9999;
 }
@@ -1260,6 +1256,11 @@ input:checked + .toggle-bg {
   margin-right: auto;
 }
 
+.my-2 {
+  margin-top: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
 .my-3 {
   margin-top: 0.75rem;
   margin-bottom: 0.75rem;
@@ -1268,6 +1269,11 @@ input:checked + .toggle-bg {
 .my-4 {
   margin-top: 1rem;
   margin-bottom: 1rem;
+}
+
+.mx-12 {
+  margin-left: 3rem;
+  margin-right: 3rem;
 }
 
 .-mb-px {
@@ -1986,6 +1992,12 @@ input:checked + .toggle-bg {
   --tw-space-y-reverse: 0;
   margin-top: calc(1.5rem * calc(1 - var(--tw-space-y-reverse)));
   margin-bottom: calc(1.5rem * var(--tw-space-y-reverse));
+}
+
+.space-y-8 > :not([hidden]) ~ :not([hidden]) {
+  --tw-space-y-reverse: 0;
+  margin-top: calc(2rem * calc(1 - var(--tw-space-y-reverse)));
+  margin-bottom: calc(2rem * var(--tw-space-y-reverse));
 }
 
 .divide-y > :not([hidden]) ~ :not([hidden]) {
@@ -3107,14 +3119,6 @@ input:checked + .toggle-bg {
   user: passwd@;
 }
 
-.\[j\:\FFFD\FFFD\FFFD\~\] {
-  j: ���~;
-}
-
-.\[u_tf\:\.\FFFDk\FFFD 2s\FFFD\0\FFFD\\W\FFFD\FFFD\FFFD\FFFD\FFFD\FFFD\FFFDs\7D1\FFFD\FFFD\1D\] {
-  u_tf: .�k�2s� �\W�������sߑ��;
-}
-
 @media (min-width: 640px) {
   .sm\:container {
     width: 100%;
@@ -3691,11 +3695,6 @@ input:checked + .toggle-bg {
   background-color: rgb(255 255 255 / var(--tw-bg-opacity));
 }
 
-:is(.dark .dark\:bg-black) {
-  --tw-bg-opacity: 1;
-  background-color: rgb(0 0 0 / var(--tw-bg-opacity));
-}
-
 :is(.dark .dark\:bg-opacity-80) {
   --tw-bg-opacity: 0.8;
 }
@@ -3907,6 +3906,10 @@ input:checked + .toggle-bg {
 }
 
 @media (min-width: 640px) {
+  .sm\:col-span-2 {
+    grid-column: span 2 / span 2;
+  }
+
   .sm\:mt-0 {
     margin-top: 0px;
   }
@@ -3925,6 +3928,11 @@ input:checked + .toggle-bg {
 
   .sm\:w-auto {
     width: auto;
+  }
+
+  .sm\:w-fit {
+    width: -moz-fit-content;
+    width: fit-content;
   }
 
   .sm\:max-w-md {

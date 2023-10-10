@@ -157,7 +157,8 @@ def view_post(request,cat,slug):
             comment_per_page = 10
         comment_paginator = Paginator(comments,comment_per_page,2)
         comment_page = comment_paginator.get_page(page_number)
-        related_post = Post.objects.filter(Q(status="Published")|Q(status="Hot"),Q(title__icontains=post.title)|Q(description__icontains=post.description)|Q(category__name__contains=post.category.name)|Q(series__name__contains=post.series.name),is_deleted=False).exclude(pk=post.pk)[:4]
+        series = post.series.name if post.series else ''
+        related_post = Post.objects.filter(Q(status="Published")|Q(status="Hot"),Q(title__icontains=post.title)|Q(description__icontains=post.description)|Q(category__name__contains=post.category.name)|Q(series__name__contains=series),is_deleted=False).exclude(pk=post.pk)[:4]
         return render(request,"_Blog/client/read_post.html",{'post':post,'related_post':related_post,'comment_page':comment_page,})
    
 #Comment handler
