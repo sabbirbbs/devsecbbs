@@ -305,6 +305,8 @@ class UserRequest(models.Model):
     type = models.CharField(max_length=255,default="Other",choices=[("Author","Author"),('Other','Other'),('Request','Request')])
     note = models.TextField(blank=True,null=True)
 
+    class Meta:
+            ordering = ('-date',)
 
     def __str__(self):
         by_user = self.user.username if self.user else 'Anonymouse'

@@ -204,7 +204,6 @@ $(document).ready(function(){
 
     //Funcion to handle like button
     $('#like-form').submit(function(e) {
-        console.log('like form tiggered')
         e.preventDefault();  // Prevent default form submission
         var likeCount = $('#like-count').text(); // Get the current like count
         likeCount = likeCount.trim() !== "" ? parseInt(likeCount, 10) : 0; // If it's nothing, set it to 0
@@ -229,11 +228,11 @@ $(document).ready(function(){
                     }
                 }
                 else if(feadback['success'] == false){
-                    console.log(response.msg)
+                    
                 }
             },
             error: function(error) {
-                console.log(error);
+                
             }
         });
     });

@@ -194,6 +194,9 @@ def comment(request,phash,chash):
                 if 1 > len(report_content) > 255:
                     messages.error(request,"Your report is have to more than single character & less than 255.")
                     return redirect(f"{referer_url}#feadback")
+                elif not comment.commenter:
+                    messages.error(request,"The comment you are trying to report has been approved by admin.")
+                    return redirect(f"{referer_url}#feadback")
                 else:
                     ReportContent.objects.create(type='Comment',content_type=ContentType.objects.get_for_model(Comment),content_id=comment.pk,report_by=user,report_content=report_content)
                     messages.success(request,"Your report has been sent to admin. and you will get notified when the issue will be solved.")
@@ -232,7 +235,7 @@ def comment(request,phash,chash):
                     return redirect(f"{post_url}#comment-{new_comment.hash_id.hex}")
                 else:
                     new_comment = Comment.objects.create(post=post,commenter=user,content=comment_content,status="Pending")
-                    messages.success(request,"You are logged in to any account. Therefore, your comment under review.")
+                    messages.success(request,"You are not logged in to any account. Therefore, your comment under review.")
                     return redirect(f"{referer_url}#feadback")
         elif comment_delete:
             if comment.commenter == request.user:
@@ -287,7 +290,7 @@ def user_profile(request,username):
 #Login a user with username or email
 def signin(request):
     if request.method == "POST" and 'reset-email' in request.POST:
-        reset_email = request.POST.get('reset-email',None)
+        reset_email = extract_unique_email(request.POST.get('reset-email',None))
         if AuthorUser.objects.filter(email=reset_email):
             user = AuthorUser.objects.get(email=reset_email)
             if send_password_reset(request,user):
@@ -305,10 +308,15 @@ def signin(request):
         next = request.GET.get('next',None) if request.GET.get('next',None) else reverse('Blog:signin')
         username = extract_unique_email(request.POST.get('username',''))
         password = request.POST.get('password',None)
+        remember = request.POST.get('remember',False)
 
         user = authenticate(request=request,username=username,password=password)
         if user and user.is_active:
             login(request,user)
+            if remember:
+                request.session.set_expiry(108000) #One month
+            else:
+                request.session.set_expiry(3600) #One hour
             return redirect(next)
         elif user and not user.is_active:
             if send_email_verify(request,user):
@@ -366,11 +374,9 @@ def signup(request):
             problem += 1
 
         if not problem:
-            user = AuthorUser(username=username,email=email,password=make_password(password1),is_active=False)
+            user = AuthorUser(username=username,email=extract_unique_email(email),password=make_password(password1),is_active=False)
             
             user.save()
-            print("*"*20)
-            print(user.email)
             if send_email_verify(request,user):
                 messages.success(request,f"Please check your email & verify the account to be finished. If you didn't received the email. Please login to the account to resend verification email.")
                 return render(request,"_Blog/client/signup.html")

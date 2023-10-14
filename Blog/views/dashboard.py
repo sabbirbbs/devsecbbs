@@ -22,7 +22,21 @@ import base64
 #User dashboard
 @login_required
 def dashboard(request):
-    return render(request,'_Blog/dashboard/dashboard.html')
+    published_post = Post.objects.filter(Q(status='Published')|Q(status='Hot'),author=request.user)
+    liked = Post.objects.filter(like__in=[request.user])
+    following = request.user.user_following.all()
+    try:
+        notice = BlogSetting.objects.filter(setting='notice').first().value
+    except:
+        notice = ''
+
+    context = {
+        'published_post':published_post,
+        'liked':liked,
+        'following':following,
+        'notice': notice
+    }
+    return render(request,'_Blog/dashboard/dashboard.html',context)
 
 #Listing the post owned by user in dashboard
 @login_required
@@ -656,7 +670,11 @@ def upload_image(request):
     if image:
         try:
             imagebase64 = base64.b64encode(image.read()).decode()
-            apiKey = BlogSetting.objects.filter(setting='imgbb-apikey').first().value
+            try:
+                apiKey = BlogSetting.objects.filter(setting='imgbb-apikey').first().value
+            except:
+                apiKey = ''
+                
             apiUrl = 'https://api.imgbb.com/1/upload'
             try:
                 response = rq.post(apiUrl,data={'key':apiKey,'image':imagebase64})

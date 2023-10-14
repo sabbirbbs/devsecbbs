@@ -71,6 +71,7 @@ TEMPLATES = [
                 'Blog.context_processors.context_extra',
                 'Blog.context_processors.base_category',
                 'Blog.context_processors.current_time',
+                'Blog.context_processors.test_script',
                 
             ],
         },

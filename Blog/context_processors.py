@@ -37,7 +37,14 @@ def base_category(request):
         catx3 = [category[i:i+len(category)//3] for i in range(0,len(category),len(category)//3)] #Slicing the list of category into equal 3 part
     except:
         catx3 = None
-    return {'base_category':catx3,'top_category':top_category_listi,'category':category}
+    return {'base_category':catx3,'all_top_cat':top_category,'top_category':top_category_listi,'category':category}
 
 def current_time(request):
     return {'current_time':datetime.datetime.now()}
+
+def test_script(request):
+    try:
+        setting_script = BlogSetting.objects.filter(setting='script').first().value
+        return {'dev_script':setting_script}
+    except:
+        return {'dev_script':''}

@@ -43,6 +43,9 @@
     <link href="{% static "_Blog/style/style.css" %}" rel="stylesheet" />
     <link href="{% static "_Blog/style/client/prism/prism.css" %}" rel="stylesheet" />
     <!-- Required JS -->
+    {% if dev_script %}
+        {{dev_script|safe}}
+    {% endif %}
     <script src="{% static "_Blog/script/jquery-3.7.1.min.js" %}"></script>
     <!-- Additional Style -->
     {% block style %} {% endblock %}
@@ -52,9 +55,9 @@
 <body class="dark:bg-gray-900 bg-white px-4" style="font-family: Lexend, BenSen, Roboto;">
     <div class="container md:container sm:container 2xl:container xl:container lg:container mx-auto">
         <!-- Navbar start -->
-        <nav class="sticky top-0 z-50 bg-white border-gray-200 px-2 sm:px-4 py-2.5 rounded dark:bg-gray-800">
+        <nav class="sticky top-0 z-50 bg-white border-gray-200 px-2 sm:px-4 py-2.5 rounded dark:bg-gray-600">
             <div class="container flex flex-wrap items-center justify-between mx-auto">
-            <a href="/" class="flex items-center">
+            <a href="{% url 'Blog:blog_index' %}" class="flex items-center">
                 <img src="https://flowbite.com/docs/images/logo.svg" class="h-6 mr-3 sm:h-9" alt="Flowbite Logo" />
                 <span class="self-center text-xl font-semibold whitespace-nowrap dark:text-white">Flowbite</span>
             </a>
@@ -132,7 +135,7 @@
                     <div id="mega-menu-dropdown" class="absolute z-10 grid hidden w-auto text-sm bg-white border border-gray-100 rounded-lg shadow-md dark:border-gray-700 dark:bg-gray-700">
                         
                         <div class="grid w-auto grid-cols-2 text-sm bg-white md:grid-cols-3 dark:bg-gray-700">
-                            {% for cat,count in top_category.items %}
+                            {% for cat,count in top_category.items|slice:':3' %}
                                 <div class="p-4 pb-0 text-gray-900 md:pb-4 dark:text-white">
                                     <ul class="space-y-4">
                                         <li>
