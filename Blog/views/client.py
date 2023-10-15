@@ -19,23 +19,38 @@ import json
 
 #home page of blog to show posts
 def index(request):
-    query = None
-    if request.GET.get('query',None):
-        query = request.GET.get('query',None)
-        posts = Post.objects.filter(Q(status="Published")|Q(status="Hot"),Q(title__icontains=query)|Q(description__icontains=query)|Q(author__username__contains=query)|Q(category__name__contains=query)|Q(series__name__contains=query),is_deleted=False)
-    else:
-        posts = Post.objects.filter(Q(status="Published")|Q(status="Hot"),is_deleted=False)
-   
-    try:
-        post_per_page = int(BlogSetting.objects.filter(setting='post-per-page').first().value)
-    except:
-        post_per_page = 10
+    if request.method == 'POST':
+        email = extract_unique_email(request.POST.get('email',None))
+        if email:
+            if EmailSubscribe.objects.filter(email=email).exists():
+                messages.error(request,"The email you have given may already in the list.")
+                return redirect(reverse('Blog:blog_index')+"#feadback")
+            else:
+                EmailSubscribe(email=email).save()
+                messages.success(request,'Your email is successfully added to the list.')
+                return redirect(reverse('Blog:blog_index')+"#feadback")
+        else:
+            messages.error(request,'Sorry, invalid email address.')
+            return redirect(reverse('Blog:blog_index')+"#feadback")
 
-    page = request.GET.get('post-page',1)
-    posts_page = Paginator(posts,post_per_page,2)
-    current_page = posts_page.get_page(page)
-    list_page = current_page.paginator.get_elided_page_range(number=current_page.number,on_each_side=2,on_ends=1)
-    return render(request,"_Blog/client/index.html",{"page":current_page,'list_page':list_page,'query':query})
+    else:
+        query = None
+        if request.GET.get('query',None):
+            query = request.GET.get('query',None)
+            posts = Post.objects.filter(Q(status="Published")|Q(status="Hot"),Q(title__icontains=query)|Q(description__icontains=query)|Q(author__username__contains=query)|Q(category__name__contains=query)|Q(series__name__contains=query),is_deleted=False)
+        else:
+            posts = Post.objects.filter(Q(status="Published")|Q(status="Hot"),is_deleted=False)
+    
+        try:
+            post_per_page = int(BlogSetting.objects.filter(setting='post-per-page').first().value)
+        except:
+            post_per_page = 10
+
+        page = request.GET.get('post-page',1)
+        posts_page = Paginator(posts,post_per_page,2)
+        current_page = posts_page.get_page(page)
+        list_page = current_page.paginator.get_elided_page_range(number=current_page.number,on_each_side=2,on_ends=1)
+        return render(request,"_Blog/client/index.html",{"page":current_page,'list_page':list_page,'query':query})
    
 
 #fetch post to be displayed in blog by jquery
@@ -433,3 +448,27 @@ def password_reset(request,token):
     else:
         messages.error(request,"The verificatin token is not valid or expired.")
         return redirect(reverse('Blog:signin'))
+
+def about_us(request):
+    return render(request,'_Blog/client/about_us.html')
+
+def contact_us(request):
+    if request.method == "POST":
+        subject = request.POST.get('subject',None)
+        msg = request.POST.get('message',None)
+        user = request.user if request.user.is_authenticated else None
+        if subject and msg:
+            UserRequest(title='Client'+subject,user=user,content=msg,type='Other').save()
+            messages.success(request,"Your message has been sent to admin")
+            return render(request,'_Blog/client/contact_us.html')
+        else:
+            messages.error(request,"Your message is not valid. Both of the field have to be filled.")
+            return render(request,'_Blog/client/contact_us.html')
+    else:
+        return render(request,'_Blog/client/contact_us.html')
+
+def tos(request):
+    return render(request,'_Blog/client/tos.html')
+
+def privacy(request):
+    return render(request,'_Blog/client/privacy.html')

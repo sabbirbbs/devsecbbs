@@ -75,8 +75,8 @@ def list_post(request):
 def write_post(request):
     if request.method == "POST":
 
-        title = request.POST.get('title','0')
-        description = request.POST.get('description','0')
+        title = request.POST.get('title','')
+        description = request.POST.get('description','')
         cover_photo = request.FILES.get('cover_photo',None)
         content = request.POST.get('content',None)
         status = request.POST.get('status',"Draft")
@@ -356,7 +356,7 @@ def notification_link(request,hash_id):
         url_to_redirect = reverse('Blog:read_post',args=[post.category.slug,post.slug])
     elif notification.type == 'Follow':
         follower = notification.content_object
-        url_to_redirect = reverse('Blog:user_profile',args=[follower.username])
+        url_to_redirect = reverse('Blog:user_profile',args=[follower.author.username])
     elif notification.type == 'Update':
         if notification.content_type.name == 'post':
             post = notification.content_object
@@ -674,7 +674,7 @@ def upload_image(request):
                 apiKey = BlogSetting.objects.filter(setting='imgbb-apikey').first().value
             except:
                 apiKey = ''
-                
+
             apiUrl = 'https://api.imgbb.com/1/upload'
             try:
                 response = rq.post(apiUrl,data={'key':apiKey,'image':imagebase64})

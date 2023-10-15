@@ -12,7 +12,7 @@
     
     <!-- These are useful for search engines when crawling the internet for your website -->
     <meta name="description" content="{% block description %} The ultimate blog site ever. {% endblock %}" />
-    <meta name="keywords" content="{% block keywords %} "Blog,tech,post" {% endblock %}" />
+    <meta name="keywords" content="{% block keywords %} Blog,tech,post {% endblock %}" />
     <meta name="author" content="{% block author %} DevSecBBS {% endblock %}">
     <link rel="canonical" href="{{ request.scheme }}://{{ request.get_host }}{{ request.get_full_path }}"/>
     
@@ -31,7 +31,7 @@
     <meta property="og:description" content="{% block og-description %} The ultimate blog site ever. {% endblock %}" />
     <meta property="og:url" content="{{ request.scheme }}://{{ request.get_host }}{{ request.get_full_path }}" />
     <meta property="og:site_name" content="DecSecBBS" />
-    <meta property="og:image" content="{% static "_Blog/image/cover_photo.svg" %}" />
+    <meta property="og:image" content="{% block og-image %} {% endblock %}" />
     <!-- Twitter meta links -->
     <meta name="twitter:card" content="summary" />
     <meta name="twitter:description" content="{% block tw-description %} The ultimate blog site ever. {% endblock %}" />
@@ -58,8 +58,8 @@
         <nav class="sticky top-0 z-50 bg-white border-gray-200 px-2 sm:px-4 py-2.5 rounded dark:bg-gray-600">
             <div class="container flex flex-wrap items-center justify-between mx-auto">
             <a href="{% url 'Blog:blog_index' %}" class="flex items-center">
-                <img src="https://flowbite.com/docs/images/logo.svg" class="h-6 mr-3 sm:h-9" alt="Flowbite Logo" />
-                <span class="self-center text-xl font-semibold whitespace-nowrap dark:text-white">Flowbite</span>
+                <img src="https://flowbite.com/docs/images/logo.svg" class="h-6 mr-3 sm:h-9" alt="DevSecBBS" />
+                <span class="self-center text-xl font-semibold whitespace-nowrap dark:text-white">DevSecBBS</span>
             </a>
             <div class="flex items-center md:order-2">
                 {% if request.resolver_match.url_name != 'blog_index' %}
@@ -98,10 +98,7 @@
                         <a href="{% url 'Blog:dashboard' %}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white">Dashboard</a>
                         </li>
                         <li>
-                        <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white">Settings</a>
-                        </li>
-                        <li>
-                        <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white">Earnings</a>
+                        <a href="{% url 'Blog:view_profile' %}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white">Profile</a>
                         </li>
                         <li>
                         <a href="{% url 'Blog:signout' %}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white">Sign out</a>
@@ -121,11 +118,8 @@
             <div class="items-center justify-between hidden w-full md:flex md:w-auto md:order-1" id="mobile-menu-2">
             <ul class="flex flex-col p-4 mt-4 border border-gray-100 rounded-lg bg-gray-50 md:flex-row md:space-x-8 md:mt-0 md:text-sm md:font-medium md:border-0 md:bg-white dark:bg-gray-800 md:dark:bg-gray-900 dark:border-gray-700">
                 <li>
-                <a href="#" class="block py-2 pl-3 pr-4 text-white bg-blue-700 rounded md:bg-transparent md:text-blue-700 md:p-0 dark:text-white" aria-current="page">Home</a>
-                </li>
-                <li>
-                <a href="#" class="block py-2 pl-3 pr-4 text-gray-700 rounded hover:bg-gray-100 md:hover:bg-transparent md:hover:text-blue-700 md:p-0 dark:text-gray-400 md:dark:hover:text-white dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent dark:border-gray-700">About</a>
-                </li>                
+                <a href="#" class="block py-2 pl-3 pr-4 text-white bg-blue-700 rounded md:bg-transparent md:text-blue-700 md:p-0 dark:text-white" aria-current="page">Projects</a>
+                </li>              
                 <!-- Category dropdown menu-->
                 {% if category %}
                 <li>
@@ -186,12 +180,6 @@
                 </li>
                 {% endif %}
                 <!-- End category dropdown menu-->
-                <li>
-                <a href="#" class="block py-2 pl-3 pr-4 text-gray-700 rounded hover:bg-gray-100 md:hover:bg-transparent md:hover:text-blue-700 md:p-0 dark:text-gray-400 md:dark:hover:text-white dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent dark:border-gray-700">Pricing</a>
-                </li>
-                <li>
-                <a href="#" class="block py-2 pl-3 pr-4 text-gray-700 rounded hover:bg-gray-100 md:hover:bg-transparent md:hover:text-blue-700 md:p-0 dark:text-gray-400 md:dark:hover:text-white dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent dark:border-gray-700">Contact</a>
-                </li>
             </ul>
             </div>
             </div>
@@ -203,20 +191,20 @@
         
         <!-- Footer start -->
         <footer class="p-4 bg-white rounded-lg mt-4 shadow md:flex md:items-center md:justify-between md:p-6 dark:bg-gray-800">
-            <span class="text-sm text-gray-500 sm:text-center dark:text-gray-400">© {% now 'Y' %} <a href="https://flowbite.com/" class="hover:underline">Flowbite™</a>. All Rights Reserved.
+            <span class="text-sm text-gray-500 sm:text-center dark:text-gray-400">© {% now 'Y' %} <a href="/" class="hover:underline">DevSecBBS™</a>. All Rights Reserved.
             </span>
             <ul class="flex flex-wrap items-center mt-3 text-sm text-gray-500 dark:text-gray-400 sm:mt-0">
                 <li>
-                    <a href="#" class="mr-4 hover:underline md:mr-6 ">About</a>
+                    <a href="{% url 'Blog:about_us' %}" class="mr-4 hover:underline md:mr-6 ">About</a>
                 </li>
                 <li>
-                    <a href="#" class="mr-4 hover:underline md:mr-6">Privacy Policy</a>
+                    <a href="{% url 'Blog:privacy' %}" class="mr-4 hover:underline md:mr-6">Privacy</a>
                 </li>
                 <li>
-                    <a href="#" class="mr-4 hover:underline md:mr-6">Licensing</a>
+                    <a href="{% url 'Blog:tos' %}" class="mr-4 hover:underline md:mr-6">T & C</a>
                 </li>
                 <li>
-                    <a href="#" class="hover:underline">Contact</a>
+                    <a href="{% url 'Blog:contact_us' %}" class="hover:underline">Contact</a>
                 </li>
             </ul>
         </footer>

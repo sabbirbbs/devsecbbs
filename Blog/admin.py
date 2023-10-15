@@ -54,6 +54,10 @@ class UploadedImagesAdmin(admin.ModelAdmin):
     list_display = ['user','image_url']
     search_fields = generate_search_fields(models.UploadedImages)
 
+class EmailSubscribeAdmin(admin.ModelAdmin):
+    list_display = ['email','note']
+    search_fields = generate_search_fields(models.EmailSubscribe)
+
 #configuring django admin
 
 admin.site.register(models.Post,PostAdmin)
@@ -66,6 +70,7 @@ admin.site.register(models.Series,SeriesAdmin)
 admin.site.register(models.BlogSetting,BlogSettingAdmin)
 admin.site.register(models.UserLoginLog,UserLoginLogAdmin)
 admin.site.register(models.UploadedImages,UploadedImagesAdmin)
+admin.site.register(models.EmailSubscribe,EmailSubscribeAdmin)
 
 
 #Set up custom user table

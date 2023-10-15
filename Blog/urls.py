@@ -18,6 +18,10 @@ urlpatterns = [
     path("signout",client.signout,name="signout"),
     path("verify/<str:token>",client.email_verify,name="email_verify"),
     path("reset/<str:token>",client.password_reset,name="password_reset"),
+    path("about-us",client.about_us,name="about_us"),
+    path("contact-us",client.contact_us,name="contact_us"),
+    path("tos",client.tos,name="tos"),
+    path("privacy",client.privacy,name="privacy"),
     
     #Dashboard
     path("dashboard",dashboard.dashboard,name="dashboard"),

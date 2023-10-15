@@ -3,7 +3,8 @@ module.exports = {
   darkMode: 'class',
   content: [
         "./base/templates/_Blog/**/*.html",
-        "./base/templates/_Blog/*.html",            
+        "./base/templates/_Blog/*.html",  
+        "./base/templates/**/*.html",            
         // Templates within theme app (e.g. base.html)
         './base/templates/_Blog/*.html',
         // Templates in other apps

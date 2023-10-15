@@ -62,7 +62,11 @@
                     </a>
                   </div>
                   <!-- Post title -->
-                  <h2 class="mb-2 text-2xl font-bold tracking-tight whitespace-wrap overflow-hidden text-gray-900 dark:text-white"><a href="{% if post.category %} {% url 'Blog:read_post' post.category.slug post.slug %} {% else %} {% url 'Blog:read_post' 'uncategorized' post.slug %} {% endif %}">{{post.title|striptags}}</a></h2>
+                  <h2 class="mb-2 text-2xl font-bold tracking-tight whitespace-wrap overflow-hidden text-gray-900 dark:text-white"><a href="{% if post.category %} {% url 'Blog:read_post' post.category.slug post.slug %} {% else %} {% url 'Blog:read_post' 'uncategorized' post.slug %} {% endif %}">{{post.title|striptags}}
+                    {% if post.status == 'Hot' %}
+                        <span class="bg-blue-100 ml-2 text-blue-800 text-xs font-medium mr-2 px-2.5 py-0.5 rounded dark:bg-gray-700 dark:text-blue-400 border border-blue-400">Hot Post</span>
+                    {% endif %}
+                  </a></h2>
                   <p class="mb-5 font-light text-gray-500 dark:text-gray-400">
                     {% if post.description %}
                       {{post.description|html_trunc:255}}

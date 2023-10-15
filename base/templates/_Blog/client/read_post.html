@@ -1,8 +1,17 @@
 {% extends "_Blog/client/home_layout.html" %}
 {% load static %}
 {% load blog_tags %}
-{% block title %} Home {% endblock %}
-{% block description %} This is DecSecBBS is the only blog the on the earth about technology {% endblock %}
+{% block title %} {{post.title}} {% endblock %}
+{% block description %} {{post.description}} {% endblock %}
+
+{% block og-title %} {{post.title}} {% endblock %}
+{% block og-description %} {{post.description}} {% endblock %}
+
+{% block tw-title %} {{post.title}} {% endblock %}
+{% block tw-description %} {{post.description}} {% endblock %}
+{% block keywords %} {{post.tags.all}} {% endblock %}
+{% block author %} {% if post.author %} {{ post.author.display_name }} {% endif %} {% endblock %}
+
 {% block style %}
     <!-- suneditor -->
     <link href="{% static '_Blog/style/sun_editor/suneditor.min.css' %}" rel="stylesheet">
@@ -142,7 +151,11 @@
                 
                 <!-- Post section -->
                 {% csrf_token %}
-                <h1 align="center" class="text-5xl font-extrabold dark:text-[#A1A1A1] my-4">{{post.title}}</h1>
+                <h1 align="center" class="text-5xl font-extrabold dark:text-[#A1A1A1] my-4">{{post.title}}
+                    {% if post.status == 'Hot' %}
+                        <span class="bg-blue-100 ml-2 text-blue-800 text-xs font-medium mr-2 px-2.5 py-0.5 rounded dark:bg-gray-700 dark:text-blue-400 border border-blue-400">Hot Post</span>
+                    {% endif %}
+                </h1>
                     <article id="post" style="font-family: Lexend, BenSen, Roboto;font-size:20px;" class="sun-editor-editable rounded-md opacity-60 dark:bg-gray-900 dark:text-[#A1A1A1]" data-post="{% url 'Blog:fetch_post' post.hash_id.hex %}">
                         <!--Post content came here-->
                         {{post.content|html_trunc:0}}

@@ -375,7 +375,6 @@ class UploadedImages(models.Model):
     image_url = models.CharField(blank=True,max_length=2000)
     note = models.TextField(blank=True,null=True)
 
-
     class Meta:
             verbose_name_plural = "Uploaded Images"
 
@@ -384,8 +383,13 @@ class UploadedImages(models.Model):
         return f"{photo_uploader}"
 
     
-     
-    
+class EmailSubscribe(models.Model):
+    hash_id = models.UUIDField(unique=True,default=uuid.uuid4,editable=False)
+    email = models.CharField(max_length=300)
+    note = models.TextField(blank=True,null=True)
+
+    def __str__(self):
+        return self.email
 
 
 
