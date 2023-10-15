@@ -4,6 +4,3 @@ from django.http import HttpResponse
 
 
 #view function
-def index(request):
-    #return HttpResponse("Hello, World!")
-    return render(request,"blog/index.html")

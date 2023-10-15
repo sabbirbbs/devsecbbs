@@ -132,6 +132,8 @@ def view_post(request,cat,slug):
         messages.success(request,"This post preview just for you nobody else can see that until this is published.")
     elif post.status in ['Published','Hot']:
         pass
+    elif user.rank == 'Admin' or user.is_superuser:
+        messages.success(request,'You are able to view the post because of your rank.')
     else:
         raise Http404('No post found.')
     
@@ -472,3 +474,6 @@ def tos(request):
 
 def privacy(request):
     return render(request,'_Blog/client/privacy.html')
+
+def projects(request):
+    return render(request,'_Blog/client/projects.html')

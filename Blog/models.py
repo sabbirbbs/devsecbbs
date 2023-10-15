@@ -171,7 +171,7 @@ class Post(models.Model):
     
 
     def __str__(self):
-        return f"{self.title}"
+        return f"{self.title} at {self.date}"
 
 class Comment(MPTTModel):
     hash_id = models.UUIDField(unique=True,default=uuid.uuid4,editable=False)

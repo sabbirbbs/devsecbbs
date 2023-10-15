@@ -86,7 +86,6 @@ def write_post(request):
         if request.user.rank == 'Contributor':
             if status == "Published":
                 status = 'Pending'
-                messages.success(request,"Your post has been successfully submitted & under review. You will get notified about status after review.")
             else:
                 pass
         try:
@@ -101,10 +100,9 @@ def write_post(request):
                 series = series
         except:
             series = None
-
-
-        if 5 > len(title) > 255 :
-            return HttpResponse(json.dumps({"status":"error","message":"Your post title should not be blank and more than 255 character."}))
+            
+        if 5 > len(title):
+            return HttpResponse(json.dumps({"status":"error","message":"Your post title should not be too short or more than 255 character."}))
         elif len(title) > 254:
             return HttpResponse(json.dumps({"status":"error","message":"Your post title is too long."}))
         elif cover_photo:
@@ -128,7 +126,7 @@ def write_post(request):
         new_post = Post.objects.create(title=title,description=description,series=series,cover_photo=cover_photo,content=content,category=category,author=author,status=status)
         new_post.tags.add(*tags)
         new_post.save()
-        messages.success(request,"Your post has been successfully added. Now you are in edit mode.")
+        
         edit_post_url = root_url(request) +str(reverse('Blog:edit_post', args = [new_post.hash_id] ))
         response = {"status":"success","message":"Post has been saved successfully",'destination':edit_post_url}
         # Resize and reduce the image size
@@ -171,8 +169,8 @@ def edit_post(request,hash_id):
         elif _post.status == 'Rejected':
             return HttpResponse(json.dumps({"status":"error","message":"While your post are rejected. Please improve that for being accepted."}))
 
-        title = request.POST.get('title','0')
-        description = request.POST.get('description','0')
+        title = request.POST.get('title','')
+        description = request.POST.get('description','')
         cover_photo = request.FILES.get('cover_photo',None)
         content = request.POST.get('content',None)
         status = request.POST.get('status',"Draft")
@@ -200,8 +198,9 @@ def edit_post(request,hash_id):
         except:
             series = None   
 
-        if 5 > len(title) > 255 :
-            return HttpResponse(json.dumps({"status":"error","message":"Your post title should not be blank and less than 255 character."}))
+        
+        if 5 > len(title) :
+            return HttpResponse(json.dumps({"status":"error","message":"Your post title should not be too short or more than 255 character."}))
         elif cover_photo:
             try:
                 Image.open(cover_photo)
@@ -229,10 +228,8 @@ def edit_post(request,hash_id):
         _post.status = status
         _post.last_modified = datetime.datetime.now()
         if cover_photo:
-            print("yes. got a cover photo")
             #remove old cover photo if exits
             try:
-                print('try to remove old cover photo')
                 old_cover_path = _post.cover_photo.path
                 os.remove(old_cover_path)
             except Exception as error:
@@ -356,7 +353,11 @@ def notification_link(request,hash_id):
         url_to_redirect = reverse('Blog:read_post',args=[post.category.slug,post.slug])
     elif notification.type == 'Follow':
         follower = notification.content_object
-        url_to_redirect = reverse('Blog:user_profile',args=[follower.author.username])
+        if notification.content_type.model == 'post':
+            url_to_redirect = reverse('Blog:read_post',args=[follower.category.slug,follower.slug])
+        else:
+            url_to_redirect = reverse('Blog:user_profile',args=[follower.username])
+
     elif notification.type == 'Update':
         if notification.content_type.name == 'post':
             post = notification.content_object

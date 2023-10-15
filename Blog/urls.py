@@ -22,6 +22,7 @@ urlpatterns = [
     path("contact-us",client.contact_us,name="contact_us"),
     path("tos",client.tos,name="tos"),
     path("privacy",client.privacy,name="privacy"),
+    path("projects",client.projects,name="projects"),
     
     #Dashboard
     path("dashboard",dashboard.dashboard,name="dashboard"),

@@ -1,0 +1,22 @@
+{% extends "_Blog/client/home_layout.html" %}
+{% load static %}
+{% load blog_tags %}
+{% block title %} Contact us {% endblock %}
+{% block description %} Contact us without hesitation. The form is here just for you. {% endblock %}
+
+{% block body %}
+
+<h1 class="text-4xl m-4 text-center"> All the projects </h1>
+<div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+    <a href="#" class="block max-w-sm p-6 bg-white border border-gray-200 rounded-lg shadow hover:bg-gray-100 dark:bg-gray-800 dark:border-gray-700 dark:hover:bg-gray-700">
+        <h5 class="mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">Neumorphism Inventory Management System</h5>
+        <p class="font-normal text-gray-700 dark:text-gray-400">Inventory management system with the design concept of neumorphism alogside invoice,data analysis,CRUD & much more.</p>
+    </a>
+    <a href="#" class="block max-w-sm p-6 bg-white border border-gray-200 rounded-lg shadow hover:bg-gray-100 dark:bg-gray-800 dark:border-gray-700 dark:hover:bg-gray-700">
+        <h5 class="mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">National ID Verification API</h5>
+        <p class="font-normal text-gray-700 dark:text-gray-400">With the help of a website crawling managed to extract NID name,father name,mother name & photo from a govt site.This is now a developer API.</p>
+    </a>
+</div>
+
+    
+{% endblock %}

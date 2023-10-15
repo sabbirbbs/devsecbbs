@@ -59,7 +59,7 @@
                 <th scope="row" class="flex items-center px-6 py-4">
                     <img class="w-10 h-10" src="{% if post.cover_photo %} {{ post.cover_photo.url }} {% else %} https://upload.wikimedia.org/wikipedia/commons/6/65/No-Image-Placeholder.svg {% endif %}" alt="Jese image">
                     <div class="pl-3">
-                        <div class="text-base font-semibold"><a href="{% url 'Blog:read_post' post.category.slug post.slug %}">{{post.title|slice:':250'}}</a></div>
+                        <div class="text-base font-semibold"><a href="{% url 'Blog:read_post' post.category.slug post.slug %}">{{post.pk}} - {{post.title|slice:':250'}}</a></div>
                     </div>  
                 </th>
                 <td class="px-6 py-4">
