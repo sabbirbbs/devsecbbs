@@ -398,7 +398,7 @@ def signup(request):
                 messages.success(request,f"Please check your email & verify the account to be finished. If you didn't received the email. Please login to the account to resend verification email.")
                 return render(request,"_Blog/client/signup.html")
             else:
-                message.error(request,"Something went wrong. Please contact admin.")
+                messages.error(request,"Something went wrong. Please contact admin.")
                 return render(request,"_Blog/client/signup.html")
 
         else:
