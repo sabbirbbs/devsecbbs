@@ -460,7 +460,7 @@ def contact_us(request):
         msg = request.POST.get('message',None)
         user = request.user if request.user.is_authenticated else None
         if subject and msg:
-            UserRequest(title='Client'+subject,user=user,content=msg,type='Other').save()
+            UserRequest(title='Client : '+subject,user=user,content=msg,type='Other').save()
             messages.success(request,"Your message has been sent to admin")
             return render(request,'_Blog/client/contact_us.html')
         else:
