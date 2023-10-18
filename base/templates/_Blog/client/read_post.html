@@ -9,7 +9,7 @@
 
 {% block tw-title %} {{post.title}} {% endblock %}
 {% block tw-description %} {{post.description}} {% endblock %}
-{% block keywords %} {{post.tags.all}} {% endblock %}
+{% block keywords %} {% for tag in post.tags.all %}{{tag}},{% endfor %} {% endblock %}
 {% block author %} {% if post.author %} {{ post.author.display_name }} {% endif %} {% endblock %}
 
 {% block style %}
