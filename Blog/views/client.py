@@ -273,28 +273,32 @@ def user_profile(request,username):
         author_user = AuthorUser.objects.get(username=username)
     except:
         raise Http404
-    if request.method == 'POST' and request.user != author_user:
-        follow = request.POST.get('follow',None)
-        mute = request.POST.get('mute',None)
-
-        if follow:
-            if request.user not in author_user.follower.all():
-                author_user.follower.add(request.user)
-                messages.success(request,"You are now following the user & will recieve notification about the user future post.")
-                return redirect(referel_url(request))
-            else:
-                author_user.follower.remove(request.user)
-                messages.success(request,"You are now unfollowing the user.")
-                return redirect(referel_url(request))
-        elif mute:
-            if author_user not in request.user.mute_list.all():
-                request.user.mute_list.add(author_user)
-                messages.success(request,"You will not longer recieve notification of any update from the user.")
-                return redirect(referel_url(request))
-            else:
-                request.user.mute_list.remove(author_user)
-                messages.success(request,"You will be again notified about new post from the user.")
-                return redirect(referel_url(request))
+    if request.method == 'POST':
+        if request.user.is_authenticated and request.user != author_user:
+            follow = request.POST.get('follow',None)
+            mute = request.POST.get('mute',None)
+    
+            if follow:
+                if request.user not in author_user.follower.all():
+                    author_user.follower.add(request.user)
+                    messages.success(request,"You are now following the user & will recieve notification about the user future post.")
+                    return redirect(referel_url(request))
+                else:
+                    author_user.follower.remove(request.user)
+                    messages.success(request,"You are now unfollowing the user.")
+                    return redirect(referel_url(request))
+            elif mute:
+                if author_user not in request.user.mute_list.all():
+                    request.user.mute_list.add(author_user)
+                    messages.success(request,"You will not longer recieve notification of any update from the user.")
+                    return redirect(referel_url(request))
+                else:
+                    request.user.mute_list.remove(author_user)
+                    messages.success(request,"You will be again notified about new post from the user.")
+                    return redirect(referel_url(request))
+        else:
+            messages.success(request,"Who you are?. You have to be logged in.")
+            return redirect(referel_url(request))
 
     else:
         page = request.GET.get('post-page',1)
