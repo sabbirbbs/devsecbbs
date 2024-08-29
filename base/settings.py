@@ -157,9 +157,9 @@ EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True 
-DEFAULT_FROM_EMAIL = "sabbir174bbs@gmail.com" 
-EMAIL_HOST_USER =  "sabbir174bbs@gmail.com"
-EMAIL_HOST_PASSWORD = "rrtsrueiivxgefox"
+DEFAULT_FROM_EMAIL = "yourmail@gmail.com" 
+EMAIL_HOST_USER =  "sender@gmail.com"
+EMAIL_HOST_PASSWORD = "fsfher587459475nsdfj"
 
 # Set the password reset token expiration time to 2 minutes (120 seconds)
 PASSWORD_RESET_TIMEOUT = 600
